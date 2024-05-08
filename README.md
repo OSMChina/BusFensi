@@ -10,4 +10,4 @@ An Easy-to-Use OpenStreetMap Public Transport Route Editor Based on Front-End Te
 
 ## 可供参考的项目
 
-* https://www.openstreetmap.org/user/NorthCrab/diary/401755 （GitHub： https://github.com/Zaczero/osm-relatify）
+* [NorthCrab's Diary](https://www.openstreetmap.org/user/NorthCrab/diary/401755) ([GitHub](https://github.com/Zaczero/osm-relatify)）
