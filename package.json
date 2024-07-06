@@ -1,0 +1,18 @@
+{
+  "name": "bus-fensi",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.3.1"
+  },
+  "dependencies": {
+    "pixi.js": "^8.2.1",
+    "proj4": "^2.11.0"
+  }
+}
