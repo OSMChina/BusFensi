@@ -10,10 +10,8 @@ export async function createMapComponent(config) {
     const map = document.createElement('div');
     map.classList = ['mapbox'];
 
-    const app = await createMapPIXIApplication(config);
+    await createMapPIXIApplication(config, map);
 
-    map.appendChild(app.canvas);
     return map;
 }
 
-export { createMapComponent };
