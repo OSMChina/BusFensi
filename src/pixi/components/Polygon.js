@@ -10,7 +10,6 @@ export class Polygon extends AbstractComponent {
      */
     constructor(layer, id, zoom) {
         super(layer, id)
-        this.source = source
         this.zoom = zoom
     }
 }
