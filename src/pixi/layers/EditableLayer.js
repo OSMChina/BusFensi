@@ -1,4 +1,8 @@
+import { Point } from "../components/Point";
 import { AbstractLayer } from "./AbstructLayer";
+import { circleTexture, locationPinTexture } from "../textures";
+import { Container } from "pixi.js";
+import { Line } from "../components/Line";
 
 export class EditableLayer extends AbstractLayer {
     /**
@@ -8,5 +12,59 @@ export class EditableLayer extends AbstractLayer {
      */
     constructor(scene) {
         super(scene)
+        /** @type {Container} */
+        this.container = new Container();
+        this.scene.stage.addChild(this.container);
     }
-}
+    render() {
+        this.testrender()
+    }
+    testrender() {
+        const ZOOM = 16;
+        const point1 = {
+            lon: 148.4105574,
+            lat: 12.4899798
+        }
+        const point2 = {
+            lon: 148.4100123,
+            lat: 12.5018624
+        }
+        const point3 = {
+            lon: 148.4104673,
+            lat: 12.4957513
+        };
+        const viewpoint = {
+            lon: 148.4105574,
+            lat: 12.4899798
+        }
+
+        // test the line
+        const line = new Line(this, 'line1', [point1, point2, point3]);
+        line.update(viewpoint, ZOOM);
+        /** @type {import('../components/types').PointComponentStyle} */
+        const style = {
+            type: 'pin',
+            display: 'pin',
+            marker: {
+                circle: circleTexture,
+                pin: locationPinTexture
+            },
+            size: 8,
+            color: 0xffffff
+        };
+
+        console.log(circleTexture, locationPinTexture, 'and size of app', this.scene.stage.width, this.scene.stage.height, 'size of window', window.innerWidth, window.innerHeight)
+        /** @type {Array<Point>} */
+        const renderedPoints = [
+            new Point(this, 'p1', point1, style),
+            new Point(this, 'p2', point2, style),
+            new Point(this, 'p3', point3, style),
+            new Point(this, 'view', viewpoint, style)
+        ];
+        renderedPoints.forEach(point => {
+            point.update(viewpoint, ZOOM);
+        })
+
+
+    }
+}  
