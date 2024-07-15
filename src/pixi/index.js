@@ -1,5 +1,6 @@
 import { Application } from 'pixi.js';
 import { EditableLayer } from './layers/EditableLayer';
+import { BackgroundLayer } from './layers/BackgroundLayer';
 
 /**
  * create map application, initing, setting up layers, then logics, finnaly return it.
@@ -19,6 +20,9 @@ async function createMapPIXIApplication(config, map) {
     await new Promise(resolve => setTimeout(resolve, 100)); // A small delay to ensure resizing
     console.log('on init', app.canvas.width, app.canvas.height, window.innerWidth, window.innerHeight )
     // init container and layers
+    const backgroundLayer = new BackgroundLayer(app);
+    backgroundLayer.render();
+
     const editableLayer = new EditableLayer(app);
     editableLayer.render();
     // setting logics and handlers
