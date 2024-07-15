@@ -33,7 +33,7 @@ function convertWebMercatorToAbsolutePixel(point, zoom) {
     // pix = meter / a(m/p) 
     const x = point.x / meterPerPix,
         y = point.y / meterPerPix
-    console.log("on convert", point, zoom, ' totpix', totPix, ' meterperpix', meterPerPix, 'xy',x,y);
+    //console.log("on convert", point, zoom, ' totpix', totPix, ' meterperpix', meterPerPix, 'xy',x,y);
     return { x: x, y: y };
 }
 
@@ -44,7 +44,7 @@ function convertWebMercatorToAbsolutePixel(point, zoom) {
  * @returns {import('./types').PointPixel}
  */
 function convertWGS84ToAbsolutePixel(point, zoom) {
-    console.log('conver wgs84 to abs pix', point, convertWebMercatorToAbsolutePixel(convertWGS84ToWebMercator(point), zoom), convertWGS84ToWebMercator(point))
+    //console.log('conver wgs84 to abs pix', point, convertWebMercatorToAbsolutePixel(convertWGS84ToWebMercator(point), zoom), convertWGS84ToWebMercator(point))
     return convertWebMercatorToAbsolutePixel(convertWGS84ToWebMercator(point), zoom);
 }
 
@@ -62,7 +62,7 @@ function adjustAbsolutePixelToLocal(pixpoint, reference, zoom, width, height) {
     const pixViewpoint = convertWebMercatorToAbsolutePixel(convertWGS84ToWebMercator(reference), zoom);
     // viewpoint is in mid of container.
     const xoffset = width ? width / 2 : 0, yoffset = height ? height / 2 : 0;
-    console.log('on adjusting', pixpoint, pixViewpoint, xoffset, yoffset)
+    //console.log('on adjusting', pixpoint, pixViewpoint, xoffset, yoffset)
     return {
         x: pixpoint.x + xoffset - pixViewpoint.x,
         y: pixpoint.y + yoffset - pixViewpoint.y
