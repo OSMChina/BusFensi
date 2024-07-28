@@ -1,6 +1,7 @@
 import { Application } from 'pixi.js';
 import { EditableLayer } from './layers/EditableLayer';
 import { BackgroundLayer } from './layers/BackgroundLayer';
+import { stateMachine } from '../logic/states/stateMachine';
 
 /**
  * create map application, initing, setting up layers, then logics, finnaly return it.
@@ -26,7 +27,10 @@ async function createMapPIXIApplication(config, map) {
     const editableLayer = new EditableLayer(app);
     editableLayer.render();
     // setting logics and handlers
-
+    stateMachine.init({backgroundLayer, editableLayer}, app)
+    app.stage.on('pointerdown', e => stateMachine.hookPIXIScene(e));
+    app.stage.on('pointerup', e => stateMachine.hookPIXIScene(e));
+    app.stage.on('pointerupoutside', e => stateMachine.hookPIXIScene(e));
     // finish, return
     return app;
 }

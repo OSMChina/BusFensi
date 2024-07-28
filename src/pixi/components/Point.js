@@ -2,6 +2,7 @@ import { AbstractComponent } from "./AbstructComponent";
 import { Sprite } from "pixi.js";
 import { GlowFilter } from "pixi-filters";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
+import { stateMachine } from "../../logic/states/stateMachine";
 
 export class Point extends AbstractComponent {
     /**
@@ -21,7 +22,7 @@ export class Point extends AbstractComponent {
 
         // Create the marker sprite with the given texture
         this.marker = new Sprite(style.marker[style.display]);
-        console.log(`${this.id}`,this.marker)
+        // console.log(`${this.id}`,this.marker)
         this.marker.eventMode = 'none';
         this.marker.sortableChildren = false;
         this.marker.visible = true;
@@ -35,7 +36,10 @@ export class Point extends AbstractComponent {
 
         layer.container.addChild(this.container)
 
-        this.selected=true
+        // pointer up and pointer move is listened on stage
+        this.container.on('pointerdown', (evnet) => {
+            stateMachine.hookPIXIComponent(evnet, this)
+        })     
     }
     /**
      * Update the component
@@ -142,7 +146,7 @@ export class Point extends AbstractComponent {
      */
     updateHitbox() {
         if (!this.visible) return;
-        // to be implimented
+        // to be implimented, now just default
     }
 
     /** @returns {import('./types').PointComponentStyle} */
