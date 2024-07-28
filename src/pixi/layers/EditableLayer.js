@@ -19,6 +19,9 @@ export class EditableLayer extends AbstractLayer {
     render() {
         this.testrender()
     }
+    /**
+     * This is just a test function and will be removed in future
+     */
     testrender() {
         const ZOOM = 16;
         const point1 = {
@@ -39,7 +42,7 @@ export class EditableLayer extends AbstractLayer {
         }
 
         // test the line
-        const line = new Line(this, 'line1', [point1, point2, point3]);
+        const line = new Line(this, 'line1', [point1, point3, point2]);
         line.update(viewpoint, ZOOM);
         /** @type {import('../components/types').PointComponentStyle} */
         const style = {
@@ -65,6 +68,6 @@ export class EditableLayer extends AbstractLayer {
             point.update(viewpoint, ZOOM);
         })
 
-
+        
     }
 }  

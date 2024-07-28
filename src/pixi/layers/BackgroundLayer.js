@@ -3,6 +3,7 @@ import { Container } from "pixi.js";
 import { DEFAULT_TILE_SIZE } from "../../utils/geo/constants";
 import { convertWGS84ToAbsolutePixel } from "../../utils/geo/mapProjection";
 import { BackgroundTile } from '../components/BackgroundTile'
+const TILE_SOURCE = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 export class BackgroundLayer extends AbstractLayer {
     /**
@@ -12,6 +13,8 @@ export class BackgroundLayer extends AbstractLayer {
      */
     constructor(scene) {
         super(scene)
+        /** @type {String} */
+        this.source = TILE_SOURCE;
         /** @type {Container} */
         this.container = new Container();
         this.scene.stage.addChild(this.container);
@@ -20,6 +23,9 @@ export class BackgroundLayer extends AbstractLayer {
     render() {
         this.testrender()
     }
+    /**
+     * This is just a test function and will be removed in future
+     */
     testrender() {
         console.log("rendering Background")
         const ZOOM = 16;
@@ -45,7 +51,7 @@ export class BackgroundLayer extends AbstractLayer {
 
         console.log("xyabs", xabs, yabs, "Tiles", xTileMin, xTileMax, yTileMin, yTileMax)
         /** @type {Array<Array<BackgroundTile>>} */
-        let tiles =[];
+        let tiles = []; 
         for (let x = xTileMin; x <= xTileMax; x++) {
             tiles.push([])
             for (let y = yTileMin; y <= yTileMax; y++) {

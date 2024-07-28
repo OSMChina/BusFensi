@@ -18,10 +18,6 @@ export class Line extends AbstractComponent {
 
         /** @type {Graphics} */
         this.graphics = new Graphics();
-        // this.graphics.moveTo(0, 0)
-        // this.graphics.lineTo(100, 200);
-        // this.graphics.lineTo(200, 200);
-        // this.graphics.stroke({ width: 2, color: 0xffffff });
 
         this.graphics.eventMsegmente = 'none';
         this.graphics.sortableChildren = false;
@@ -45,8 +41,12 @@ export class Line extends AbstractComponent {
      * @param {Number} zoom 
      */
     update(viewpoint, zoom) {
+        this.pixPath = this.path
+            .map(point => {
+                return getPixelByWGS84Locate(point, this._basePoint, zoom);
+            })
         this.updatePosition(viewpoint, zoom);
-        this.updateStyle(zoom);
+        this.updateStyle();
         this.updateHalo();
     }
     /**
@@ -67,11 +67,8 @@ export class Line extends AbstractComponent {
      * 
      * @param {Number} zoom 
      */
-    updateStyle(zoom) {
-        const pixPath = this.path
-            .map(point => {
-                return getPixelByWGS84Locate(point, this._basePoint, zoom);
-            })
+    updateStyle() {
+        const pixPath = this.pixPath;
         //this.graphics.clear();
         console.log(`on draw ${this.id}`, pixPath)
         // paint stroke
@@ -116,5 +113,8 @@ export class Line extends AbstractComponent {
                 super.container.filters = null;
             }
         }
+    }
+    updateHitBox() {
+
     }
 }
