@@ -14,7 +14,11 @@ import { DEFAULT_TILE_SIZE, WEB_MERCATOR_BOUNDS } from './constants';
  * @returns {import('./types').PointWGS84}
  */
 function convertWebMercatorToWGS84(point) {
-    return proj4('EPSG:4326', 'EPSG:3857', [point.x, point.y]);
+    const [lon, lat] = proj4('EPSG:3857', 'EPSG:4326', [point.x, point.y]);
+    return {
+        lon: lon,
+        lat: lat
+    }
 }
 
 /**
@@ -24,10 +28,10 @@ function convertWebMercatorToWGS84(point) {
  * @returns {import('./types').PointWebMercator}
  */
 function convertWGS84ToWebMercator(point) {
-    const tmp = proj4('EPSG:4326', 'EPSG:3857', [point.lon, point.lat])
+    const [x, y] = proj4('EPSG:4326', 'EPSG:3857', [point.lon, point.lat])
     return {
-        x: tmp[0],
-        y: tmp[1]
+        x: x,
+        y: y
     }
 }
 
@@ -42,8 +46,8 @@ function convertWebMercatorToAbsolutePixel(point, zoom) {
     // totMeter / totPix = meterPerPix m/p
     const meterPerPix = WEB_MERCATOR_BOUNDS.EQUATOR / totPix;
     // pix = meter / a(m/p) 
-    const x = point.x / meterPerPix,
-        y = point.y / meterPerPix
+    const x = (point.x - WEB_MERCATOR_BOUNDS.XMIN) / meterPerPix,
+        y = (WEB_MERCATOR_BOUNDS.XMAX - point.y) / meterPerPix
     //console.log("on convert", point, zoom, ' totpix', totPix, ' meterperpix', meterPerPix, 'xy',x,y);
     return { x: x, y: y };
 }
@@ -110,8 +114,8 @@ function getWGS84LocateByPixel(pixpoint, reference, zoom, width, height) {
     const xmdiff = (pixpoint.x - xmid) * meterPerPix,
         ymdiff = (pixpoint.y - ymid) * meterPerPix;
     const wm = {
-        x: wmr.x + xmdiff,
-        y: wmr.y + ymdiff
+        x: wmr.x + xmdiff, // 往西- 往东+
+        y: wmr.y - ymdiff  // 往北+ 往南-
     }
     return convertWebMercatorToWGS84(wm);
 }
@@ -130,8 +134,10 @@ function getWGS84LocateByPixel(pixpoint, reference, zoom, width, height) {
  * }}
  */
 function getBoundsByScene(viewpoint, zoom, width, height) {
-    const {lon1, lat1} = getWGS84LocateByPixel({x:0, y:0}, viewpoint, zoom, width, height);
-    const {lon2, lat2} = getWGS84LocateByPixel({x:width, y:height}, viewpoint, zoom, width, height);
+    const { lon: lon1, lat: lat1 } = getWGS84LocateByPixel({ x: 0, y: 0 }, viewpoint, zoom, width, height);
+    const { lon: lon2, lat: lat2 } = getWGS84LocateByPixel({ x: width, y: height }, viewpoint, zoom, width, height);
+
+    //(`上北+ ${lat1} 下南- ${lat2} 相差 ${lat1-lat2} 左西- ${lon1} 右东+ ${lon2} 相差 ${lon1 - lon2}`)
     return {
         left: lon1,
         bottom: lat2,
