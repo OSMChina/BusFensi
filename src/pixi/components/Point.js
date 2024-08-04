@@ -1,25 +1,29 @@
 import { AbstractComponent } from "./AbstructComponent";
-import { Sprite } from "pixi.js";
+import { Circle, Sprite } from "pixi.js";
 import { GlowFilter } from "pixi-filters";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
 import { stateMachine } from "../../logic/states/stateMachine";
+import { settings } from "../../logic/settings/settings";
 
 export class Point extends AbstractComponent {
     /**
      * 渲染一个 Point，包括 circle 和 pin
      * 
      * @param {import("../layers/AbstractLayer").AbstractLayer} layer - pixi scene object
-     * @param {String} id 
-     * @param {import('../../utils/geo/types').PointWGS84} locate 
      * @param {import("./types").PointComponentStyle} style - The texture to be used for the point marker
+     * @param {import('../../api/osm/type').Node} meta 
      */
-    constructor(layer, id, locate, style) {
-        super(layer, id);
-        this.zoom = layer.zoom;
-        this._locate = locate;
+    constructor(layer, style, meta) {
+        super(layer, meta["@_id"]);
+        this.type = "point"
+        /** @type {import("../../api/osm/type").Node} */
+        this.meta = meta
+        /** @type {import('../../utils/geo/types').PointWGS84} */
+        this._locate = { lon: meta["@_lon"], lat: meta["@_lat"] };
         /** @type {import("./types").PointComponentStyle} */
         this._style = style;
 
+        this.zoom = layer.zoom;
         // Create the marker sprite with the given texture
         this.marker = new Sprite(style.marker[style.display]);
         // console.log(`${this.id}`,this.marker)
@@ -34,12 +38,27 @@ export class Point extends AbstractComponent {
             this.container.addChild(this.icon);
         }
 
+        this.container.zIndex = settings.pixiRender.zIndex.POINT
         layer.container.addChild(this.container)
 
+        this.container.on('pointerenter', (event) => {
+            stateMachine.hookPIXIComponent(event, this)
+        })
+        this.container.on('pointerover', (event) => {
+            stateMachine.hookPIXIComponent(event, this)
+        })
+        this.container.on('pointerleave', (event) => {
+            stateMachine.hookPIXIComponent(event, this)
+        })
+        this.container.on('pointerout', (event) => {
+            stateMachine.hookPIXIComponent(event, this)
+        })
         // pointer up and pointer move is listened on stage
         this.container.on('pointerdown', (evnet) => {
             stateMachine.hookPIXIComponent(evnet, this)
-        })     
+        })
+
+        this.container.eventMode = 'static'
     }
     /**
      * Update the component
@@ -48,10 +67,11 @@ export class Point extends AbstractComponent {
      * @param {Number} zoom 
      */
     update(viewpoint, zoom) {
-        console.log(`updating ${this.id}`)
+        //console.log(`updating ${this.id}`, this._locate, 'Viewpoint', viewpoint, this.meta)
         this.updatePosition(viewpoint, zoom);
         this.updateStyle(zoom);
         this.updateHalo();
+        this.updateHitbox()
     }
 
     /**
@@ -62,7 +82,7 @@ export class Point extends AbstractComponent {
      */
     updatePosition(viewpoint, zoom) {
         const { x, y } = getPixelByWGS84Locate(this._locate, viewpoint, zoom, this.scene.canvas.width, this.scene.canvas.height);
-        console.log(`Position of ${this.id}`, x, y, ` of viewpoint`, viewpoint, ' zoom ', zoom, ' diff of latlon', this._locate.lat - viewpoint.lat, this._locate.lon - viewpoint.lon, 'canvas', this.scene.canvas.width, this.scene.canvas.height)
+        //console.log(`Position of ${this.id}`, x, y, ` of viewpoint`, viewpoint, ' zoom ', zoom, ' diff of latlon', this._locate.lat - viewpoint.lat, this._locate.lon - viewpoint.lon, 'canvas', this.scene.canvas.width, this.scene.canvas.height)
         this.container.position.set(x, y);
     }
 
@@ -136,7 +156,7 @@ export class Point extends AbstractComponent {
             }
         } else {
             if (this.container.filters) {
-                super.container.filters = null;
+                this.container.filters = null;
             }
         }
     }
@@ -146,8 +166,38 @@ export class Point extends AbstractComponent {
      */
     updateHitbox() {
         if (!this.visible) return;
-        // to be implimented, now just default
+
+        if (this._drawing) {
+            this.container.hitArea = null;
+            return;
+        }
+
+        const MINSIZE = 20;
+        const rect = this.marker.getLocalBounds().clone();
+
+        if (this._style.display === 'circle') {
+            let radius = rect.width / 2;
+            if (radius < MINSIZE / 2) {
+                radius = MINSIZE / 2;
+            }
+            radius = radius + 2;  // then pad a bit more
+
+            const circle = new Circle(0, 0, radius);
+            this.container.hitArea = circle;
+
+        } else {
+            if (rect.width < MINSIZE) {
+                rect.pad((MINSIZE - rect.width) / 2, 0);
+            }
+            if (rect.height < MINSIZE) {
+                rect.pad(0, (MINSIZE - rect.height) / 2);
+            }
+            rect.pad(4); // then pad a bit more
+
+            this.container.hitArea = rect;
+        }
     }
+
 
     /** @returns {import('./types').PointComponentStyle} */
     get style() {
@@ -157,5 +207,15 @@ export class Point extends AbstractComponent {
     set style(obj) {
         this._style = obj;
         this.updateStyle();
+    }
+    /** @returns {import("../../utils/geo/types").PointWGS84} */
+    get locate() {
+        return this._locate;
+    }
+    /** @param {import("../../utils/geo/types").PointWGS84} locate  */
+    set locate(locate) {
+        this._locate = locate
+        console.log('locate set', locate, this.locate)
+
     }
 }

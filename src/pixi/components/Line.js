@@ -2,6 +2,8 @@ import { AbstractComponent } from "./AbstructComponent";
 import { Graphics } from "pixi.js";
 import { GlowFilter } from "pixi-filters";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
+import { settings } from "../../logic/settings/settings";
+import { deepCopy } from "../../utils/helper/object";
 
 export class Line extends AbstractComponent {
     /**
@@ -9,11 +11,12 @@ export class Line extends AbstractComponent {
      * 还可以提供线段(segment)的抽象来方便一些逻辑
      * 
      * @param {import("../layers/AbstructLayer").AbstractLayer} layer - pixi scene object
-     * @param {String} id 
-     * @param {Array<import("../../utils/geo/types").PointWGS84>} path 
+     * @param {import("../../api/osm/type").Way} meta 
+     * @param {Array<import("./Point").Point>} path 
      */
-    constructor(layer, id, path) {
-        super(layer, id)
+    constructor(layer, meta, path) {
+        super(layer, meta["@_id"])
+        this.type = "line"
         this.zoom = layer.zoom;
 
         /** @type {Graphics} */
@@ -22,17 +25,21 @@ export class Line extends AbstractComponent {
         this.graphics.eventMsegmente = 'none';
         this.graphics.sortableChildren = false;
         this.container.addChild(this.graphics);
-
-        /** @type {Array<import("../../utils/geo/types").PointWGS84>} */
+        
+        /** @type {Array<import("./Point").Point>} */
         this.path = path;
 
+        this.container.zIndex = settings.pixiRender.zIndex.LINE;
         layer.container.addChild(this.container);
 
     }
 
     /** @returns {{import("../../utils/geo/types").PointWGS84}} */
     get _basePoint() {
-        return this.path[0];
+        if (this.__basepoint === undefined) {
+            this.__basepoint = deepCopy(this.path[0].locate);
+        }
+        return this.__basepoint;
     }
 
     /**
@@ -43,7 +50,8 @@ export class Line extends AbstractComponent {
     update(viewpoint, zoom) {
         this.pixPath = this.path
             .map(point => {
-                return getPixelByWGS84Locate(point, this._basePoint, zoom);
+                const location = point.locate
+                return getPixelByWGS84Locate(location, this._basePoint, zoom);
             })
         this.updatePosition(viewpoint, zoom);
         this.updateStyle();
@@ -59,7 +67,7 @@ export class Line extends AbstractComponent {
     updatePosition(viewpoint, zoom) {
         const { x, y } = getPixelByWGS84Locate(this._basePoint, viewpoint, zoom, this.scene.canvas.width, this.scene.canvas.height);
         this.container.position.set(x, y);
-        console.log('base position of ', this.id, x, y)
+        //console.log('base position of ', this.id, x, y)
     }
 
     /**
@@ -69,8 +77,8 @@ export class Line extends AbstractComponent {
      */
     updateStyle() {
         const pixPath = this.pixPath;
-        //this.graphics.clear();
-        console.log(`on draw ${this.id}`, pixPath)
+        this.graphics.clear();
+        //console.log(`on draw ${this.id}`, pixPath)
         // paint stroke
         this.graphics.moveTo(0, 0);
         pixPath.forEach(pixpoint => {
@@ -81,6 +89,8 @@ export class Line extends AbstractComponent {
         this.graphics.moveTo(0, 0);
         pixPath.forEach(pixpoint => this.graphics.lineTo(pixpoint.x, pixpoint.y));
         this.graphics.stroke({ width: 5, color: 0xff3300 });
+
+
     }
 
     updateHalo() {
