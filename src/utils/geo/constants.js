@@ -6,8 +6,8 @@ import { convertWGS84ToWebMercator } from "./mapProjection"
  * @type {import('./types').PointWGS84}
  */
 export const DEFAULT_VIEWPOINT_WGS84 = {
-    lon: 37.7547,
-    lat: -122.4431,
+    lon: -122.431297,
+    lat: 37.773972,
 }
 
 /**
@@ -17,7 +17,7 @@ export const DEFAULT_VIEWPOINT_WGS84 = {
  */
 export const DEFAULT_VIEWPOINT_WEB_MERCATOR = convertWGS84ToWebMercator(DEFAULT_VIEWPOINT_WGS84);
 export const DEFAULT_TILE_SIZE = 256;
-export const DEFAULT_ZOOM = 12;
+export const DEFAULT_ZOOM = 17;
 export const WEB_MERCATOR_BOUNDS = {
     XMIN: -20037508.34,
     YMIN: -20048966.1,
