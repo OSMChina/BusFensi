@@ -1,4 +1,4 @@
-import { DEFAULT_ZOOM } from "../../utils/geo/constants";
+import { DEFAULT_VIEWPOINT_WGS84, DEFAULT_ZOOM } from "../../utils/geo/constants";
 export class AbstractLayer {
     /**
      * 一个 layer 应该管理一个图层（基本上是PIXI.Container）的状态，而且应该是渲染状态。
@@ -18,6 +18,28 @@ export class AbstractLayer {
         this.id = id;
         /** @type {Number} */
         this.zoom = DEFAULT_ZOOM;
+        /** @type {import('../../utils/geo/types').PointWGS84} */
+        this.viewpoint = DEFAULT_VIEWPOINT_WGS84
+    }
+
+    /**
+     * 
+     * @param {import('../../utils/geo/types').PointWGS84} viewpoint
+     * @abstract
+     */
+    // eslint-disable-next-line no-unused-vars
+    updateViewpoint(viewpoint) {
+        throw new Error("calling abstract function")
+    }
+
+    /**
+     * 
+     * @param {Number} zoom
+     * @abstract
+     */
+    // eslint-disable-next-line no-unused-vars
+    updateZoom(zoom) {
+        throw new Error("calling abstract function")
     }
 
     /**
@@ -25,8 +47,8 @@ export class AbstractLayer {
      * 
      * @abstract
      */
-    render() {
-
+    update() {
+        throw new Error("calling abstract function")
     }
 
     /**
@@ -35,6 +57,6 @@ export class AbstractLayer {
      * @abstract
      */
     reset() {
-
+        throw new Error("calling abstract function")
     }
 }
