@@ -107,3 +107,26 @@ export function deepReverseDiff(original, diff) {
     findReverseDiff(original, diff, reverseDiff);
     return reverseDiff;
 }
+
+export function convertNumberBoolValues(obj) {
+    // Iterate through each key in the object
+    for (let key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            let value = obj[key];
+
+            // Check if the value is an object, and recursively call convertValues
+            if (typeof value === 'object' && value !== null) {
+                convertNumberBoolValues(value);
+            } else if (typeof value === 'string') {
+                // Try to convert string to number
+                if (!isNaN(value)) {
+                    obj[key] = Number(value);
+                } else if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
+                    // Convert string to boolean
+                    obj[key] = value.toLowerCase() === 'true';
+                }
+            }
+        }
+    }
+    return obj;
+}
