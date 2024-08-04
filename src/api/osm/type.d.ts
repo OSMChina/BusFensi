@@ -1,6 +1,6 @@
 interface Tag {
-    k: string
-    v: string
+    "@_k": string
+    "@_v": string
 }
 
 interface Node {

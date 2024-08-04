@@ -3,6 +3,7 @@
 // eslint-disable-next-line no-unused-vars
 import { XMLParser, XMLBuilder, XMLValidator } from 'fast-xml-parser';
 
+import { convertNumberBoolValues } from '../../utils/helper/object';
 async function baseget(baseurl, path) {
     const url = `${baseurl}${path}`
     const response = await fetch(url);
@@ -10,9 +11,14 @@ async function baseget(baseurl, path) {
         throw new Error(`Error on fetching ${url}: ${response.statusText}`);
     }
     const data = await response.text()
-    const parser = new XMLParser();
-    const json = parser.parse(data, true);
-    return json
+    const parser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: "@_",
+        allowBooleanAttributes: true,
+    });
+    const json = parser.parse(data);
+    console.log(`Get ${url}`, JSON.stringify(json), json)
+    return convertNumberBoolValues(json)
 }
 
 /**
