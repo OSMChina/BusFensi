@@ -6,14 +6,17 @@ export class AbstractComponent {
      * 定位类似 DOM Element， 提供的 API 也可以参考
      * 
      * @param {import("../layers/AbstructLayer").AbstractLayer} layer - pixi scene object
-     * @param {String} id 
+     * @param {Number} id 
      */
     constructor(layer, id) {
+        /** @type {String} */
+        this.type = "abstract"
+
         /** @type {import("../layers/AbstructLayer").AbstractLayer} */
         this.layer = layer;
         /** @type {import("pixi.js").Application} */
         this.scene = layer.scene;
-        /** @type {String} */
+        /** @type {Number}  -1 means not a osm feature so dont have id */
         this.id = id;
 
         /** @type {Container} */
@@ -98,12 +101,21 @@ export class AbstractComponent {
     }
 
     /**
-     * updateHalo
-     * Every Feature should have an `updateHalo()` function that redraws any hover or select styling.
+     * update
+     * Every Feature should have an `update()` function that redraws components.
      * Override in a subclass with needed logic.
+     * @param {import('../../utils/geo/types').PointWGS84} viewpoint 
+     * @param {Number} zoom 
      * @abstract
      */
-    updateHalo() {
+    // eslint-disable-next-line no-unused-vars
+    update(viewpoint, zoom) {
+        throw new Error("calling abstract function")
     }
-
+    /**
+     * destroy the whole ccomponent
+     */
+    destroy() {
+        this.container.destroy()
+    }
 }
