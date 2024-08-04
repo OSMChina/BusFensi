@@ -22,15 +22,19 @@ async function createMapPIXIApplication(config, map) {
     console.log('on init', app.canvas.width, app.canvas.height, window.innerWidth, window.innerHeight )
     // init container and layers
     const backgroundLayer = new BackgroundLayer(app);
-    backgroundLayer.render();
-
+    backgroundLayer.update();
+    
     const editableLayer = new EditableLayer(app);
-    editableLayer.render();
+    editableLayer.update();
     // setting logics and handlers
     stateMachine.init({backgroundLayer, editableLayer}, app)
+    app.stage.eventMode = 'static';
+    app.stage.hitArea = app.screen;
     app.stage.on('pointerdown', e => stateMachine.hookPIXIScene(e));
+    app.stage.on('pointermove', e => stateMachine.hookPIXIScene(e))
     app.stage.on('pointerup', e => stateMachine.hookPIXIScene(e));
     app.stage.on('pointerupoutside', e => stateMachine.hookPIXIScene(e));
+    app.stage.on('wheel', e => stateMachine.hookPIXIScene(e));
     // finish, return
     return app;
 }
