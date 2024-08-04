@@ -3,6 +3,7 @@ import { Container } from "pixi.js";
 import { DEFAULT_TILE_SIZE } from "../../utils/geo/constants";
 import { convertWGS84ToAbsolutePixel } from "../../utils/geo/mapProjection";
 import { BackgroundTile } from '../components/BackgroundTile'
+import { settings } from "../../logic/settings/settings";
 const TILE_SOURCE = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 export class BackgroundLayer extends AbstractLayer {
@@ -18,24 +19,33 @@ export class BackgroundLayer extends AbstractLayer {
         /** @type {Container} */
         this.container = new Container();
         this.scene.stage.addChild(this.container);
+        /** @type {Array<Array<Array<BackgroundTile>>>} */
+        this.tiles = [];
     }
 
-    render() {
-        this.testrender()
-    }
     /**
-     * This is just a test function and will be removed in future
+     * 
+     * 在更新当前位置的时候，应当先进行移动，再去申请新的
+     * 
+     * @param {import('../../utils/geo/types').PointWGS84} viewpoint 
      */
-    testrender() {
-        console.log("rendering Background")
-        const ZOOM = 16;
-        const viewpoint = {
-            lon: 148.4105574,
-            lat: 12.4899798
-        }
+    updateViewpoint(viewpoint) {
+        this.viewpoint = viewpoint
+        this.update()
+    }
 
-        // now, decide tiles!
-        const { x: xabs, y: yabs } = convertWGS84ToAbsolutePixel(viewpoint, ZOOM);
+    /**
+     * 
+     * @param {Number} zoom 
+     */
+    updateZoom(zoom) {
+        this.zoom = zoom
+        this.update()
+    }
+
+    update() {
+        console.log("rendering Background")
+        const { x: xabs, y: yabs } = convertWGS84ToAbsolutePixel(this.viewpoint, this.zoom);
         const canvas = this.scene.canvas;
         const [
             xTileMin,
@@ -48,17 +58,32 @@ export class BackgroundLayer extends AbstractLayer {
             xabs + (canvas.width >> 1),
             yabs + (canvas.height >> 1)
         ].map(a => Math.floor(a / DEFAULT_TILE_SIZE));
-
-        console.log("xyabs", xabs, yabs, "Tiles", xTileMin, xTileMax, yTileMin, yTileMax)
+        console.log("xyabs", xabs, yabs, "Tiles", xTileMin * DEFAULT_TILE_SIZE, xTileMax * DEFAULT_TILE_SIZE, yTileMin * DEFAULT_TILE_SIZE, yTileMax * DEFAULT_TILE_SIZE)
+        if (this.tiles[this.zoom] === undefined) {
+            this.tiles[this.zoom] = []
+        }
         /** @type {Array<Array<BackgroundTile>>} */
-        let tiles = []; 
+        let tiles = this.tiles[this.zoom]
         for (let x = xTileMin; x <= xTileMax; x++) {
-            tiles.push([])
+            if (!Array.isArray(tiles[x])) {
+                tiles[x] = []
+            }
             for (let y = yTileMin; y <= yTileMax; y++) {
-                console.log(`tile-${x}-${y}-${ZOOM}`)
-                const tile = new BackgroundTile(this, `tile-${x}-${y}-${ZOOM}`, ZOOM, x, y);
-                tile.init(viewpoint);
-                tiles[tiles.length - 1].push(tile);
+                // console.log(`tile-${x}-${y}-${this.zoom}`)
+                const tile = new BackgroundTile(this, this.zoom, x, y);
+                if (!tiles[x][y]) {
+                    tile.init(this.viewpoint);
+                    tiles[y] = tile;
+                } else {
+                    tile.visible = true;
+                    tile.updatePosition(this.viewpoint);
+                }
+            }
+        }
+        
+        for (let  i = 0; i <= settings.view.MAX_ZOOM; i++) {
+            if (i !== this.zoom && Array.isArray(this.tiles[i])) {
+                this.tiles[i].forEach(item => Array.isArray(item) && item.forEach(tile => tile.visible = false))
             }
         }
     }
