@@ -1,4 +1,4 @@
-import { deepMerge, deepReverseDiff } from "../../utils/helper/object";
+import {  deepMerge } from "../../utils/helper/object";
 import { AbstractAction } from "./AbstractAction";
 
 export class PIXIPointSelectAction extends AbstractAction {
@@ -39,9 +39,13 @@ export class PIXIPointSelectAction extends AbstractAction {
                 }
             }
         }
-        this._undo = deepReverseDiff(state, this._redo)
+        this._undo = {
+            view: {
+                selectedComponent: state.view.selectedComponent
+            }
+        }
+        state.view.selectedComponent =  [...state.view.selectedComponent, this.component]
         this._state = state
-        deepMerge(this._state, this._redo);
         this.updateUI()
     }
 
@@ -54,7 +58,7 @@ export class PIXIPointSelectAction extends AbstractAction {
         deepMerge(this._state, this._redo);
         this.updateUI()
     }
-
+    
     updateUI(){
         // to be implimented
     }
