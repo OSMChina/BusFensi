@@ -1,3 +1,7 @@
+import { AbstractComponent } from "../../pixi/components/AbstructComponent"
+import { BackgroundLayer } from "../../pixi/layers/BackgroundLayer"
+import { EditableLayer } from "../../pixi/layers/EditableLayer"
+
 export interface State {
     /**
      * Name of state
@@ -18,4 +22,21 @@ export interface State {
          */
         transfer: (event: Event) => Boolean,
     }>
+}
+
+export interface Layers {
+    backgroundLayer: BackgroundLayer
+    editableLayer: EditableLayer
+}
+
+export interface Bucket {
+    mapDrag: {
+        x: number
+        y: number
+    }
+    componentTarget: AbstractComponent
+    componentDrag: {
+        x: number
+        y: number
+    }
 }
