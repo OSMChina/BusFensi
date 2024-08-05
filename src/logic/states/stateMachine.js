@@ -9,13 +9,13 @@ class StateMachine {
         this.scene = null;
         /** @type {import('../../pixi/components/AbstructComponent').AbstractComponent} */
         this.target = null;
+        /** @type {import('./type').Bucket} stores some info needed between states */
+        this.bucket = {}
     }
     /**
      * must be called when pixi layer inited
      * 
-     * @param {{
-     *      backgroundLayer:import('../../pixi/layers/BackgroundLayer').BackgroundLayer,
-     *      editableLayer:import('../../pixi/layers/EditableLayer').EditableLayer}} layers 
+     * @param {import('./type').Layers} layers 
      */
     init(layers, scene) {
         this.layers = layers
