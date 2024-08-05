@@ -134,6 +134,7 @@ componentMousedown.nxt = [{
         if (event.type === 'pointermove') {
             const { x, y } = event.global;
             doComponentDraging(x, y)
+            actionList.enableMerge = true
             return true;
         }
     }
@@ -155,6 +156,7 @@ componentDrag.nxt = [{
     transfer: (event) => {
         if (event.type === 'pointerup') {
             console.log('state back to hover')
+            actionList.enableMerge = false
             return true;
         }
         return false;
@@ -164,6 +166,7 @@ componentDrag.nxt = [{
     transfer: (event) => {
         if (event.type === 'pointerupoutside') {
             stateMachine.bucket.componentTarget = null
+            actionList.enableMerge = false
             console.log('state back to idle')
         }
     }

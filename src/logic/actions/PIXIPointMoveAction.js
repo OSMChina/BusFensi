@@ -60,7 +60,7 @@ export class PIXIPointMoveAction extends AbstractAction {
             edit: {}
         }
         this._redo.edit[this.point.id] = { location: this.location }
-        state.edit[this.point.icon].locate = this.location
+        state.edit[this.point.id].locate = this.location
         this.updatePoint(this.location)
     }
     updatePoint(locate) {
