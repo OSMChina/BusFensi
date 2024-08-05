@@ -1,4 +1,15 @@
+import { DEFAULT_VIEWPOINT_WGS84, DEFAULT_ZOOM } from "../../utils/geo/constants";
 import { PlainAction } from "./PlainAction"
+
+const DFAULT_STATE = {
+    edit: {},
+    view: {
+        zoom: DEFAULT_ZOOM,
+        viewpoint: DEFAULT_VIEWPOINT_WGS84,
+        bboxs: [],
+        selectedComponent: []
+    }
+}
 
 class ActionList {
     /**
@@ -6,11 +17,13 @@ class ActionList {
      */
     constructor() {
         const plain = new PlainAction();
-        plain.do({});
+        plain.do(DFAULT_STATE);
         /** @type {import('./AbstractAction').AbstractAction} */
         this._tail = plain;
         /** @type {import('./AbstractAction').AbstractAction} */
         this._head = plain;
+        /** @type {Boolean} */
+        this.enableMerge = false
     }
     /**
      * @returns {import('./type').DataState}
@@ -30,7 +43,7 @@ class ActionList {
      * @param {import('./AbstractAction').AbstractAction} action 
      */
     do(action) {
-        if (action.mergeAction(this._tail, this.state)) {
+        if (this.enableMerge && action.mergeAction(this._tail, this.state)) {
             action.prev = this._tail.prev
             this._tail = action
         } else {
