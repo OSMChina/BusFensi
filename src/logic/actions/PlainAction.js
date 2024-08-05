@@ -1,3 +1,4 @@
+import { deepReverseDiff } from "../../utils/helper/object";
 import { AbstractAction } from "./AbstractAction";
 
 export class PlainAction extends AbstractAction {
@@ -13,10 +14,15 @@ export class PlainAction extends AbstractAction {
     /**
      * do nothing
      */
-    do() {
+    do(state) {
+        if (this._state === null) {
+            this._state = state
+        }
         /** @type {import('./type').DataState} */
-        this._undo = {}
+        this._undo = deepReverseDiff(this._state, state);
         /** @type {import('./type').DataState} */
-        this._redo = {}
+        this._redo = state
+
+        console.log(`On init action`, this._state)
     }
 }
