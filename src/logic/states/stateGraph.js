@@ -16,7 +16,7 @@ const Idle = {
     retain: (event) => {
         if (event.type === 'wheel') {
             // wheel roll, zoom in or out
-            const axis = event.deltaY > 0;
+            const axis = event.deltaY < 0;
             const zoomAction = new ZoomAction(axis, stateMachine.layers, stateMachine.scene);
             actionList.do(zoomAction);
         }
