@@ -4,50 +4,50 @@ interface Tag {
 }
 
 interface Node {
-    "@_id": Number,
-    "@_visible": Boolean,
-    "@_version": Number,
-    "@_changeset": Number,
-    "@_timestamp": String,
+    "@_id": number,
+    "@_visible": boolean,
+    "@_version": number,
+    "@_changeset": number,
+    "@_timestamp": string,
     "@_user": StreamPipeOptions,
-    "@_uid": Number,
-    "@_lat": Number,
-    "@_lon": Number,
+    "@_uid": number,
+    "@_lat": number,
+    "@_lon": number,
     tag?: Tag | Array<Tag>
 }
 
 interface Nd {
-    "@_ref": Number
+    "@_ref": number
 }
 
 interface Way {
     nd: Nd | Array<Nd>,
     tag?: Tag | Array<Tag>,
-    "@_id": Number,
-    "@_visible": Boolean,
-    "@_version": Number,
-    "@_changeset": Number,
-    "@_timestamp": String,
-    "@_user": String,
-    "@_uid": Number
+    "@_id": number,
+    "@_visible": boolean,
+    "@_version": number,
+    "@_changeset": number,
+    "@_timestamp": string,
+    "@_user": string,
+    "@_uid": number
 }
 
 interface Member {
     "@_type": "way" | "node",
     "@_ref": number,
-    "@_role": String
+    "@_role": string
 }
 
 interface Relation {
     member: Member | Array<Member>,
     tag?: Tag | Array<Tag>,
-    "@_id": Number,
-    "@_visible": Boolean,
-    "@_version": Number,
-    "@_changeset": Number,
-    "@_timestamp": String,
-    "@_user": String,
-    "@_uid": Number
+    "@_id": number,
+    "@_visible": boolean,
+    "@_version": number,
+    "@_changeset": number,
+    "@_timestamp": string,
+    "@_user": string,
+    "@_uid": number
 }
 
 export interface OSMV06BBoxObj {
@@ -57,18 +57,18 @@ export interface OSMV06BBoxObj {
     },
     osm: {
         bounds: {
-            "@_minlat": Number,
-            "@_minlon": Number,
-            "@_maxlat": Number,
-            "@_maxlon": Number
+            "@_minlat": number,
+            "@_minlon": number,
+            "@_maxlat": number,
+            "@_maxlon": number
         },
         node: Node | Array<Node>,
         way: Way | Array<Way>,
         relation: Relation | Array<Relation>,
         "@_version": 0.6,
-        "@_generator": String,
-        "@_copyright": String,
-        "@_attribution": String,
-        "@_license": String
+        "@_generator": string,
+        "@_copyright": string,
+        "@_attribution": string,
+        "@_license": string
     }
 }
