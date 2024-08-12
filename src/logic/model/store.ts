@@ -77,7 +77,6 @@ const useBearStoreWithUndo = create<DataState>()(
                     }
                     state.renderedFeatureState = renderedFeatureState
                     state.commitCounter += 1
-                    return state;
                 })
             ),
             PIXIPointMoveNoCommit: (idStr, location) => set(produce(
@@ -95,7 +94,6 @@ const useBearStoreWithUndo = create<DataState>()(
                     }
                     state.renderedOSMFeatureMeta.nodes = nodes
                     state.edit.nodes = nodesEdit
-                    return state
                 }
             )),
             PIXIPointSelectAction: (idStr, clear) => set(
@@ -106,8 +104,8 @@ const useBearStoreWithUndo = create<DataState>()(
                     }
                 }
             ),
-            PIXIComponentHoverNoCommit: (idStr, val) => set(produce((state: DataState) => state.renderedFeatureState[idStr].hovered = val)),
-            PIXIComponentVisibleNoCommit: (idStr, val) => set(produce((state: DataState) => state.renderedFeatureState[idStr].visible = val)),
+            PIXIComponentHoverNoCommit: (idStr, val) => set(produce((state: DataState) => {state.renderedFeatureState[idStr].hovered = val})),
+            PIXIComponentVisibleNoCommit: (idStr, val) => set(produce((state: DataState) => {state.renderedFeatureState[idStr].visible = val})),
             viewpintMoveNoTrack: (viewpoint) => set(
                 () => {
                     return {
