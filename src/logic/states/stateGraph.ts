@@ -13,7 +13,7 @@ const Idle: State = {
     retain: (event: React.WheelEvent<HTMLCanvasElement>): boolean => {
         if (event.type === 'wheel') {
             // wheel roll, zoom in or out
-            const axis = event.deltaY > 0;
+            const axis = event.deltaY < 0;
             const { zoom, zoomNoTrack } = useBearStoreWithUndo.getState()
             const newZoom = zoom + (axis ? 1 : -1);
             if (newZoom >= 0 && newZoom <= settings.view.MAX_ZOOM) {
