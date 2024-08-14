@@ -19,6 +19,8 @@ function Marker({ display }: {
         visible={true}
         texture={display === "dot" ? circleTexture : locationPinTexture}
         anchor={display === "dot" ? { x: 0.5, y: 0.5 } : { x: 0.5, y: 1 }}
+        width={8}
+        height={8}
     >
     </Sprite>
 }
