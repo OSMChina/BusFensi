@@ -96,16 +96,21 @@ const useBearStoreWithUndo = create<DataState>()(
                     state.edit.nodes = nodesEdit
                 }
             )),
-            PIXIPointSelectAction: (idStr, clear) => set(
-                (state) => {
-                    return {
-                        selectedComponent: clear ? [idStr] : [...state.selectedComponent, idStr],
-                        commitCounter: state.commitCounter + 1
+            PIXIPointSelectAction: (idStr, clear) => set(produce(
+                (state: DataState) => {
+                    if (clear) {
+                        state.selectedComponent.forEach(id => {
+                            state.renderedFeatureState[id].selected = false
+                        })
+                        state.selectedComponent = [idStr]
+                    } else {
+                        state.selectedComponent = [idStr, ...state.selectedComponent]
                     }
-                }
-            ),
-            PIXIComponentHoverNoCommit: (idStr, val) => set(produce((state: DataState) => {state.renderedFeatureState[idStr].hovered = val})),
-            PIXIComponentVisibleNoCommit: (idStr, val) => set(produce((state: DataState) => {state.renderedFeatureState[idStr].visible = val})),
+                    state.renderedFeatureState[idStr].selected = true
+                    state.commitCounter++;
+                })),
+            PIXIComponentHoverNoCommit: (idStr, val) => set(produce((state: DataState) => { state.renderedFeatureState[idStr].hovered = val })),
+            PIXIComponentVisibleNoCommit: (idStr, val) => set(produce((state: DataState) => { state.renderedFeatureState[idStr].visible = val })),
             viewpintMoveNoTrack: (viewpoint) => set(
                 () => {
                     return {
