@@ -95,7 +95,7 @@ Idle.nxt = [
                 stateMachine.bucket.componentTargetId = stateMachine.targetId;
                 const { PIXIComponentHoverNoCommit } = useBearStoreWithUndo.getState()
                 PIXIComponentHoverNoCommit(stateMachine.bucket.componentTargetId, true);
-                // console.log('component hovered:', stateMachine.targetId);
+                console.log('component hovered:', stateMachine.targetId, event);
                 return true;
             }
             return false;
@@ -120,10 +120,12 @@ ComponentHover.nxt = [
     {
         state: componentMousedown,
         transfer: (event): boolean => {
-            if (event.type === 'pointerdown') {
+            if (['pointerdown', 'mousedown'].includes(event.type)) {
                 const id = stateMachine.bucket.componentTargetId;
                 const { PIXIComponentHoverNoCommit } = useBearStoreWithUndo.getState()
+                console.log('to componnet mouse down', event)
                 if (typeof id === "string") {
+                    
                     PIXIComponentHoverNoCommit(id, false);
                 } else {
                     throw new Error(`id ${id} is invalid for component`)
@@ -170,10 +172,11 @@ componentMousedown.nxt = [
         transfer: (event): boolean => {
             if (event.type === 'pointerup' || event.type === 'pointerupoutside') {
                 // mouse down and up, means select
-                const { PIXIPointSelectAction } = useBearStoreWithUndo.getState()
+                const { PIXIComponentSelectAction: PIXIPointSelectAction } = useBearStoreWithUndo.getState()
                 const id = stateMachine.bucket.componentTargetId;
                 if (typeof id === "string") {
                     PIXIPointSelectAction(id, !stateMachine.shiftKey);
+                    console.log('selected id', id, useBearStoreWithUndo.getState().selectedComponent)
                     stateMachine.bucket.componentTargetId = null;
                 } else {
                     throw new Error(`id ${id} is invalid for component`)
