@@ -36,9 +36,28 @@ const useBearStoreWithUndo = create<DataState>()(
             renderedOSMFeatureMeta: {
                 nodes: {},
                 ways: {},
-                relations: {}
+                relations: {},
+                id2type: {}
             },
             renderedFeatureState: {},
+            collections: {
+                ptv2: {
+                    nodesId: new Set(),
+                    waysId: new Set(),
+                    relationsId: new Set(),
+                },
+                highway: {
+                    nodesId: new Set(),
+                    waysId: new Set(),
+                    relationsId: new Set()
+                },
+                global: {
+                    nodesId: new Set(),
+                    waysId: new Set(),
+                    relationsId: new Set()
+                }
+            },
+
             commitAction: () => set(
                 (state) => ({
                     commitCounter: state.commitCounter + 1
@@ -46,12 +65,13 @@ const useBearStoreWithUndo = create<DataState>()(
             ),
             OSMLoadedDataAction: (bbox: OSMV06BBoxObj) => set(produce(
                 (state: DataState) => {
-                    const { nodes, ways, relations } = state.renderedOSMFeatureMeta;
+                    const { nodes, ways, relations, id2type } = state.renderedOSMFeatureMeta;
                     const renderedFeatureState = state.renderedFeatureState;
                     T2Arr(bbox.osm.node).forEach(node => {
                         const key: string = String(node["@_id"]);
                         if (!nodes[key]) {
                             nodes[key] = node
+                            id2type[key] = "node"
                             renderedFeatureState[key] = deepCopy(DEFAULT_RENDERED_FEATURE_STATE)
                         }
                     })
@@ -59,6 +79,7 @@ const useBearStoreWithUndo = create<DataState>()(
                         const key = String(way["@_id"]);
                         if (!ways[key]) {
                             ways[key] = way
+                            id2type[key] = "way"
                             renderedFeatureState[key] = deepCopy(DEFAULT_RENDERED_FEATURE_STATE)
                         }
                     })
@@ -66,6 +87,7 @@ const useBearStoreWithUndo = create<DataState>()(
                         const key = String(relation["@_id"]);
                         if (!relations[key]) {
                             relations[key] = relation
+                            id2type[key] = "relation"
                             renderedFeatureState[key] = deepCopy(DEFAULT_RENDERED_FEATURE_STATE)
                         }
                     })
@@ -73,12 +95,60 @@ const useBearStoreWithUndo = create<DataState>()(
                     state.renderedOSMFeatureMeta = {
                         nodes: nodes,
                         ways: ways,
-                        relations: relations
+                        relations: relations,
+                        id2type: id2type
                     }
                     state.renderedFeatureState = renderedFeatureState
                     state.commitCounter += 1
                 })
             ),
+            // 修改 node[id] 的方法
+            modifyNodeNoCommit: (idStr, newNodeData) => set(produce(
+                (state: DataState) => {
+                    const key = String(idStr);
+                    state.edit.nodes[key] = {
+                        ...state.edit.nodes[key],
+                        ...newNodeData,
+                    };
+                    state.renderedOSMFeatureMeta.nodes[key] = {
+                        ...state.renderedOSMFeatureMeta.nodes[key],
+                        ...newNodeData,
+                    };
+                    state.commitCounter++;
+                }
+            )),
+
+            // 修改 way[id] 的方法
+            modifyWayNoCommit: (idStr, newWayData) => set(produce(
+                (state: DataState) => {
+                    const key = String(idStr);
+                    state.edit.ways[key] = {
+                        ...state.edit.ways[key],
+                        ...newWayData,
+                    };
+                    state.renderedOSMFeatureMeta.ways[key] = {
+                        ...state.renderedOSMFeatureMeta.ways[key],
+                        ...newWayData,
+                    };
+                    state.commitCounter++;
+                }
+            )),
+
+            // 修改 relation[id] 的方法
+            modifyRelationNoCommit: (idStr, newRelationData) => set(produce(
+                (state: DataState) => {
+                    const key = String(idStr);
+                    state.edit.relations[key] = {
+                        ...state.edit.relations[key],
+                        ...newRelationData,
+                    };
+                    state.renderedOSMFeatureMeta.relations[key] = {
+                        ...state.renderedOSMFeatureMeta.relations[key],
+                        ...newRelationData,
+                    };
+                    state.commitCounter++;
+                }
+            )),
             PIXIPointMoveNoCommit: (idStr, location) => set(produce(
                 (state: DataState) => {
                     const { nodes } = state.renderedOSMFeatureMeta;
@@ -96,17 +166,25 @@ const useBearStoreWithUndo = create<DataState>()(
                     state.edit.nodes = nodesEdit
                 }
             )),
-            PIXIPointSelectAction: (idStr, clear) => set(produce(
+            PIXIComponentSelectAction: (idStr, clear) => set(produce(
                 (state: DataState) => {
                     if (clear) {
                         state.selectedComponent.forEach(id => {
                             state.renderedFeatureState[id].selected = false
                         })
-                        state.selectedComponent = [idStr]
-                    } else {
+                        if (state.renderedFeatureState[idStr].selected) {
+                            state.selectedComponent = []
+                        } else {
+                            state.selectedComponent = [idStr]
+                            state.renderedFeatureState[idStr].selected = true
+                        }
+                    } else if (!state.selectedComponent.includes(idStr)) {
                         state.selectedComponent = [idStr, ...state.selectedComponent]
+                        state.renderedFeatureState[idStr].selected = true
+                    } else {
+                        state.selectedComponent = state.selectedComponent.filter(id => id !== idStr)
+                        state.renderedFeatureState[idStr].selected = false
                     }
-                    state.renderedFeatureState[idStr].selected = true
                     state.commitCounter++;
                 })),
             PIXIComponentHoverNoCommit: (idStr, val) => set(produce((state: DataState) => { state.renderedFeatureState[idStr].hovered = val })),
