@@ -9,39 +9,67 @@ export interface FeatureState {
     highlighted: boolean
 }
 
+export interface NodesObj {
+    [id: string]: Node
+}
+
+export interface WaysObj {
+    [id: string]: Way
+}
+
+export interface RelationsObj {
+    [id: string]: Relation
+}
+
+
+interface FeatureTreeNode {
+    id: string
+    type: "node" | "way" | "relation"
+    father?: CollectionTreeNode
+    childs?: CollectionTreeNode[]
+}
+/**
+ * Collection is a collection of osm feature ids.
+ * 
+ * when data loaded, the meta stored in renderedOSMFeatureMeta,
+ * and the tree relationship between features will be maintained
+ * in feature relation tree
+ * 
+ */
+interface Collection {
+    nodesId: Set<string>
+    waysId: Set<string>
+    relationsId: Set<string>
+}
+
 export interface DataState {
     /** changes be tracked by zundo */
     /** commit counter */
     commitCounter: number
     /** changeset of editor */
     edit: {
-        nodes: {
-            [id: string]: Node
-        }
-        ways: {
-            [id: string]: Way
-        }
-        relations: {
-            [id: string]: Relation
-        }
+        nodes: NodesObj
+        ways: WaysObj
+        relations: RelationsObj
     },
     selectedComponent: string[]
     /** rendered osm features meta, */
     renderedOSMFeatureMeta: {
-        nodes: {
-            [id: string]: Node
-        }
-        ways: {
-            [id: string]: Way
-        }
-        relations: {
-            [id: string]: Relation
+        nodes: NodesObj
+        ways: WaysObj
+        relations: RelationsObj
+        id2type: {
+            [id: string]: "node" | "way" | "relation"
         }
     }
     renderedFeatureState: {
         [id: string]: FeatureState
     }
-
+    collections: {
+        ptv2: Collection
+        highway: Collection
+        global: Collection
+    }
     /** local changes like viewpoint, won't be tracked by zundo */
     viewpoint: PointWGS84
     zoom: number
@@ -57,8 +85,12 @@ export interface DataState {
      */
     commitAction: () => void
     OSMLoadedDataAction: (bbox: OSMV06BBoxObj) => void
+    modifyNodeNoCommit: (idStr: string, newNodeData: Partial<Node>) => void;
+    modifyWayNoCommit: (idStr: string, newWayData: Partial<Way>) => void;
+    modifyRelationNoCommit: (idStr: string, newRelationData: Partial<Relation>) => void;
+
     PIXIPointMoveNoCommit: (idStr: string, location: PointWGS84) => void
-    PIXIPointSelectAction: (idStr: string, clear: boolean) => void
+    PIXIComponentSelectAction: (idStr: string, clear: boolean) => void
     PIXIComponentHoverNoCommit: (idStr: string, val: boolean) => void
     PIXIComponentVisibleNoCommit: (idStr: string, val: boolean) => void
     viewpintMoveNoTrack: (viewpoint: PointWGS84) => void
