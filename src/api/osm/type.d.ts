@@ -33,7 +33,7 @@ interface Way {
 }
 
 interface Member {
-    "@_type": "way" | "node",
+    "@_type": "way" | "node" | "relation",
     "@_ref": number,
     "@_role": string
 }
