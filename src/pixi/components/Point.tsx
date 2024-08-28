@@ -131,7 +131,6 @@ function Point(
             stateMachine.hookPIXIComponent(event, idStr)
         }}
         pointerover={(event) => {
-            console.log("pointer over!", idStr, event)
             stateMachine.hookPIXIComponent(event, idStr)
         }}
         pointerout={(event) => {
