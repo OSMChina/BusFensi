@@ -95,7 +95,7 @@ Idle.nxt = [
                 stateMachine.bucket.componentTargetId = stateMachine.targetId;
                 const { PIXIComponentHoverNoCommit } = useBearStoreWithUndo.getState()
                 PIXIComponentHoverNoCommit(stateMachine.bucket.componentTargetId, true);
-                console.log('component hovered:', stateMachine.targetId, event);
+                // console.log('component hovered:', stateMachine.targetId, event);
                 return true;
             }
             return false;
