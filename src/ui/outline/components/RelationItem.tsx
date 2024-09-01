@@ -1,20 +1,24 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleNodes, faChevronRight, faChevronDown, faCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNodes, faChevronRight, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import useBearStoreWithUndo from "../../../logic/model/store";
 import { T2Arr } from "../../../utils/helper/object";
 import { useShallow } from "zustand/react/shallow";
 import NodeItem from "./NodeItem";
 import WayItem from "./WayItem";
 import { useState } from "react";
+import { filterFunc } from "./type";
 
-function RelationItem({ id }: { id: string }) {
-    const nodesId = useBearStoreWithUndo(useShallow((state) => Object.keys(state.renderedOSMFeatureMeta.nodes)));
+function RelationItem({ id, filter }: { id: string, filter: filterFunc }) {
     const relations = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.relations[id]));
-    const ways = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.ways))
-    const waysId = Object.keys(ways);
-    const selectedComponent = useBearStoreWithUndo(useShallow(state => state.selectedComponent))
     const setSelectedComponent = useBearStoreWithUndo((state) => state.PIXIComponentSelectAction);
-    const { visible, selected } = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState[id]));
+    const featureState = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState[id]));
+    const [collapsed, setCollapsed] = useState(true)
+
+    if (!filter(relations, "relation")) {
+        return null
+    }
+
+    const {visible, selected} = featureState;
 
     let name = `relation-${id}`;
     const tags = T2Arr(relations.tag);
@@ -24,17 +28,13 @@ function RelationItem({ id }: { id: string }) {
         }
     });
 
-    const subNodes = T2Arr(relations.member).filter(member => member["@_type"] === "node" && nodesId.includes(String(member["@_ref"])));
-    const subWays = T2Arr(relations.member).filter(member => member["@_type"] === "way" && waysId.includes(String(member["@_ref"])));
     const className = `outline-list-item
     ${selected ? 'active' : (visible ? 'bg-base-200 text-base-content' : 'bg-base-100 text-gray-400')}`;
 
-    const subNodeSelected =
-        subNodes.some(node => selectedComponent.includes(String(node["@_ref"])))
-        || subWays.some(way => ways[way["@_ref"]].nd && T2Arr(ways[way["@_ref"]].nd).some(nd => selectedComponent.includes(String(nd["@_ref"]))))
-    const subWaySeleted = subWays.some(way => selectedComponent.includes(String(way["@_ref"])))
-    
-    const [collapsed, setCollapsed] = useState(!(subNodeSelected || subWaySeleted))
+    const members = T2Arr(relations.member)
+    const subNodes = members.filter(member => member["@_type"] === "node")
+    const subWays = members.filter(member => member["@_type"] === "way")
+    const subRelations = members.filter(member => member["@_type"] === "relation")
 
     const handleClick: React.MouseEventHandler<HTMLSpanElement> = (e) => {
         setSelectedComponent(id, !e.shiftKey); // select the way, auto
@@ -52,11 +52,12 @@ function RelationItem({ id }: { id: string }) {
                 <FontAwesomeIcon icon={collapsed ? faChevronRight : faChevronDown} onClick={toggleCollapse} />
                 <FontAwesomeIcon className="ml-2" icon={faCircleNodes} />
                 {name}
-                {(subNodeSelected || subWaySeleted) && (<FontAwesomeIcon className={`ml-auto text-info`} icon={faCircle} />)}
+                {/* {(subNodeSelected || subWaySeleted) && (<FontAwesomeIcon className={`ml-auto text-info`} icon={faCircle} />)} */}
             </span>
             {!collapsed && (<ul className="menu menu-xs pl-4">
-                {subNodes.map(member => <NodeItem key={member["@_ref"]} id={String(member["@_ref"])} />)}
-                {subWays.map(member => <WayItem key={member["@_ref"]} id={String(member["@_ref"])} />)}
+                {subNodes.map(member => <NodeItem key={member["@_ref"]} id={member["@_ref"]} filter={filter} />)}
+                {subWays.map(member => <WayItem key={member["@_ref"]} id={member["@_ref"]} filter={filter} />)}
+                {subRelations.map(member => <RelationItem key={member["@_ref"]} id={member["@_ref"]} filter={filter} />)}
             </ul>)}
         </li>
     );

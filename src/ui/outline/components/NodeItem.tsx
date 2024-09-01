@@ -4,15 +4,23 @@ import useBearStoreWithUndo from "../../../logic/model/store";
 import { T2Arr } from "../../../utils/helper/object";
 import { isBusStop } from "../../../utils/osm/busFilter";
 import { useShallow } from "zustand/react/shallow";
+import { filterFunc } from "./type";
 
-function NodeItem({ id }: { id: string }) {
-    const tag = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.nodes[id].tag));
-    const { visible, selected } = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState[id]));
+function NodeItem({ id, filter }: { id: string, filter:filterFunc }) {
+    const meta = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.nodes[id]));
+    const featureState = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState[id]));
     const setSelectedComponent = useBearStoreWithUndo((state) => state.PIXIComponentSelectAction)
+    
+    if (!filter(meta, "node")) {
+        return null
+    }
+    
+    const {visible, selected } = featureState
+
     let name = `node-${id}`;
     let icon = faCircle;
 
-    const tags = T2Arr(tag);
+    const tags = T2Arr(meta.tag);
     tags.forEach(tag => {
         if (tag["@_k"] === 'name') {
             name = tag["@_v"];
@@ -29,6 +37,7 @@ function NodeItem({ id }: { id: string }) {
     const handleClick: React.MouseEventHandler<HTMLSpanElement> = (e) => {
         setSelectedComponent(id, !e.shiftKey); // select the way, auto
     };
+
 
     return (
         <li className={className}>
