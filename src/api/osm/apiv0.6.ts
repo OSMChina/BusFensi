@@ -1,8 +1,8 @@
 // from: https://wiki.openstreetmap.org/wiki/API_v0.6
 
 import { XMLParser } from 'fast-xml-parser';
-import { convertNumberBoolValues } from '../../utils/helper/object';
-import { OSMV06BBoxObj } from './type';
+import { Node, OSMV06BBoxObj, OSMV06FeatureObj, Relation, Way } from './type';
+import { T2Arr } from '../../utils/helper/object';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function baseget(baseurl: string, path: string): Promise<any> {
@@ -19,7 +19,7 @@ async function baseget(baseurl: string, path: string): Promise<any> {
     });
     const json = parser.parse(data);
     console.log(`Get ${url}`, JSON.stringify(json), json);
-    return convertNumberBoolValues(json);
+    return json;
 }
 
 /**
@@ -39,23 +39,57 @@ export async function bbox(
     right: number,
     top: number
 ): Promise<OSMV06BBoxObj> {
-    return await baseget(baseurl, `/api/0.6/map?bbox=${left},${bottom},${right},${top}`);
+    const data: OSMV06BBoxObj = await baseget(baseurl, `/api/0.6/map?bbox=${left},${bottom},${right},${top}`)
+    data.osm.bounds['@_maxlat'] = Number(data.osm.bounds['@_maxlat'])
+    data.osm.bounds['@_minlat'] = Number(data.osm.bounds['@_minlat'])
+    data.osm.bounds['@_maxlon'] = Number(data.osm.bounds['@_maxlon'])
+    data.osm.bounds['@_minlon'] = Number(data.osm.bounds['@_minlon'])
+
+    data.osm.node = T2Arr(data.osm.node).map(node => {
+        node['@_lat'] = Number(node['@_lat'])
+        node['@_lon'] = Number(node['@_lon'])
+        if (node.tag) { node.tag = T2Arr(node.tag) }
+        return node
+    });
+
+    return data;
 }
 
 /**
- * Fetches a specific OSM element by ID.
+ * Fetches a specific OSM node by ID.
  * 
  * @param baseurl - The base URL where to fetch data.
- * @param type - The type of element (node, way, or relation).
- * @param id - The ID of the element.
- * @returns A Promise that resolves to the fetched OSM element.
+ * @param id - The ID of the node.
+ * @returns A Promise that resolves to the fetched OSM node.
  */
-export async function elementRead(
-    baseurl: string,
-    type: 'node' | 'way' | 'relation',
-    id: number
-): Promise<unknown> {
-    return await baseget(baseurl, `/api/0.6/${type}/${id}`);
+export async function fetchNode(baseurl: string, id: string): Promise<Node> {
+    const data: OSMV06FeatureObj = await baseget(baseurl, `/api/0.6/node/${id}`);
+    const node = data.osm.node
+    node['@_lon'] = Number(node['@_lon'])
+    node['@_lat'] = Number(node['@_lat'])
+    return node;
+}
+
+/**
+ * Fetches a specific OSM way by ID.
+ * 
+ * @param baseurl - The base URL where to fetch data.
+ * @param id - The ID of the way.
+ * @returns A Promise that resolves to the fetched OSM way.
+ */
+export async function fetchWay(baseurl: string, id: string): Promise<Way> {
+    return (await baseget(baseurl, `/api/0.6/way/${id}`) as OSMV06FeatureObj).osm.way;
+}
+
+/**
+ * Fetches a specific OSM relation by ID.
+ * 
+ * @param baseurl - The base URL where to fetch data.
+ * @param id - The ID of the relation.
+ * @returns A Promise that resolves to the fetched OSM relation.
+ */
+export async function fetchRelation(baseurl: string, id: string): Promise<Relation> {
+    return (await baseget(baseurl, `/api/0.6/relation/${id}`) as OSMV06FeatureObj).osm.relation;
 }
 
 /**

@@ -4,50 +4,50 @@ interface Tag {
 }
 
 interface Node {
-    "@_id": number,
+    "@_id": string,
     "@_visible": boolean,
-    "@_version": number,
-    "@_changeset": number,
+    "@_version": string,
+    "@_changeset": string,
     "@_timestamp": string,
     "@_user": StreamPipeOptions,
-    "@_uid": number,
+    "@_uid": string,
     "@_lat": number,
     "@_lon": number,
-    tag?: Tag | Array<Tag>
+    tag?: Tag | Tag[]
 }
 
 interface Nd {
-    "@_ref": number
+    "@_ref": string
 }
 
 interface Way {
-    nd: Nd | Array<Nd>,
-    tag?: Tag | Array<Tag>,
-    "@_id": number,
+    nd: Nd | Nd[],
+    tag?: Tag | Tag[],
+    "@_id": string,
     "@_visible": boolean,
-    "@_version": number,
-    "@_changeset": number,
+    "@_version": string,
+    "@_changeset": string,
     "@_timestamp": string,
     "@_user": string,
-    "@_uid": number
+    "@_uid": string
 }
 
 interface Member {
     "@_type": "way" | "node" | "relation",
-    "@_ref": number,
+    "@_ref": string,
     "@_role": string
 }
 
 interface Relation {
-    member: Member | Array<Member>,
-    tag?: Tag | Array<Tag>,
-    "@_id": number,
+    member: Member | Member[],
+    tag?: Tag | Tag[],
+    "@_id": string,
     "@_visible": boolean,
-    "@_version": number,
-    "@_changeset": number,
+    "@_version": string,
+    "@_changeset": string,
     "@_timestamp": string,
     "@_user": string,
-    "@_uid": number
+    "@_uid": string
 }
 
 export interface OSMV06BBoxObj {
@@ -62,9 +62,26 @@ export interface OSMV06BBoxObj {
             "@_maxlat": number,
             "@_maxlon": number
         },
-        node: Node | Array<Node>,
-        way: Way | Array<Way>,
-        relation: Relation | Array<Relation>,
+        node: Node | Node[],
+        way: Way | Way[],
+        relation: Relation | Relation[],
+        "@_version": 0.6,
+        "@_generator": string,
+        "@_copyright": string,
+        "@_attribution": string,
+        "@_license": string
+    }
+}
+
+export interface OSMV06FeatureObj {
+    "?xml": {
+        "@_version": 1,
+        "@_encoding": "UTF-8"
+    },
+    osm: {
+        node: Node 
+        way: Way
+        relation: Relation 
         "@_version": 0.6,
         "@_generator": string,
         "@_copyright": string,
