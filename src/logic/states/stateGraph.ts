@@ -255,7 +255,7 @@ mapDrag.nxt = [
                 loadBBox(bboxs, viewpoint, zoom, width, height)
                     .then((bboxObj) => {
                         if (bboxObj !== null) {
-                            const {OSMLoadedDataAction} = useBearStoreWithUndo.getState()
+                            const {OSMLoadedBboxAction: OSMLoadedDataAction} = useBearStoreWithUndo.getState()
                             OSMLoadedDataAction(bboxObj)
                         }
                     })
