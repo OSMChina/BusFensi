@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import NodeItem from "./NodeItem";
 import WayItem from "./WayItem";
 import RelationItem from "./RelationItem";
-import { filterFunc } from "./type";
+import { filterFunc } from "../type";
 
 function CollectionItem({ collecion, name: coName }: {
     collecion: ColItemType,

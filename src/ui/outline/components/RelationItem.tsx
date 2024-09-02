@@ -6,7 +6,7 @@ import { useShallow } from "zustand/react/shallow";
 import NodeItem from "./NodeItem";
 import WayItem from "./WayItem";
 import { useState } from "react";
-import { filterFunc } from "./type";
+import { filterFunc } from "../type";
 
 function RelationItem({ id, filter }: { id: string, filter: filterFunc }) {
     const relations = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.relations[id]));

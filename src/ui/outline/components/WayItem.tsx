@@ -5,7 +5,7 @@ import NodeItem from "./NodeItem";
 import { T2Arr } from "../../../utils/helper/object";
 import { useShallow } from "zustand/react/shallow";
 import { useState } from "react";
-import { filterFunc } from "./type";
+import { filterFunc } from "../type";
 
 function WayItem({ id, filter }: { id: string, filter: filterFunc }) {
     const nodesId = useBearStoreWithUndo(useShallow((state) => Object.keys(state.renderedOSMFeatureMeta.nodes)));

@@ -4,7 +4,7 @@ import useBearStoreWithUndo from "../../../logic/model/store";
 import { T2Arr } from "../../../utils/helper/object";
 import { isBusStop } from "../../../utils/osm/busFilter";
 import { useShallow } from "zustand/react/shallow";
-import { filterFunc } from "./type";
+import { filterFunc } from "../type";
 
 function NodeItem({ id, filter }: { id: string, filter:filterFunc }) {
     const meta = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.nodes[id]));
