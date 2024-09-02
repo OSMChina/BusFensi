@@ -89,3 +89,20 @@ export interface OSMV06FeatureObj {
         "@_license": string
     }
 }
+
+export interface OSMV06BatchFeatureObj {
+    "?xml": {
+        "@_version": 1,
+        "@_encoding": "UTF-8"
+    },
+    osm: {
+        node: Node | Node[] 
+        way: Way | Way[]
+        relation: Relation | Relation[]
+        "@_version": 0.6,
+        "@_generator": string,
+        "@_copyright": string,
+        "@_attribution": string,
+        "@_license": string
+    }
+}

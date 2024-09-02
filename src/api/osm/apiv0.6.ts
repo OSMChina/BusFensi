@@ -1,7 +1,7 @@
 // from: https://wiki.openstreetmap.org/wiki/API_v0.6
 
 import { XMLParser } from 'fast-xml-parser';
-import { Node, OSMV06BBoxObj, OSMV06FeatureObj, Relation, Way } from './type';
+import { Node, OSMV06BatchFeatureObj, OSMV06BBoxObj, OSMV06FeatureObj, Relation, Way } from './type';
 import { T2Arr } from '../../utils/helper/object';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -91,6 +91,63 @@ export async function fetchWay(baseurl: string, id: string): Promise<Way> {
 export async function fetchRelation(baseurl: string, id: string): Promise<Relation> {
     return (await baseget(baseurl, `/api/0.6/relation/${id}`) as OSMV06FeatureObj).osm.relation;
 }
+
+/**
+ * Fetches a batch of OSM nodes by their IDs.
+ * 
+ * @param baseurl - The base URL where to fetch data.
+ * @param ids - The IDs of the nodes to fetch.
+ * @returns A Promise that resolves to an array of OSM nodes.
+ */
+export async function fetchNodes(baseurl: string, ids: string[]): Promise<Node[]> {
+    if (ids.length === 0) return [];
+
+    const params = ids.join(',');
+    const url = `/api/0.6/nodes?nodes=${params}`;
+    const response = await baseget(baseurl, url) as OSMV06BatchFeatureObj;
+    const nodes = T2Arr(response.osm.node).map((node) => {
+        node['@_lat'] = Number(node['@_lat'])
+        node['@_lon'] = Number(node['@_lon'])
+        return node
+    })
+    return nodes
+}
+
+/**
+ * Fetches a batch of OSM ways by their IDs.
+ * 
+ * @param baseurl - The base URL where to fetch data.
+ * @param ids - The IDs of the ways to fetch.
+ * @returns A Promise that resolves to an array of OSM ways.
+ */
+export async function fetchWays(baseurl: string, ids: string[]): Promise<Way[]> {
+    if (ids.length === 0) return [];
+
+    const params = ids.join(',');
+    const url = `/api/0.6/ways?ways=${params}`;
+    const response = await baseget(baseurl, url) as OSMV06BatchFeatureObj;
+
+    return T2Arr(response.osm.way)
+}
+
+/**
+ * Fetches a batch of OSM relations by their IDs.
+ * 
+ * @param baseurl - The base URL where to fetch data.
+ * @param ids - The IDs of the relations to fetch.
+ * @returns A Promise that resolves to an array of OSM relations.
+ */
+export async function fetchRelations(baseurl: string, ids: string[]): Promise<Relation[]> {
+    if (ids.length === 0) return [];
+
+    const params = ids.join(',');
+    const url = `/api/0.6/relations?relations=${params}`;
+    const response = await baseget(baseurl, url) as OSMV06BatchFeatureObj;
+
+    return T2Arr(response.osm.relation)
+}
+
+
 
 /**
  * Fetches the history of a specific OSM element by ID.
