@@ -22,12 +22,19 @@ export interface RelationsObj {
 }
 
 
-interface FeatureTreeNode {
+export interface FeatureTreeNode {
     id: string
     type: "node" | "way" | "relation"
-    father?: CollectionTreeNode
-    childs?: CollectionTreeNode[]
+    fathers: string[]
+    /** must in order, may includes non-exsist */
+    childs: string[]
 }
+
+export interface FeatureTree {
+    elems: Map<string, FeatureTreeNode>
+    roots: Set<string>
+}
+
 /**
  * Collection is a collection of osm feature ids.
  * 
@@ -36,10 +43,16 @@ interface FeatureTreeNode {
  * in feature relation tree
  * 
  */
-interface Collection {
+export interface CollectionItem {
     nodesId: Set<string>
     waysId: Set<string>
     relationsId: Set<string>
+}
+
+export interface Collection {
+    ptv2: CollectionItem
+    highway: CollectionItem
+    global: CollectionItem
 }
 
 export interface DataState {
@@ -65,11 +78,8 @@ export interface DataState {
     renderedFeatureState: {
         [id: string]: FeatureState
     }
-    collections: {
-        ptv2: Collection
-        highway: Collection
-        global: Collection
-    }
+    collections: Collection
+    featureTree: FeatureTree
     /** local changes like viewpoint, won't be tracked by zundo */
     viewpoint: PointWGS84
     zoom: number
@@ -84,9 +94,13 @@ export interface DataState {
      * Some set only change untracked, like viewpoint and zoom
      */
     commitAction: () => void
-    OSMLoadedDataAction: (bbox: OSMV06BBoxObj) => void
+
+    OSMLoadedBboxAction: (bbox: OSMV06BBoxObj) => void
+    addNodeAction: (node: Node) => void
+    addWayAction: (way: Way, nodes: Node[]) => void
+    addRelationAction: (relation: Relation) => void
     modifyNodeNoCommit: (idStr: string, newNodeData: Partial<Node>) => void;
-    modifyWayNoCommit: (idStr: string, newWayData: Partial<Way>) => void;
+    modifyWayNoCommit: ( idStr:string, newWayData: Partial<Way>) => void;
     modifyRelationNoCommit: (idStr: string, newRelationData: Partial<Relation>) => void;
 
     PIXIPointMoveNoCommit: (idStr: string, location: PointWGS84) => void
