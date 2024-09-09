@@ -4,9 +4,11 @@ import { settings } from "../../logic/settings/settings";
 import { T2Arr } from "../../utils/helper/object";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
 import { useCallback, useEffect, useRef } from "react";
-import PIXI from "pixi.js";
+import { Container as PIXIContainer, Polygon as PIXIPolygon, Graphics as PIXIGraphics, LINE_JOIN as PIXILINE_JOIN, LINE_CAP as PIXILINE_CAP } from "pixi.js";
 import { useShallow } from "zustand/react/shallow";
 import { GlowFilter } from "pixi-filters";
+import { stateMachine } from "../../logic/states/stateMachine";
+import { lineToPoly } from '../utils/helper.ts'
 
 function Line({ idStr, width, height }: {
     idStr: string,
@@ -32,8 +34,8 @@ function Line({ idStr, width, height }: {
         width,
         height
     ))
-    const containerRef = useRef<PIXI.Container>(null)
-    const drawOuter = useCallback((g: PIXI.Graphics) => {
+    const containerRef = useRef<PIXIContainer>(null)
+    const drawOuter = useCallback((g: PIXIGraphics) => {
         g.clear();
         g.lineStyle(9, 0xffd900)
         // paint stroke
@@ -43,7 +45,7 @@ function Line({ idStr, width, height }: {
             g.lineTo(pixpoint.x, pixpoint.y)
         });
     }, [pixPath])
-    const drawInner = useCallback((g: PIXI.Graphics) => {
+    const drawInner = useCallback((g: PIXIGraphics) => {
         g.clear();
         g.lineStyle(5, 0xff3300)
         // paint fill
@@ -54,11 +56,41 @@ function Line({ idStr, width, height }: {
         });
     }, [pixPath])
 
+
+    const createHitArea = useCallback(() => {
+        const hitWidth = 3
+        const flatPath = pixPath.flatMap(p => [p.x, p.y])
+        const hitStyle = {
+            alignment: 0.5,  // middle of line
+            color: 0x0,
+            width: hitWidth + 10,
+            alpha: 1.0,
+            join: PIXILINE_JOIN.BEVEL,
+            cap: PIXILINE_CAP.BUTT
+          };
+        // Create the polygon hit area
+        const bufdata = lineToPoly(flatPath, hitStyle);
+          console.log(bufdata)
+        if (containerRef.current && bufdata.perimeter) {
+            containerRef.current.hitArea =  new PIXIPolygon(bufdata.perimeter);
+            // const g = new PIXIGraphics()
+            // g.beginFill(0x5d0015);
+            // g.drawPolygon(
+            //     bufdata.perimeter
+            // );
+            // g.endFill();
+            // containerRef.current.addChild(g)
+        }
+    }, [pixPath]);
+
+
     useEffect(() => {
         const container = containerRef.current
         if (container !== null) {
 
-            const updateHitbox = () => { }
+            const updateHitbox = () => {
+                createHitArea()
+            }
 
             const updateHalo = () => {
                 const showHover = (visible && hovered);
@@ -95,13 +127,29 @@ function Line({ idStr, width, height }: {
             updateHalo()
         }
 
-    }, [nodePath, viewpoint, zoom, width, height, idStr, highlighted, hovered, selected, visible, lineMeta])
+    }, [nodePath, viewpoint, zoom, width, height, idStr, highlighted, hovered, selected, visible, lineMeta, createHitArea])
 
     return (visible && <Container
         zIndex={settings.pixiRender.zIndex.LINE}
         visible={visible}
         position={{ x: 0, y: 0 }}
         ref={containerRef}
+        eventMode="static"
+        pointerover={(event) => {
+            console.log("line !")
+
+            stateMachine.hookPIXIComponent(event, idStr)
+        }}
+        pointerout={(event) => {
+            stateMachine.hookPIXIComponent(event, idStr)
+        }}
+        pointerdown={(event) => {
+            console.log("line down")
+            stateMachine.hookPIXIComponent(event, idStr)
+        }}
+        pointerup={(event) => {
+            stateMachine.hookPIXIComponent(event, idStr)
+        }}
     >
         <Graphics
             draw={drawOuter}
@@ -109,6 +157,7 @@ function Line({ idStr, width, height }: {
         <Graphics
             draw={drawInner}
         />
+
     </Container>)
 }
 
