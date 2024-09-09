@@ -158,3 +158,5 @@ export function union<T>(...iterables: Iterable<T>[]): Set<T> {
 
     return set;
 }
+
+export const cn = (...args: any[]) => args.filter(Boolean).join(" ");
