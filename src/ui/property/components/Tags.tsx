@@ -1,5 +1,7 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Tag } from "../../../api/osm/type";
 import { deepCopy } from "../../../utils/helper/object";
+import { faDeleteLeft } from "@fortawesome/free-solid-svg-icons";
 
 function Tags({ tags, setTags, commitChange }: { tags: Tag[], setTags: (tags: Tag[]) => void, commitChange: () => void }) {
     const tagsNew = deepCopy(tags);
@@ -52,7 +54,7 @@ function Tags({ tags, setTags, commitChange }: { tags: Tag[], setTags: (tags: Ta
                                 value={tag["@_k"]}
                                 onChange={(e) => handleKeyChange(index, e.target.value)}
                                 onBlur={handleBlur}
-                                className="input input-bordered input-xs p-2 rounded-md border max-w-xs"
+                                className="input input-bordered input-xs rounded-md border max-w-xs"
                             />
                         </td>
                         <td>
@@ -61,15 +63,15 @@ function Tags({ tags, setTags, commitChange }: { tags: Tag[], setTags: (tags: Ta
                                 value={tag["@_v"]}
                                 onChange={(e) => handleValueChange(index, e.target.value)}
                                 onBlur={handleBlur}
-                                className="input input-bordered input-xs p-2 rounded-md border max-w-xs w-fit"
+                                className="input input-bordered input-xs rounded-md border max-w-xs w-fit"
                             />
                         </td>
                         <td>
                             <button
                                 onClick={() => handleDelete(index)}
-                                className="btn btn-error btn-sm"
+                                className="btn btn-error btn-xs"
                             >
-                                Delete
+                                <FontAwesomeIcon icon={faDeleteLeft} />
                             </button>
                         </td>
                     </tr>
