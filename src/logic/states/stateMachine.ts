@@ -41,6 +41,12 @@ class StateMachine {
     }
 
     /**
+     * 
+     */
+    hookCustomEvent(event: unknown) {
+        this.transform(event)
+    }
+    /**
      * Transform state based on the event
      * 
      */
