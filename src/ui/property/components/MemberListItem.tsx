@@ -4,11 +4,17 @@ import { useState } from "react"
 import { fetchNode, fetchNodes, fetchRelation, fetchWay } from "../../../api/osm/apiv0.6"
 import { settings } from "../../../logic/settings/settings"
 import { T2Arr } from "../../../utils/helper/object"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCheck, faDeleteLeft, faDownload } from "@fortawesome/free-solid-svg-icons"
 
-function MemberListItem({ id, type, onDel }: {
+function MemberListItem({ id, type, onDel, select }: {
     id: string,
     type: "node" | "way" | "relation",
-    onDel: (id: string) => void
+    onDel: (id: string) => void,
+    select?: {
+        activeId: string | null
+        setter: (id: string) => void
+    }
 }) {
     const loaded = useBearStoreWithUndo(useShallow((state) => state.collections.global[`${type}sId`].has(id)))
     const addNodeAction = useBearStoreWithUndo((state) => state.addNodeAction)
@@ -33,29 +39,31 @@ function MemberListItem({ id, type, onDel }: {
         setLoading(false)
     }
 
-    return <div className="p-2 bg-base-200 rounded-md">
-        {loaded ?
-            (<span>{`${type}-${id}`}</span>)
-            : (<>
-                <span>{`${type}-${id}`}</span>
-                {loading
-                    ? (<span className="loading loading-spinner loading-xs"></span>)
-                    : (
-                        <button className="btn btn-square" onMouseDown={(event) => {
-                            event.stopPropagation();
-                            loadElement(id)
-                        }} >
-                            Down
-                        </button>
-                    )
-                }
-            </>)
+    return <div className={`rounded-sm border text-xs flex flex-row pl-1 ${select?.activeId === id ? "bg-neutral text-neutral-content" : "bg-base-200 text-base-content"}`}>
+        <span>{`${type}-${id}`}</span>
+        <span className="ml-auto"></span>
+        {!loaded && (loading ?
+            (<span className="loading loading-spinner loading-xs"></span>)
+            : (
+                <button className="btn btn-square btn-xs btn-success" onMouseDown={(event) => {
+                    event.stopPropagation();
+                    loadElement(id)
+                }} >
+                    <FontAwesomeIcon icon={faDownload} />
+                </button>
+            ))
         }
-        <button className="btn btn-square btn-error" onMouseDown={(event) => {
+        {select && (<button className="btn btn-square btn-accent btn-xs" onMouseDown={(event) => {
+            event.stopPropagation();
+            select.setter(id)
+        }}>
+            <FontAwesomeIcon icon={faCheck} />
+        </button>)}
+        <button className="btn btn-square btn-error  btn-xs" onMouseDown={(event) => {
             event.stopPropagation();
             onDel(id)
         }} >
-            Del
+            <FontAwesomeIcon icon={faDeleteLeft} />
         </button>
 
     </div>
