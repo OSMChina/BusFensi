@@ -11,8 +11,8 @@ function NodeProperty({ id }: { id: string }) {
     const modifyNodeNoCommit = useBearStoreWithUndo((state) => state.modifyNodeNoCommit)
     const commitAction = useBearStoreWithUndo(state => state.commitAction)
     return (
-        <div className="p-4 border rounded-lg bg-base-200 shadow-md">
-            <h3 className="text-xl font-semibold mb-4">Node {meta["@_id"]}</h3>
+        <div className="p-2 overflow-scroll">
+            <h3 className="text-base font-semibold mb-2">Node {meta["@_id"]}</h3>
             <FeatureState id={id} />
             <Attributes meta={meta} />
             <Tags tags={T2Arr(meta.tag)} setTags={(tags) => { const metaNew = deepCopy(meta); metaNew.tag = tags; modifyNodeNoCommit(id, metaNew) }} commitChange={commitAction} />

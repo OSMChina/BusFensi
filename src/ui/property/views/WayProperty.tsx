@@ -74,8 +74,8 @@ function WayProperty({ id }: { id: string }) {
     }
 
     return (
-        <div className="p-4 border rounded-lg bg-base-100 shadow-md">
-            <h3 className="text-xl font-semibold mb-4">Way {meta["@_id"]}</h3>
+        <div className="p-2 overflow-scroll">
+            <h3 className="text-base font-semibold mb-2">Way {meta["@_id"]}</h3>
             <FeatureState id={id} />
             <Attributes meta={meta} />
             <Tags tags={T2Arr(meta.tag)} setTags={(tags) => { const metaNew = deepCopy(meta); metaNew.tag = tags; modifyWayNoCommit(id, metaNew) }} commitChange={commitAction} />
