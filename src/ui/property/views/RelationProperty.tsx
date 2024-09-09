@@ -25,6 +25,9 @@ import FeatureState from "../components/FeatureStates";
 import MemberListItem from "../components/MemberListItem";
 import { useState } from "react";
 import Draggable from "../components/Dragable";
+import InsertMember from "./InsertMember";
+import { InsertHandeler } from "../type";
+import { FeatureTypes } from "../../../api/osm/type";
 
 function RelationProperty({ id }: { id: string }) {
     const meta = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.relations[id]));
@@ -36,6 +39,7 @@ function RelationProperty({ id }: { id: string }) {
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
+    const [localActiveMember, setlocalActiveMember] = useState<string | null>(null);
     interface ActiveObj {
         activeId?: string,
         activeType?: "node" | "way" | "relation"
@@ -73,12 +77,51 @@ function RelationProperty({ id }: { id: string }) {
         })
     }
 
+    const itemsToMember = (items: {
+        id: string,
+        type: FeatureTypes
+    }[]) => items.filter(item => !T2Arr(meta.member).some(m => item.id === m["@_ref"])).map(item => ({ '@_ref': item.id, '@_type': item.type }))
+
+    const handleInsertTop: InsertHandeler = (items) => {
+        console.log("Insert at Top: ", items);
+        modifyRelationNoCommit(id, {
+            member: [...itemsToMember(items), ...T2Arr(meta.member)]
+        })
+        commitAction()
+    };
+
+    const handleInsertBottom: InsertHandeler = (items) => {
+        console.log("Insert at Bottom: ", items);
+        modifyRelationNoCommit(id, {
+            member: [...T2Arr(meta.member), ...itemsToMember(items)]
+        })
+        commitAction()
+    };
+
+    const handleInsertAtActive: InsertHandeler = (items) => {
+        console.log("Insert at Active: ", items);
+        if (!localActiveMember) {
+            handleInsertBottom(items)
+        } else {
+            const membersArray = [...T2Arr(meta.member)];
+            const insertIndex = membersArray.findIndex(m => m["@_ref"] === localActiveMember);
+            membersArray.splice(insertIndex + 1, 0, ...itemsToMember(items));
+            modifyRelationNoCommit(id, {
+                member: membersArray
+            });
+            commitAction();
+        }
+    };
+
     return (
-        <div className="p-4 border rounded-lg bg-base-100 shadow-md">
-            <h3 className="text-xl font-semibold mb-4">Relation {meta["@_id"]}</h3>
+        <div className="p-2 overflow-scroll">
+            <h3 className="text-base font-semibold mb-2">Relation {meta["@_id"]}</h3>
             <FeatureState id={id} />
             <Attributes meta={meta} />
-            <Tags tags={T2Arr(meta.tag)} setTags={(tags) => { const metaNew = deepCopy(meta); metaNew.tag = tags; modifyRelationNoCommit(id, metaNew) }} commitChange={commitAction} />
+            <Tags tags={T2Arr(meta.tag)}
+                setTags={(tags) => { const metaNew = deepCopy(meta); metaNew.tag = tags; modifyRelationNoCommit(id, metaNew) }}
+                commitChange={commitAction}
+            />
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -93,19 +136,40 @@ function RelationProperty({ id }: { id: string }) {
                         if (member["@_type"] === "node") {
                             return (
                                 <Draggable id={id} key={id}>
-                                    <MemberListItem id={id} onDel={handleDelete} type="node" />
+                                    <MemberListItem
+                                        id={id}
+                                        onDel={handleDelete}
+                                        select={{
+                                            activeId: localActiveMember,
+                                            setter: (id) => (id === localActiveMember ? setlocalActiveMember(null) : setlocalActiveMember(id))
+                                        }}
+                                        type="node" />
                                 </Draggable>
                             );
                         } else if (member["@_type"] === "way") {
                             return (
                                 <Draggable id={id} key={id}>
-                                    <MemberListItem id={id} onDel={handleDelete} type="way" />
+                                    <MemberListItem
+                                        id={id}
+                                        onDel={handleDelete}
+                                        select={{
+                                            activeId: localActiveMember,
+                                            setter: (id) => (id === localActiveMember ? setlocalActiveMember(null) : setlocalActiveMember(id))
+                                        }}
+                                        type="way" />
                                 </Draggable>
                             );
                         } else {
                             return (
                                 <Draggable id={id} key={id}>
-                                    <MemberListItem id={id} onDel={handleDelete} type="relation" />
+                                    <MemberListItem
+                                        id={id}
+                                        onDel={handleDelete}
+                                        select={{
+                                            activeId: localActiveMember,
+                                            setter: (id) => (id === localActiveMember ? setlocalActiveMember(null) : setlocalActiveMember(id))
+                                        }}
+                                        type="relation" />
                                 </Draggable>
                             )
                         }
@@ -115,6 +179,13 @@ function RelationProperty({ id }: { id: string }) {
                     {(activeId && activeType) ? <MemberListItem id={activeId} type={activeType} onDel={() => { }} /> : null}
                 </DragOverlay>
             </DndContext>
+            <div className="absolute right-64 bottom-0">
+                <InsertMember
+                    handelInsertTop={handleInsertTop}
+                    handelIntertBottom={handleInsertBottom}
+                    handelInsertAtActive={handleInsertAtActive}
+                />
+            </div>
         </div>
     );
 }
