@@ -1,3 +1,5 @@
+export type FeatureTypes = "way" | "node" | "relation"
+
 interface Tag {
     "@_k": string
     "@_v": string
@@ -9,7 +11,7 @@ interface Node {
     "@_version": string,
     "@_changeset": string,
     "@_timestamp": string,
-    "@_user": StreamPipeOptions,
+    "@_user": string,
     "@_uid": string,
     "@_lat": number,
     "@_lon": number,
@@ -33,9 +35,9 @@ interface Way {
 }
 
 interface Member {
-    "@_type": "way" | "node" | "relation",
+    "@_type": FeatureType,
     "@_ref": string,
-    "@_role": string
+    "@_role"? : string
 }
 
 interface Relation {
