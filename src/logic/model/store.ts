@@ -2,10 +2,12 @@ import { create } from "zustand";
 import { temporal } from "zundo";
 import { DEFAULT_VIEWPOINT_WGS84, DEFAULT_ZOOM } from "../../utils/geo/constants";
 import { Collection, CollectionItem, DataState, FeatureState, FeatureTree, NodesObj, RelationsObj, WaysObj } from "./type";
-import { OSMV06BBoxObj } from "../../api/osm/type";
+import { Member, Node, OSMV06BBoxObj, Relation, Way } from "../../api/osm/type";
 import { deepCopy, T2Arr, union } from "../../utils/helper/object";
 import { produce } from "immer";
+import { enableMapSet } from "immer";
 import { filterBusPTv2, filterHighway } from "../../utils/osm/busFilter";
+import { PointWGS84 } from "../../utils/geo/types";
 
 const DEFAULT_RENDERED_FEATURE_STATE: FeatureState = {
     visible: true,
@@ -72,12 +74,12 @@ const genCollection = (osmFeatureMeta: {
     ways: WaysObj,
     relations: RelationsObj,
 }): Collection => {
-    const unionCollection = (...iterable: CollectionItem[]) : CollectionItem =>  ({
+    const unionCollection = (...iterable: CollectionItem[]): CollectionItem => ({
         nodesId: union(...iterable.map(col => col.nodesId)),
         waysId: union(...iterable.map(col => col.waysId)),
         relationsId: union(...iterable.map(col => col.relationsId)),
     })
-    
+
     const { nodes, ways, relations } = osmFeatureMeta
     const ptv2 = filterBusPTv2(nodes, ways, relations)
     const highway = filterHighway(nodes, ways, relations)
@@ -89,6 +91,53 @@ const genCollection = (osmFeatureMeta: {
     }
 }
 
+const CreateNodeMeta = (location: PointWGS84) => {
+    const id = `local-${Date.now()}`;
+    const newNode: Node = {
+        "@_id": id,
+        "@_lat": location.lat,
+        "@_lon": location.lon,
+        "@_visible": true,
+        "@_version": 'local',
+        "@_changeset": 'local',
+        "@_timestamp": 'local',
+        "@_user": 'local',
+        "@_uid": 'local'
+    };
+    return newNode
+}
+
+const createLocalWayMeta = (nodes: Node[]) => {
+    const id = `local-${Date.now()}`;
+    const newWay: Way = {
+        "@_id": id,
+        nd: nodes.map((node) => ({ "@_ref": node["@_id"] })),
+        "@_visible": true,
+        "@_version": 'local',
+        "@_changeset": 'local',
+        "@_timestamp": 'local',
+        "@_user": 'local',
+        "@_uid": 'local'
+    };
+    return newWay
+}
+
+const createLocalRelationMeta = (members: Member[]) => {
+    const id = `local-${Date.now()}`;
+    const newRelation: Relation = {
+        "@_id": id,
+        member: members,
+        "@_visible": true,
+        "@_version": '',
+        "@_changeset": '',
+        "@_timestamp": '',
+        "@_user": '',
+        "@_uid": ''
+    };
+    return newRelation
+}
+
+enableMapSet();
 /**
  * Why bear store? Cause we use zustand!
 */
@@ -99,7 +148,8 @@ const useBearStoreWithUndo = create<DataState>()(
             viewpoint: DEFAULT_VIEWPOINT_WGS84,
             stage: {
                 width: 0,
-                height: 0
+                height: 0,
+                cursor: 'default'
             },
             bboxs: [],
             commitCounter: 0,
@@ -242,6 +292,8 @@ const useBearStoreWithUndo = create<DataState>()(
                         throw new Error(`way ${key} already exists`)
                     }
                     state.renderedOSMFeatureMeta.nodes[key] = node;
+                    state.renderedOSMFeatureMeta.id2type[key] = 'node'
+
                     state.renderedFeatureState[key] = deepCopy(DEFAULT_RENDERED_FEATURE_STATE);
                     state.collections = genCollection(state.renderedOSMFeatureMeta);
                     state.featureTree = genTree(state.renderedOSMFeatureMeta);
@@ -256,6 +308,8 @@ const useBearStoreWithUndo = create<DataState>()(
                         throw new Error(`way ${key} already exists`)
                     }
                     state.renderedOSMFeatureMeta.ways[key] = way;
+                    state.renderedOSMFeatureMeta.id2type[key] = 'way'
+
                     state.renderedFeatureState[key] = deepCopy(DEFAULT_RENDERED_FEATURE_STATE);
 
                     nodes.forEach(node => {
@@ -265,6 +319,8 @@ const useBearStoreWithUndo = create<DataState>()(
                             return;
                         }
                         state.renderedOSMFeatureMeta.nodes[key] = node;
+                        state.renderedOSMFeatureMeta.id2type[key] = 'node'
+
                         state.renderedFeatureState[key] = deepCopy(DEFAULT_RENDERED_FEATURE_STATE);
                     })
 
@@ -281,12 +337,70 @@ const useBearStoreWithUndo = create<DataState>()(
                         throw new Error(`relation ${key} already exists`)
                     }
                     state.renderedOSMFeatureMeta.relations[key] = relation;
+                    state.renderedOSMFeatureMeta.id2type[key] = 'relation'
+
                     state.renderedFeatureState[key] = deepCopy(DEFAULT_RENDERED_FEATURE_STATE);
                     state.collections = genCollection(state.renderedOSMFeatureMeta);
                     state.featureTree = genTree(state.renderedOSMFeatureMeta);
                     state.commitCounter++;
                 }
             )),
+
+            // Action to create a local node
+            createLocalNodeAction: (location) => {
+                const newNode = CreateNodeMeta(location)
+                const id = newNode["@_id"]
+
+                set(produce((state: DataState) => {
+                    state.edit.nodes[id] = newNode
+                    state.renderedOSMFeatureMeta.nodes[id] = newNode
+                    state.renderedOSMFeatureMeta.id2type[id] = 'node'
+                    state.renderedFeatureState[id] = deepCopy(DEFAULT_RENDERED_FEATURE_STATE)
+
+                    state.collections = genCollection(state.renderedOSMFeatureMeta);
+                    state.featureTree = genTree(state.renderedOSMFeatureMeta);
+
+                    state.commitCounter++
+                }));
+                return id
+            },
+
+            // Action to create a local way
+            createLocalWayAction: (nodes) => {
+                const newWay = createLocalWayMeta(nodes)
+                const id = newWay["@_id"]
+                set(produce((state: DataState) => {
+                    state.edit.ways[id] = newWay
+                    state.renderedOSMFeatureMeta.ways[id] = newWay
+                    state.renderedOSMFeatureMeta.id2type[id] = 'way'
+                    state.renderedFeatureState[id] = deepCopy(DEFAULT_RENDERED_FEATURE_STATE)
+
+                    state.collections = genCollection(state.renderedOSMFeatureMeta);
+                    state.featureTree = genTree(state.renderedOSMFeatureMeta);
+
+                    state.commitCounter++
+                }));
+                return id
+            },
+
+            // Action to create a local relation
+            createLocalRelationAction: (members) => {
+                const newRelation = createLocalRelationMeta(members)
+                const id = newRelation["@_id"]
+                set(produce((state: DataState) => {
+                    state.edit.relations[id] = newRelation
+                    state.renderedOSMFeatureMeta.relations[id] = newRelation
+                    state.renderedOSMFeatureMeta.id2type[id] = 'relation'
+                    state.renderedFeatureState[id] = deepCopy(DEFAULT_RENDERED_FEATURE_STATE)
+
+                    state.collections = genCollection(state.renderedOSMFeatureMeta);
+                    state.featureTree = genTree(state.renderedOSMFeatureMeta);
+
+                    state.commitCounter++
+                }));
+                return id
+            },
+
             // 修改 node[id] 的方法
             modifyNodeNoCommit: (idStr, newNodeData) => set(produce(
                 (state: DataState) => {
@@ -337,6 +451,48 @@ const useBearStoreWithUndo = create<DataState>()(
                     state.featureTree = genTree(state.renderedOSMFeatureMeta)
                 }
             )),
+
+            splitWayAction: (node: Node) => set(produce((state: DataState) => {
+                const faWays = state.featureTree.elems
+                    .get(node["@_id"])?.fathers
+                    .filter(fa => "way" === state.renderedOSMFeatureMeta.id2type[fa])
+                    .map(fa => state.renderedOSMFeatureMeta.ways[fa])
+
+                faWays?.forEach(way => { // split way
+                    const nds = T2Arr(way.nd)
+                    const idx = nds.findIndex(nd => nd["@_ref"] === node["@_id"])
+                    if (idx !== 0 && idx !== nds.length - 1) { // not head or tail
+                        if (idx === -1) { throw new Error(`way ${way} must contain node ${node}, the feature tree is broken.`) }
+                        const newNds = nds.slice(idx).map(nd => state.renderedOSMFeatureMeta.nodes[nd["@_ref"]])
+                        way.nd = nds.slice(0, idx + 1) // modify old
+
+                        const newWay = createLocalWayMeta(newNds) // create new
+                        newWay.tag = deepCopy(way.tag)
+                        state.edit.ways[newWay["@_id"]] = newWay
+                        state.renderedOSMFeatureMeta.ways[newWay["@_id"]] = newWay
+                        state.renderedOSMFeatureMeta.id2type[newWay["@_id"]] = 'way'
+                        state.renderedFeatureState[newWay["@_id"]] = deepCopy(DEFAULT_RENDERED_FEATURE_STATE)
+
+                        // append new way to related relation
+                        const faRelationOfWay = state.featureTree.elems
+                            .get(way["@_id"])?.fathers
+                            .filter(fa => "relation" === state.renderedOSMFeatureMeta.id2type[fa])
+                            .map(fa => state.renderedOSMFeatureMeta.relations[fa])
+
+                        faRelationOfWay?.forEach(relation => {
+                            const members = T2Arr(relation.member)
+                            const idx = members.findIndex(m => m["@_ref"] === way["@_id"])
+                            if (idx === -1) { throw new Error(`relation ${relation} must contain way ${way}, the feature tree is broken.`) }
+                            members.splice(idx + 1, 0, { "@_ref": newWay["@_id"], "@_type": "way", "@_role": members[idx]["@_role"] })
+                            relation.member = members
+                        })
+                    }
+                })
+                state.collections = genCollection(state.renderedOSMFeatureMeta)
+                state.featureTree = genTree(state.renderedOSMFeatureMeta)
+                state.commitCounter++;
+            })),
+
             PIXIPointMoveNoCommit: (idStr, location) => set(produce(
                 (state: DataState) => {
                     const { nodes } = state.renderedOSMFeatureMeta;
@@ -391,7 +547,7 @@ const useBearStoreWithUndo = create<DataState>()(
                     }
                 }
             ),
-            stageResizeNoTrack: (stage) => set(() => { return { stage: stage } }),
+            stageStateNoTrack: (stage) => set((state) => ({ stage: { ...state.stage, ...stage } })),
         }), {
 
         partialize: (state) => {

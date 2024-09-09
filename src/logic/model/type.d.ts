@@ -55,6 +55,12 @@ export interface Collection {
     global: CollectionItem
 }
 
+interface StageState {
+    width: number,
+    height: number,
+    cursor: string
+}
+
 export interface DataState {
     /** changes be tracked by zundo */
     /** commit counter */
@@ -84,10 +90,7 @@ export interface DataState {
     viewpoint: PointWGS84
     zoom: number
     bboxs: Array<OSMV06BBoxObj>
-    stage: {
-        width: number,
-        height: number
-    },
+    stage: StageState,
     /**
      * All actions commits. commit means track state with zundo, allow undo/redo.
      * Some set don't commit, just temporary. need commit after stable
@@ -99,9 +102,13 @@ export interface DataState {
     addNodeAction: (node: Node) => void
     addWayAction: (way: Way, nodes: Node[]) => void
     addRelationAction: (relation: Relation) => void
+    createLocalNodeAction: (location: PointWGS84) => string;
+    createLocalWayAction: (nodes: Node[]) => string;
+    createLocalRelationAction: (members: Member[]) => string;
     modifyNodeNoCommit: (idStr: string, newNodeData: Partial<Node>) => void;
     modifyWayNoCommit: ( idStr:string, newWayData: Partial<Way>) => void;
     modifyRelationNoCommit: (idStr: string, newRelationData: Partial<Relation>) => void;
+    splitWayAction: (node: Node) => void
 
     PIXIPointMoveNoCommit: (idStr: string, location: PointWGS84) => void
     PIXIComponentSelectAction: (idStr: string, clear: boolean) => void
@@ -109,7 +116,7 @@ export interface DataState {
     PIXIComponentVisibleNoCommit: (idStr: string, val: boolean) => void
     viewpintMoveNoTrack: (viewpoint: PointWGS84) => void
     zoomNoTrack: (zoom: number) => void
-    stageResizeNoTrack: (stage: { width: number, height: number }) => void
+    stageStateNoTrack: (stage: Partial<StageState>) => void
 }
 
 export type PartializedStoreState = Pick<DataState, "edit" | "selectedComponent" | "commitCounter" | "renderedOSMFeatures">;
