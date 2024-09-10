@@ -2,6 +2,7 @@ import { useShallow } from "zustand/react/shallow"
 import useBearStoreWithUndo from "../../../logic/model/store"
 import { useEffect, useState } from "react";
 import { InsertHandeler } from "../type";
+import { ItemRefObj } from "../../../logic/model/type";
 
 function InsertMember({ handelInsertTop, handelIntertBottom, handelInsertAtActive }: {
     handelInsertTop: InsertHandeler,
@@ -9,32 +10,31 @@ function InsertMember({ handelInsertTop, handelIntertBottom, handelInsertAtActiv
     handelInsertAtActive: InsertHandeler
 }) {
     const selectedComponent = useBearStoreWithUndo(useShallow(state => state.selectedComponent));
-    const id2type = useBearStoreWithUndo(useShallow(state => state.renderedOSMFeatureMeta.id2type))
-    const [localSel, setlocalSel] = useState<string[]>([])
+    const [localSel, setlocalSel] = useState<ItemRefObj[]>([])
 
-    const handelClick = (id: string) => (
-        localSel.includes(id) ?
-            setlocalSel(localSel.filter(i => i !== id))
+    const handelClick = ({ id, type }: ItemRefObj) => (
+        localSel.some(item => item.id === id && item.type === type) ?
+            setlocalSel(localSel.filter(item => !(item.id === id && item.type === type)))
             :
-            setlocalSel([id, ...localSel])
+            setlocalSel([{ id: id, type: type }, ...localSel])
     )
-    const getSelected = () => selectedComponent.filter(id => localSel.includes(id)).map(id => ({ id: id, type: id2type[id] }))
+    const getSelected = () => selectedComponent.filter(id => localSel.some(item => item.id === id.id && item.type === id.type))
     useEffect(() => {
         setlocalSel(localSel => localSel.filter(i => selectedComponent.includes(i)))
     }, [selectedComponent])
     return <div className="flex flex-row justify-center max-h-96 bg-base-100 p-2 rounded-md ">
-        <ul className="menu bg-base-200 menu-xs     -box max-h-full overflow-scroll">
-            {selectedComponent.map((id) => {
+        <ul className="menu bg-base-200 menu-xs max-h-full overflow-scroll">
+            {selectedComponent.map((item) => {
                 let text = ""
-                if (id2type[id] === "node") {
-                    text = `Node-${id}`
-                } else if (id2type[id] === "way") {
-                    text = `Way-${id}`
+                if (item.type === "node") {
+                    text = `Node-${item.id}`
+                } else if (item.type === "way") {
+                    text = `Way-${item.id}`
                 } else {
-                    text = `Relation-${id}`
+                    text = `Relation-${item.id}`
                 }
-                return (<li key={id}>
-                    <span onClick={() => handelClick(id)} className={`${localSel.includes(id) && 'active'}`}>
+                return (<li key={`${item.type}-${item.id}`}>
+                    <span onClick={() => handelClick(item)} className={`${localSel.some(i => i.id === item.id && i.type === item.type) && 'active'}`}>
                         {text}
                     </span>
                 </li>)

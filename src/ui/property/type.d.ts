@@ -1,4 +1,4 @@
-import { FeatureTypes } from "../../api/osm/type";
+import { ItemRefObj } from "../../logic/model/type";
 
-export type InsertHandeler = (items: { id: string, type: FeatureTypes }[]) => void
+export type InsertHandeler = (items: ItemRefObj[]) => void
 

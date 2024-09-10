@@ -13,7 +13,7 @@ function NodeProperty({ id }: { id: string }) {
     return (
         <div className="p-2 overflow-scroll">
             <h3 className="text-base font-semibold mb-2">Node {meta["@_id"]}</h3>
-            <FeatureState id={id} />
+            <FeatureState id={id} type="node" />
             <Attributes meta={meta} />
             <Tags tags={T2Arr(meta.tag)} setTags={(tags) => { const metaNew = deepCopy(meta); metaNew.tag = tags; modifyNodeNoCommit(id, metaNew) }} commitChange={commitAction} />
             <FeatureRelation id={id} type="node" />

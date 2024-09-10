@@ -2,14 +2,15 @@ import { useShallow } from "zustand/react/shallow";
 import useBearStoreWithUndo from "../../../logic/model/store";
 import { T2Arr } from "../../../utils/helper/object";
 import { getPropFromTags } from "../../../utils/osm/getTag";
+import { ItemRefObj } from "../../../logic/model/type";
 
-function FeatureRelation({ id, type }: { id: string; type: "node" | "way" | "relation"; }) {
+function FeatureRelation({ id, type }: ItemRefObj) {
     const setSelectedComponent = useBearStoreWithUndo((state) => state.PIXIComponentSelectAction)
     const { relations, ways } = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta))
     const relationArray = Object.keys(relations).filter(key => Object.prototype.hasOwnProperty.call(relations, key)).map(key => relations[key])
     //const wayArray = Object.keys(ways).filter(key => Object.prototype.hasOwnProperty.call(ways, key)).map(key => ways[key])
     const handelRelation = (e: React.MouseEvent<HTMLLIElement, MouseEvent>, relationId: string) => {
-        setSelectedComponent(relationId, !e.shiftKey)
+        setSelectedComponent("relation", relationId, !e.shiftKey)
     }
 
     return (

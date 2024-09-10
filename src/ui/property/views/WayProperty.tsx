@@ -26,6 +26,7 @@ import FeatureState from "../components/FeatureStates";
 import MemberListItem from "../components/MemberListItem";
 import { useState } from "react";
 import Draggable from "../components/Dragable";
+import { ItemRefObj } from "../../../logic/model/type";
 
 function WayProperty({ id }: { id: string }) {
     const meta = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.ways[id]));
@@ -44,7 +45,7 @@ function WayProperty({ id }: { id: string }) {
     }
 
     const [{ activeId, activeType }, setActive] = useState<ActiveObj>({ activeId: undefined, activeType: undefined });
-    const items = T2Arr(meta.nd).map((nd) => ({ id: nd["@_ref"], nd: nd }));
+    const items = T2Arr(meta.nd).map((nd) => ({ id: nd["@_ref"], nd: nd })); // only have node type so id is always unique
 
     function handleDragStart(event: DragStartEvent) {
         const { active } = event;
@@ -67,16 +68,19 @@ function WayProperty({ id }: { id: string }) {
         setActive({ activeId: undefined, activeType: undefined });
     }
 
-    function handleDelete(idsub: string) {
+    function handleDelete(itemSub: ItemRefObj) {
+        if (itemSub.type !== "node") {
+            throw new Error(`non node child in way ${JSON.stringify(meta)}`)
+        }
         modifyWayNoCommit(id, {
-            nd: items.filter((item) => item.id !== idsub).map(item => item.nd)
+            nd: items.filter((item) => item.id !== itemSub.id).map(item => item.nd)
         })
     }
 
     return (
         <div className="p-2 overflow-scroll">
             <h3 className="text-base font-semibold mb-2">Way {meta["@_id"]}</h3>
-            <FeatureState id={id} />
+            <FeatureState id={id} type="way" />
             <Attributes meta={meta} />
             <Tags tags={T2Arr(meta.tag)} setTags={(tags) => { const metaNew = deepCopy(meta); metaNew.tag = tags; modifyWayNoCommit(id, metaNew) }} commitChange={commitAction} />
             <DndContext

@@ -6,14 +6,15 @@ import { settings } from "../../../logic/settings/settings"
 import { T2Arr } from "../../../utils/helper/object"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheck, faDeleteLeft, faDownload } from "@fortawesome/free-solid-svg-icons"
+import { ItemRefObj } from "../../../logic/model/type"
 
 function MemberListItem({ id, type, onDel, select }: {
     id: string,
     type: "node" | "way" | "relation",
-    onDel: (id: string) => void,
+    onDel: (item: ItemRefObj) => void,
     select?: {
-        activeId: string | null
-        setter: (id: string) => void
+        active?: ItemRefObj
+        setter: (item: ItemRefObj) => void
     }
 }) {
     const loaded = useBearStoreWithUndo(useShallow((state) => state.collections.global[`${type}sId`].has(id)))
@@ -39,7 +40,7 @@ function MemberListItem({ id, type, onDel, select }: {
         setLoading(false)
     }
 
-    return <div className={`rounded-sm border text-xs flex flex-row pl-1 ${select?.activeId === id ? "bg-neutral text-neutral-content" : "bg-base-200 text-base-content"}`}>
+    return <div className={`rounded-sm border text-xs flex flex-row pl-1 ${(select?.active?.id === id && select.active.type) ? "bg-neutral text-neutral-content" : "bg-base-200 text-base-content"}`}>
         <span>{`${type}-${id}`}</span>
         <span className="ml-auto"></span>
         {!loaded && (loading ?
@@ -55,13 +56,13 @@ function MemberListItem({ id, type, onDel, select }: {
         }
         {select && (<button className="btn btn-square btn-accent btn-xs" onMouseDown={(event) => {
             event.stopPropagation();
-            select.setter(id)
+            select.setter({ id: id, type: type })
         }}>
             <FontAwesomeIcon icon={faCheck} />
         </button>)}
         <button className="btn btn-square btn-error  btn-xs" onMouseDown={(event) => {
             event.stopPropagation();
-            onDel(id)
+            onDel({ id: id, type: type })
         }} >
             <FontAwesomeIcon icon={faDeleteLeft} />
         </button>

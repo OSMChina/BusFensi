@@ -27,7 +27,7 @@ import { useState } from "react";
 import Draggable from "../components/Dragable";
 import InsertMember from "./InsertMember";
 import { InsertHandeler } from "../type";
-import { FeatureTypes } from "../../../api/osm/type";
+import { ItemRefObj } from "../../../logic/model/type";
 
 function RelationProperty({ id }: { id: string }) {
     const meta = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.relations[id]));
@@ -39,19 +39,20 @@ function RelationProperty({ id }: { id: string }) {
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
-    const [localActiveMember, setlocalActiveMember] = useState<string | null>(null);
+    const [localActiveMember, setlocalActiveMember] = useState<ItemRefObj | undefined>(undefined);
     interface ActiveObj {
         activeId?: string,
         activeType?: "node" | "way" | "relation"
     }
 
     const [{ activeId, activeType }, setActive] = useState<ActiveObj>({ activeId: undefined, activeType: undefined });
-    const items = T2Arr(meta.member).map((member) => ({ id: member["@_ref"], member: member }))
+    const items = T2Arr(meta.member).map((member) => ({ id: `${member["@_type"]}-${member["@_ref"]}`, member: member }))
 
     function handleDragStart(event: DragStartEvent) {
         const { active } = event;
         console.log("drag memeber start:", active)
-        setActive({ activeId: active.id as string, activeType: items.find((item) => item.id === active.id)?.member["@_type"] });
+        const member = items.find((item) => item.id === active.id)?.member
+        setActive({ activeId: member?.["@_ref"], activeType: member?.["@_type"] });
     }
 
     function handleDragEnd(event: DragEndEvent) {
@@ -59,6 +60,7 @@ function RelationProperty({ id }: { id: string }) {
         console.log("drag memeber end:", active, over)
 
         if (over && active.id !== over.id) {
+            // id of drag list
             const oldIndex = items.findIndex(item => item.id === active.id);
             const newIndex = items.findIndex(item => item.id === over.id);
 
@@ -71,15 +73,15 @@ function RelationProperty({ id }: { id: string }) {
         setActive({ activeId: undefined, activeType: undefined });
     }
 
-    function handleDelete(idsub: string) {
+    function handleDelete(itemSub: ItemRefObj) {
         modifyRelationNoCommit(id, {
-            member: items.filter((item) => item.id !== idsub).map(item => item.member)
+            member: items.filter((item) => item.id !== `${itemSub.type}-${itemSub.id}`).map(item => item.member)
         })
     }
 
     const itemsToMember = (items: {
         id: string,
-        type: FeatureTypes
+        type: "way" | "node" | "relation"
     }[]) => items.filter(item => !T2Arr(meta.member).some(m => item.id === m["@_ref"])).map(item => ({ '@_ref': item.id, '@_type': item.type }))
 
     const handleInsertTop: InsertHandeler = (items) => {
@@ -104,7 +106,7 @@ function RelationProperty({ id }: { id: string }) {
             handleInsertBottom(items)
         } else {
             const membersArray = [...T2Arr(meta.member)];
-            const insertIndex = membersArray.findIndex(m => m["@_ref"] === localActiveMember);
+            const insertIndex = membersArray.findIndex(m => m["@_ref"] === localActiveMember.id && m["@_type"] === localActiveMember.type);
             membersArray.splice(insertIndex + 1, 0, ...itemsToMember(items));
             modifyRelationNoCommit(id, {
                 member: membersArray
@@ -116,7 +118,7 @@ function RelationProperty({ id }: { id: string }) {
     return (
         <div className="p-2 overflow-scroll">
             <h3 className="text-base font-semibold mb-2">Relation {meta["@_id"]}</h3>
-            <FeatureState id={id} />
+            <FeatureState id={id} type="relation" />
             <Attributes meta={meta} />
             <Tags tags={T2Arr(meta.tag)}
                 setTags={(tags) => { const metaNew = deepCopy(meta); metaNew.tag = tags; modifyRelationNoCommit(id, metaNew) }}
@@ -137,11 +139,11 @@ function RelationProperty({ id }: { id: string }) {
                             return (
                                 <Draggable id={id} key={id}>
                                     <MemberListItem
-                                        id={id}
+                                        id={member["@_ref"]}
                                         onDel={handleDelete}
                                         select={{
-                                            activeId: localActiveMember,
-                                            setter: (id) => (id === localActiveMember ? setlocalActiveMember(null) : setlocalActiveMember(id))
+                                            active: localActiveMember,
+                                            setter: (item) => (item === localActiveMember ? setlocalActiveMember(undefined) : setlocalActiveMember(item))
                                         }}
                                         type="node" />
                                 </Draggable>
@@ -150,11 +152,11 @@ function RelationProperty({ id }: { id: string }) {
                             return (
                                 <Draggable id={id} key={id}>
                                     <MemberListItem
-                                        id={id}
+                                        id={member["@_ref"]}
                                         onDel={handleDelete}
                                         select={{
-                                            activeId: localActiveMember,
-                                            setter: (id) => (id === localActiveMember ? setlocalActiveMember(null) : setlocalActiveMember(id))
+                                            active: localActiveMember,
+                                            setter: (item) => (item === localActiveMember ? setlocalActiveMember(undefined) : setlocalActiveMember(item))
                                         }}
                                         type="way" />
                                 </Draggable>
@@ -163,11 +165,11 @@ function RelationProperty({ id }: { id: string }) {
                             return (
                                 <Draggable id={id} key={id}>
                                     <MemberListItem
-                                        id={id}
+                                        id={member["@_ref"]}
                                         onDel={handleDelete}
                                         select={{
-                                            activeId: localActiveMember,
-                                            setter: (id) => (id === localActiveMember ? setlocalActiveMember(null) : setlocalActiveMember(id))
+                                            active: localActiveMember,
+                                            setter: (item) => (item === localActiveMember ? setlocalActiveMember(undefined) : setlocalActiveMember(item))
                                         }}
                                         type="relation" />
                                 </Draggable>
