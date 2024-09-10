@@ -35,7 +35,7 @@ function Point(
     const viewpoint = useBearStoreWithUndo((state) => state.viewpoint)
     const zoom = useBearStoreWithUndo((state) => state.zoom)
     const node = useBearStoreWithUndo((state) => state.renderedOSMFeatureMeta.nodes[idStr])
-    const { visible, hovered, selected, highlighted } = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState[idStr]));
+    const { visible, hovered, selected, highlighted } = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState.nodes[idStr]));
 
     const typeDisplay: "dot" | "pin" = "dot"
     const display = (typeDisplay !== "dot" && zoom >= 17) ? "pin" : "dot";
@@ -125,16 +125,16 @@ function Point(
         zIndex={settings.pixiRender.zIndex.POINT}
         eventMode="static"
         pointerdown={(event) => {
-            stateMachine.hookPIXIComponent(event, idStr)
+            stateMachine.hookPIXIComponent(event, idStr, "node")
         }}
         pointerup={(event) => {
-            stateMachine.hookPIXIComponent(event, idStr)
+            stateMachine.hookPIXIComponent(event, idStr, "node")
         }}
         pointerover={(event) => {
-            stateMachine.hookPIXIComponent(event, idStr)
+            stateMachine.hookPIXIComponent(event, idStr, "node")
         }}
         pointerout={(event) => {
-            stateMachine.hookPIXIComponent(event, idStr)
+            stateMachine.hookPIXIComponent(event, idStr, "node")
         }}
         position={getPixelByWGS84Locate(
             { lon: node["@_lon"], lat: node["@_lat"] },

@@ -1,4 +1,5 @@
 import { PointWGS84 } from "../../utils/geo/types"
+import { ItemRefObj } from "../model/type"
 
 export interface State {
     /**
@@ -28,7 +29,7 @@ export interface Bucket {
         y: number,
         viewpointBeforeDrag: PointWGS84
     } | null
-    componentTargetId?: string | null
+    componentTarget?: ItemRefObj
     componentDrag?: {
         x: number
         y: number

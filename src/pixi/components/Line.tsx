@@ -15,7 +15,7 @@ function Line({ idStr, width, height }: {
     width: number,
     height: number
 }) {
-    const { visible, hovered, selected, highlighted } = useBearStoreWithUndo((state) => state.renderedFeatureState[idStr]);
+    const { visible, hovered, selected, highlighted } = useBearStoreWithUndo((state) => state.renderedFeatureState.ways[idStr]);
     const lineMeta = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.ways[idStr]))
     const { viewpoint, zoom } = useBearStoreWithUndo(useShallow((state) => {
         const { viewpoint, zoom } = state;
@@ -67,12 +67,12 @@ function Line({ idStr, width, height }: {
             alpha: 1.0,
             join: PIXILINE_JOIN.BEVEL,
             cap: PIXILINE_CAP.BUTT
-          };
+        };
         // Create the polygon hit area
         const bufdata = lineToPoly(flatPath, hitStyle);
-          console.log(bufdata)
+        console.log(bufdata)
         if (containerRef.current && bufdata.perimeter) {
-            containerRef.current.hitArea =  new PIXIPolygon(bufdata.perimeter);
+            containerRef.current.hitArea = new PIXIPolygon(bufdata.perimeter);
             // const g = new PIXIGraphics()
             // g.beginFill(0x5d0015);
             // g.drawPolygon(
@@ -138,17 +138,17 @@ function Line({ idStr, width, height }: {
         pointerover={(event) => {
             console.log("line !")
 
-            stateMachine.hookPIXIComponent(event, idStr)
+            stateMachine.hookPIXIComponent(event, idStr, "way")
         }}
         pointerout={(event) => {
-            stateMachine.hookPIXIComponent(event, idStr)
+            stateMachine.hookPIXIComponent(event, idStr, "way")
         }}
         pointerdown={(event) => {
             console.log("line down")
-            stateMachine.hookPIXIComponent(event, idStr)
+            stateMachine.hookPIXIComponent(event, idStr, "way")
         }}
         pointerup={(event) => {
-            stateMachine.hookPIXIComponent(event, idStr)
+            stateMachine.hookPIXIComponent(event, idStr, "way")
         }}
     >
         <Graphics

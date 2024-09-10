@@ -50,10 +50,10 @@ const doComponentDragging = (x: number, y: number): void => {
     const location = getWGS84LocateByPixel({ x: x, y: y }, viewpoint, zoom, width, height);
     const newpixPoint = getPixelByWGS84Locate(location, viewpoint, zoom, width, height);
     console.log("on component drag", { x: x, y: y }, newpixPoint)
-    if (typeof stateMachine.bucket.componentTargetId === "string") {
-        PIXIPointMoveNoCommit(stateMachine.bucket.componentTargetId, location)
+    if (typeof stateMachine.bucket.componentTarget?.id === "string" && stateMachine.bucket.componentTarget.type === "node") {
+        PIXIPointMoveNoCommit(stateMachine.bucket.componentTarget.id, location)
     } else {
-        throw new Error(`stateMachine.bucket.componentTargetId should not be ${stateMachine.bucket.componentTargetId} at point move`)
+        throw new Error(`stateMachine.bucket.componentTarget should not be ${JSON.stringify(stateMachine.bucket.componentTarget)} at point move`)
     }
 };
 
@@ -111,11 +111,14 @@ Idle.nxt = [
     {
         state: ComponentHover,
         transfer: (event: React.PointerEvent<HTMLCanvasElement>): boolean => {
-            if (['pointerover', 'pointerenter',].includes(event.type) && stateMachine.targetId) {
+            if (['pointerover', 'pointerenter',].includes(event.type) && stateMachine.targetId && stateMachine.targetType) {
                 stateMachine.bucket = {};
-                stateMachine.bucket.componentTargetId = stateMachine.targetId;
+                stateMachine.bucket.componentTarget = {
+                    id: stateMachine.targetId,
+                    type: stateMachine.targetType
+                }
                 const { PIXIComponentHoverNoCommit } = useBearStoreWithUndo.getState()
-                PIXIComponentHoverNoCommit(stateMachine.bucket.componentTargetId, true);
+                PIXIComponentHoverNoCommit(stateMachine.bucket.componentTarget.type, stateMachine.bucket.componentTarget.id, true);
                 console.log('component hovered:', stateMachine.targetId, event);
                 return true;
             }
@@ -125,7 +128,7 @@ Idle.nxt = [
     {
         state: mapDrag,
         transfer: (event: React.PointerEvent<HTMLCanvasElement>): boolean => {
-            if (event.type === 'pointerdown' && !stateMachine.bucket?.componentTargetId && !stateMachine.shiftKey) {
+            if (event.type === 'pointerdown' && !stateMachine.bucket.componentTarget && !stateMachine.shiftKey) {
                 const vnb = useBearStoreWithUndo.getState().viewpoint
                 stateMachine.bucket = {};
                 stateMachine.bucket.mapDrag = { x: event.clientX, y: event.clientY, viewpointBeforeDrag: vnb };
@@ -172,16 +175,11 @@ ComponentHover.nxt = [
     {
         state: componentMousedown,
         transfer: (event): boolean => {
-            if (['pointerdown', 'mousedown'].includes(event.type)) {
-                const id = stateMachine.bucket.componentTargetId;
+            if (['pointerdown', 'mousedown'].includes(event.type) && stateMachine.bucket.componentTarget) {
+                const { id, type } = stateMachine.bucket.componentTarget;
                 const { PIXIComponentHoverNoCommit } = useBearStoreWithUndo.getState()
                 console.log('to componnet mouse down', event)
-                if (typeof id === "string") {
-
-                    PIXIComponentHoverNoCommit(id, false);
-                } else {
-                    throw new Error(`id ${id} is invalid for component`)
-                }
+                PIXIComponentHoverNoCommit(type, id, false);
                 return true;
             }
             return false;
@@ -190,16 +188,12 @@ ComponentHover.nxt = [
     {
         state: Idle,
         transfer: (event): boolean => {
-            if (['pointerleave', 'pointerout'].includes(event.type)) {
-                const id = stateMachine.bucket.componentTargetId;
+            if (['pointerleave', 'pointerout'].includes(event.type) && stateMachine.bucket.componentTarget) {
+                const { id, type } = stateMachine.bucket.componentTarget;
                 const { PIXIComponentHoverNoCommit } = useBearStoreWithUndo.getState()
-                if (typeof id === "string") {
-                    PIXIComponentHoverNoCommit(id, false);
-                } else {
-                    throw new Error(`id ${id} is invalid for component`)
-                }
-                stateMachine.bucket.componentTargetId = null;
-                console.log('quit hovered', stateMachine.bucket.componentTargetId);
+                PIXIComponentHoverNoCommit(type, id, false);
+                stateMachine.bucket.componentTarget = undefined;
+                console.log('quit hovered', stateMachine.bucket.componentTarget);
                 return true;
             }
             return false;
@@ -212,8 +206,7 @@ componentMousedown.nxt = [
         state: pointDrag,
         transfer: (event: React.PointerEvent<HTMLCanvasElement>): boolean => {
             if (event.type === 'pointermove'
-                && stateMachine.bucket.componentTargetId
-                && "node" === useBearStoreWithUndo.getState().renderedOSMFeatureMeta.id2type[stateMachine.bucket.componentTargetId]
+                && "node" === stateMachine.bucket.componentTarget?.type
             ) {
                 const { clientX, clientY } = event;
                 doComponentDragging(clientX, clientY);
@@ -225,14 +218,14 @@ componentMousedown.nxt = [
     {
         state: Idle,
         transfer: (event): boolean => {
-            if (event.type === 'pointerup' || event.type === 'pointerupoutside') {
+            if ((event.type === 'pointerup' || event.type === 'pointerupoutside') && stateMachine.bucket.componentTarget) {
                 // mouse down and up, means select
                 const { PIXIComponentSelectAction: PIXIPointSelectAction } = useBearStoreWithUndo.getState()
-                const id = stateMachine.bucket.componentTargetId;
+                const { id, type } = stateMachine.bucket.componentTarget;
                 if (typeof id === "string") {
-                    PIXIPointSelectAction(id, !stateMachine.shiftKey);
+                    PIXIPointSelectAction(type, id, !stateMachine.shiftKey);
                     console.log('selected id', id, useBearStoreWithUndo.getState().selectedComponent)
-                    stateMachine.bucket.componentTargetId = null;
+                    stateMachine.bucket.componentTarget = undefined;
                 } else {
                     throw new Error(`id ${id} is invalid for component`)
                 }
@@ -247,15 +240,11 @@ pointDrag.nxt = [
     {
         state: ComponentHover,
         transfer: (event): boolean => {
-            if (event.type === 'pointerup') {
+            if (event.type === 'pointerup' && stateMachine.bucket.componentTarget) {
                 console.log('state back to hover');
                 const { commitAction, PIXIComponentHoverNoCommit } = useBearStoreWithUndo.getState()
                 commitAction() // end Drag, to hover
-                if (typeof stateMachine.bucket.componentTargetId === "string") {
-                    PIXIComponentHoverNoCommit(stateMachine.bucket.componentTargetId, true)
-                } else {
-                    throw new Error(`id ${stateMachine.bucket.componentTargetId} is invalid for component at hover`)
-                }
+                PIXIComponentHoverNoCommit(stateMachine.bucket.componentTarget.type, stateMachine.bucket.componentTarget.id, true)
                 return true;
             }
             return false;
@@ -265,7 +254,7 @@ pointDrag.nxt = [
         state: Idle,
         transfer: (event): boolean => {
             if (event.type === 'pointerupoutside') {
-                stateMachine.bucket.componentTargetId = null;
+                stateMachine.bucket.componentTarget = undefined;
                 const { commitAction } = useBearStoreWithUndo.getState()
                 commitAction()
                 return true;
@@ -352,32 +341,31 @@ addNodeOnWay.nxt = [{
     state: Idle,
     transfer: (event: React.PointerEvent<HTMLCanvasElement>): boolean => {
         if (event.type === 'pointerdown') {
-            if (event.button === 0 && stateMachine.targetId) {
-                const { viewpoint, zoom, stage, renderedOSMFeatureMeta, createLocalNodeAction: createLocalNode, modifyWayNoCommit, commitAction } = useBearStoreWithUndo.getState()
-                if (renderedOSMFeatureMeta.id2type[stateMachine.targetId] === "way") {
-                    const { clientX, clientY } = event
-                    const point = getWGS84LocateByPixel(
-                        { x: clientX, y: clientY },
-                        viewpoint,
-                        zoom,
-                        stage.width,
-                        stage.height
-                    )
-                    const way = renderedOSMFeatureMeta.ways[stateMachine.targetId]
-                    const pointPath = T2Arr(way.nd).map(nd => renderedOSMFeatureMeta.nodes[nd['@_ref']])
-                    const { nearestPoint, insertAfter } = getNearestPointOnPolyline(point, pointPath)
-                    const nodeId = createLocalNode(nearestPoint)
-                    const newNd = Array.from(T2Arr(way.nd))
-                    newNd.splice(T2Arr(way.nd).findIndex(nd => nd['@_ref'] === insertAfter['@_id']) + 1, 0, { "@_ref": nodeId })
-                    modifyWayNoCommit(
-                        stateMachine.targetId, {
-                        nd: newNd
-                    })
-                    console.log('nodeid', nodeId, newNd)
+            if (event.button === 0 && stateMachine.targetId && stateMachine.targetType === "way") {
+                const { viewpoint, zoom, stage, renderedOSMFeatureMeta, createLocalNodeAction, modifyWayNoCommit, commitAction } = useBearStoreWithUndo.getState()
+                const { clientX, clientY } = event
+                const point = getWGS84LocateByPixel(
+                    { x: clientX, y: clientY },
+                    viewpoint,
+                    zoom,
+                    stage.width,
+                    stage.height
+                )
+                const way = renderedOSMFeatureMeta.ways[stateMachine.targetId]
+                const pointPath = T2Arr(way.nd).map(nd => renderedOSMFeatureMeta.nodes[nd['@_ref']])
+                const { nearestPoint, insertAfter } = getNearestPointOnPolyline(point, pointPath)
+                const nodeId = createLocalNodeAction(nearestPoint)
+                const newNd = Array.from(T2Arr(way.nd))
+                newNd.splice(T2Arr(way.nd).findIndex(nd => nd['@_ref'] === insertAfter['@_id']) + 1, 0, { "@_ref": nodeId })
+                modifyWayNoCommit(
+                    stateMachine.targetId, {
+                    nd: newNd
+                })
+                console.log('nodeid', nodeId, newNd)
 
-                    commitAction()
-                    console.log('added node');
-                }
+                commitAction()
+                console.log('added node');
+
             }
             return true;
         }
@@ -389,13 +377,11 @@ splitWay.nxt = [{
     state: Idle,
     transfer: (event: React.PointerEvent<HTMLCanvasElement>) => {
         if (event.type === 'pointerdown') {
-            if (event.button === 0 && stateMachine.targetId) {
+            if (event.button === 0 && stateMachine.targetId && "node" === stateMachine.targetType) {
                 const { renderedOSMFeatureMeta, splitWayAction } = useBearStoreWithUndo.getState()
-                if (renderedOSMFeatureMeta.id2type[stateMachine.targetId] === "node") {
-                    const node = renderedOSMFeatureMeta.nodes[stateMachine.targetId]
-                    splitWayAction(node);
-                    console.log('splited way');
-                }
+                const node = renderedOSMFeatureMeta.nodes[stateMachine.targetId]
+                splitWayAction(node);
+                console.log('splited way');
             }
             return true;
         }
