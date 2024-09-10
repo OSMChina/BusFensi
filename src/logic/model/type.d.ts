@@ -9,6 +9,11 @@ export interface FeatureState {
     highlighted: boolean
 }
 
+export interface ItemRefObj {
+    type: "node" | "way" | "relation",
+    id: string
+}
+
 export interface NodesObj {
     [id: string]: Node
 }
@@ -21,18 +26,39 @@ export interface RelationsObj {
     [id: string]: Relation
 }
 
-
 export interface FeatureTreeNode {
     id: string
     type: "node" | "way" | "relation"
-    fathers: string[]
+    fathers: {
+        nodesID: string[]
+        waysID: string[]
+        relationsID: string[]
+    }
     /** must in order, may includes non-exsist */
-    childs: string[]
+    childs: {
+        nodesID: string[]
+        waysID: string[]
+        relationsID: string[]
+    }
 }
 
 export interface FeatureTree {
-    elems: Map<string, FeatureTreeNode>
-    roots: Set<string>
+    elems: {
+        nodes: {
+            [id: string]: FeatureTreeNode
+        },
+        ways: {
+            [id: string]: FeatureTreeNode
+        },
+        relations: {
+            [id: string]: FeatureTreeNode
+        }
+    }
+    roots: {
+        nodesID: Set<string>,
+        waysID: Set<string>,
+        relationsID: Set<string>
+    }
 }
 
 /**
@@ -71,18 +97,23 @@ export interface DataState {
         ways: WaysObj
         relations: RelationsObj
     },
-    selectedComponent: string[]
+    selectedComponent: ItemRefObj[]
     /** rendered osm features meta, */
     renderedOSMFeatureMeta: {
         nodes: NodesObj
         ways: WaysObj
         relations: RelationsObj
-        id2type: {
-            [id: string]: "node" | "way" | "relation"
-        }
     }
     renderedFeatureState: {
-        [id: string]: FeatureState
+        nodes: {
+            [id: string]: FeatureState
+        }
+        ways: {
+            [id: string]: FeatureState
+        }
+        relations: {
+            [id: string]: FeatureState
+        }
     }
     collections: Collection
     featureTree: FeatureTree
@@ -106,14 +137,14 @@ export interface DataState {
     createLocalWayAction: (nodes: Node[]) => string;
     createLocalRelationAction: (members: Member[]) => string;
     modifyNodeNoCommit: (idStr: string, newNodeData: Partial<Node>) => void;
-    modifyWayNoCommit: ( idStr:string, newWayData: Partial<Way>) => void;
+    modifyWayNoCommit: (idStr: string, newWayData: Partial<Way>) => void;
     modifyRelationNoCommit: (idStr: string, newRelationData: Partial<Relation>) => void;
     splitWayAction: (node: Node) => void
 
     PIXIPointMoveNoCommit: (idStr: string, location: PointWGS84) => void
-    PIXIComponentSelectAction: (idStr: string, clear: boolean) => void
-    PIXIComponentHoverNoCommit: (idStr: string, val: boolean) => void
-    PIXIComponentVisibleNoCommit: (idStr: string, val: boolean) => void
+    PIXIComponentSelectAction: (type: "node" | "way" | "relation", idStr: string, clear: boolean) => void
+    PIXIComponentHoverNoCommit: (type: "node" | "way" | "relation", idStr: string, val: boolean) => void
+    PIXIComponentVisibleNoCommit: (type: "node" | "way" | "relation", idStr: string, val: boolean) => void
     viewpintMoveNoTrack: (viewpoint: PointWGS84) => void
     zoomNoTrack: (zoom: number) => void
     stageStateNoTrack: (stage: Partial<StageState>) => void
