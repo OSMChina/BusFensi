@@ -37,9 +37,9 @@ function CollectionItem({ collecion, name: coName }: {
             </span>
             {!collapsed && (
                 <ul className="menu menu-xs pl-4">
-                    {[...roots].filter(id => nodesId.has(id)).map(id => <NodeItem key={id} id={id} filter={filter} />)}
-                    {[...roots].filter(id => waysId.has(id)).map(id => <WayItem key={id} id={id} filter={filter} />)}
-                    {[...roots].filter(id => relationsId.has(id)).map(id => <RelationItem key={id} id={id} filter={filter} />)}
+                    {[...roots.nodesID].map(id => <NodeItem key={id} id={id} filter={filter} />)}
+                    {[...roots.waysID].map(id => <WayItem key={id} id={id} filter={filter} />)}
+                    {[...roots.relationsID].map(id => <RelationItem key={id} id={id} filter={filter} />)}
                 </ul>
             )}
         </li>

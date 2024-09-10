@@ -11,13 +11,13 @@ function WayItem({ id, filter }: { id: string, filter: filterFunc }) {
     const nodesId = useBearStoreWithUndo(useShallow((state) => Object.keys(state.renderedOSMFeatureMeta.nodes)));
     const way = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.ways[id]));
     const setSelectedComponent = useBearStoreWithUndo((state) => state.PIXIComponentSelectAction);
-    const featureState = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState[id]));
+    const featureState = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState.ways[id]));
     const [collapsed, setCollapsed] = useState(true);
     if (!filter(way, "way")) {
         return null
     }
 
-    const {visible, selected} = featureState;
+    const { visible, selected } = featureState;
     const tags = T2Arr(way.tag);
 
     let name = `way-${id}`;
@@ -34,7 +34,7 @@ function WayItem({ id, filter }: { id: string, filter: filterFunc }) {
 
 
     const handleClick: React.MouseEventHandler<HTMLSpanElement> = (e) => {
-        setSelectedComponent(id, !e.shiftKey); // select the way, auto
+        setSelectedComponent("way", id, !e.shiftKey); // select the way, auto
     };
 
     const toggleCollapse: React.MouseEventHandler<SVGSVGElement> = (e) => {
@@ -52,7 +52,7 @@ function WayItem({ id, filter }: { id: string, filter: filterFunc }) {
             </span>
             {!collapsed && (
                 <ul className="menu menu-xs pl-4">
-                    {subNodes.map(nd => <NodeItem key={nd["@_ref"]} id={nd["@_ref"]} filter={filter}/>)}
+                    {subNodes.map(nd => <NodeItem key={nd["@_ref"]} id={nd["@_ref"]} filter={filter} />)}
                 </ul>
             )}
         </li>

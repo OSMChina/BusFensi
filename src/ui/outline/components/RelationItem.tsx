@@ -11,14 +11,14 @@ import { filterFunc } from "../type";
 function RelationItem({ id, filter }: { id: string, filter: filterFunc }) {
     const relations = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.relations[id]));
     const setSelectedComponent = useBearStoreWithUndo((state) => state.PIXIComponentSelectAction);
-    const featureState = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState[id]));
+    const featureState = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState.relations[id]));
     const [collapsed, setCollapsed] = useState(true)
 
     if (!filter(relations, "relation")) {
         return null
     }
 
-    const {visible, selected} = featureState;
+    const { visible, selected } = featureState;
 
     let name = `relation-${id}`;
     const tags = T2Arr(relations.tag);
@@ -37,7 +37,7 @@ function RelationItem({ id, filter }: { id: string, filter: filterFunc }) {
     const subRelations = members.filter(member => member["@_type"] === "relation")
 
     const handleClick: React.MouseEventHandler<HTMLSpanElement> = (e) => {
-        setSelectedComponent(id, !e.shiftKey); // select the way, auto
+        setSelectedComponent("relation", id, !e.shiftKey); // select the way, auto
     };
 
     const toggleCollapse: React.MouseEventHandler<SVGSVGElement> = (e) => {

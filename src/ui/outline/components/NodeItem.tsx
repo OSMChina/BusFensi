@@ -6,16 +6,16 @@ import { isBusStop } from "../../../utils/osm/busFilter";
 import { useShallow } from "zustand/react/shallow";
 import { filterFunc } from "../type";
 
-function NodeItem({ id, filter }: { id: string, filter:filterFunc }) {
+function NodeItem({ id, filter }: { id: string, filter: filterFunc }) {
     const meta = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.nodes[id]));
-    const featureState = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState[id]));
+    const featureState = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState.nodes[id]));
     const setSelectedComponent = useBearStoreWithUndo((state) => state.PIXIComponentSelectAction)
-    
+
     if (!filter(meta, "node")) {
         return null
     }
-    
-    const {visible, selected } = featureState
+
+    const { visible, selected } = featureState
 
     let name = `node-${id}`;
     let icon = faCircle;
@@ -35,7 +35,7 @@ function NodeItem({ id, filter }: { id: string, filter:filterFunc }) {
     ${(visible ? 'bg-base-200 text-base-content' : 'bg-base-100 text-gray-400')}`;
 
     const handleClick: React.MouseEventHandler<HTMLSpanElement> = (e) => {
-        setSelectedComponent(id, !e.shiftKey); // select the way, auto
+        setSelectedComponent("node", id, !e.shiftKey); // select the way, auto
     };
 
 
