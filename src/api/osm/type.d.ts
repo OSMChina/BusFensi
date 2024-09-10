@@ -1,4 +1,3 @@
-export type FeatureTypes = "way" | "node" | "relation"
 
 interface Tag {
     "@_k": string
@@ -35,7 +34,7 @@ interface Way {
 }
 
 interface Member {
-    "@_type": FeatureType,
+    "@_type": "way" | "node" | "relation",
     "@_ref": string,
     "@_role"? : string
 }
