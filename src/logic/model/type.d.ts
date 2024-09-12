@@ -91,13 +91,12 @@ export interface DataState {
     /** changes be tracked by zundo */
     /** commit counter */
     commitCounter: number
-    /** changeset of editor */
-    edit: {
+    selectedComponent: ItemRefObj[]
+    deletedOSMFeatureMeta: {
         nodes: NodesObj
         ways: WaysObj
         relations: RelationsObj
-    },
-    selectedComponent: ItemRefObj[]
+    }
     /** rendered osm features meta, */
     renderedOSMFeatureMeta: {
         nodes: NodesObj
@@ -134,8 +133,11 @@ export interface DataState {
     addWayAction: (way: Way, nodes: Node[]) => void
     addRelationAction: (relation: Relation) => void
     createLocalNodeAction: (location: PointWGS84) => string;
-    createLocalWayAction: (nodes: Node[]) => string;
+    createLocalWayAction: (nodes: Nd[]) => string;
     createLocalRelationAction: (members: Member[]) => string;
+    deleteNodeAction: (id: string) => void;
+    deleteWayAndSubNdAction: (id: string) => void;
+    deleteRelationAction: (id: string) => void;
     modifyNodeNoCommit: (idStr: string, newNodeData: Partial<Node>) => void;
     modifyWayNoCommit: (idStr: string, newWayData: Partial<Way>) => void;
     modifyRelationNoCommit: (idStr: string, newRelationData: Partial<Relation>) => void;
@@ -143,6 +145,7 @@ export interface DataState {
 
     PIXIPointMoveNoCommit: (idStr: string, location: PointWGS84) => void
     PIXIComponentSelectAction: (type: "node" | "way" | "relation", idStr: string, clear: boolean) => void
+    PIXIComponentSelectClearAction: () => void
     PIXIComponentHoverNoCommit: (type: "node" | "way" | "relation", idStr: string, val: boolean) => void
     PIXIComponentVisibleNoCommit: (type: "node" | "way" | "relation", idStr: string, val: boolean) => void
     viewpintMoveNoTrack: (viewpoint: PointWGS84) => void
