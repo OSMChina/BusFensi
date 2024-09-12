@@ -11,7 +11,7 @@ function NodeItem({ id, filter }: { id: string, filter: filterFunc }) {
     const featureState = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState.nodes[id]));
     const setSelectedComponent = useBearStoreWithUndo((state) => state.PIXIComponentSelectAction)
 
-    if (!filter(meta, "node")) {
+    if (!meta || !filter(meta, "node")) {
         return null
     }
 
