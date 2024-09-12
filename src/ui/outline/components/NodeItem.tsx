@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBus, faCircle } from "@fortawesome/free-solid-svg-icons";
 import useBearStoreWithUndo from "../../../logic/model/store";
 import { T2Arr } from "../../../utils/helper/object";
-import { isBusStop } from "../../../utils/osm/busFilter";
+import { isBusStop } from "../../../utils/osm/filter";
 import { useShallow } from "zustand/react/shallow";
 import { filterFunc } from "../type";
 

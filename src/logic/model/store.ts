@@ -6,7 +6,7 @@ import { Member, Nd, Node, OSMV06BBoxObj, Relation, Way } from "../../api/osm/ty
 import { deepCopy, T2Arr, union } from "../../utils/helper/object";
 import { produce } from "immer";
 import { enableMapSet } from "immer";
-import { filterBusPTv2, filterHighway } from "../../utils/osm/busFilter";
+import { filterBusPTv2, filterHighway } from "../../utils/osm/filter";
 import { PointWGS84 } from "../../utils/geo/types";
 
 const DEFAULT_RENDERED_FEATURE_STATE: FeatureState = {
