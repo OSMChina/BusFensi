@@ -23,6 +23,27 @@ function InsertMember({ handelInsertTop, handelIntertBottom, handelInsertAtActiv
         setlocalSel(localSel => localSel.filter(i => selectedComponent.includes(i)))
     }, [selectedComponent])
     return <div className="flex flex-row justify-center max-h-96 bg-base-100 p-2 rounded-md ">
+        <div className="join join-vertical">
+            <button
+                className="btn btn-xs join-item"
+                onClick={() => { handelInsertTop(getSelected()); setlocalSel([]) }}
+            >
+                InsTop
+            </button>
+            <button
+                className="btn btn-xs join-item"
+                onClick={() => { handelInsertAtActive(getSelected()); setlocalSel([]) }}
+            >
+                InsAct
+            </button>
+            <button
+                className="btn btn-xs join-item"
+                onClick={() => { handelIntertBottom(getSelected()); setlocalSel([]) }}
+            >
+                InsBtm
+            </button>
+        </div>
+
         <ul className="menu bg-base-200 menu-xs max-h-full overflow-scroll">
             {selectedComponent.map((item) => {
                 let text = ""
@@ -40,27 +61,6 @@ function InsertMember({ handelInsertTop, handelIntertBottom, handelInsertAtActiv
                 </li>)
             })}
         </ul>
-        <div className="divider divider-horizontal"></div>
-        <div className="join join-vertical">
-            <button
-                className="btn join-item"
-                onClick={() => { handelInsertTop(getSelected()); setlocalSel([]) }}
-            >
-                InsTop
-            </button>
-            <button
-                className="btn join-item"
-                onClick={() => { handelInsertAtActive(getSelected()); setlocalSel([]) }}
-            >
-                InsAct
-            </button>
-            <button
-                className="btn join-item"
-                onClick={() => { handelIntertBottom(getSelected()); setlocalSel([]) }}
-            >
-                InsBtm
-            </button>
-        </div>
     </div>
 }
 
