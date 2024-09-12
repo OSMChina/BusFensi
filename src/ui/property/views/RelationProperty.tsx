@@ -46,6 +46,9 @@ function RelationProperty({ id }: { id: string }) {
     }
 
     const [{ activeId, activeType }, setActive] = useState<ActiveObj>({ activeId: undefined, activeType: undefined });
+    if (!meta) {
+        return null
+    }
     const items = T2Arr(meta.member).map((member) => ({ id: `${member["@_type"]}-${member["@_ref"]}`, member: member }))
 
     function handleDragStart(event: DragStartEvent) {
@@ -82,7 +85,11 @@ function RelationProperty({ id }: { id: string }) {
     const itemsToMember = (items: {
         id: string,
         type: "way" | "node" | "relation"
-    }[]) => items.filter(item => !T2Arr(meta.member).some(m => item.id === m["@_ref"])).map(item => ({ '@_ref': item.id, '@_type': item.type }))
+    }[]) => items
+        .filter(item =>
+            !T2Arr(meta.member)
+                .some(m => item.id === m["@_ref"] && item.type === m["@_type"]))
+        .map(item => ({ '@_ref': item.id, '@_type': item.type }))
 
     const handleInsertTop: InsertHandeler = (items) => {
         console.log("Insert at Top: ", items);
@@ -115,6 +122,24 @@ function RelationProperty({ id }: { id: string }) {
         }
     };
 
+    const handelEditMember = (type: "node" | "way" | "relation", ref: string, text: string) => {
+        console.log('edit', type, ref, text)
+        modifyRelationNoCommit(id, {
+            member: T2Arr(meta.member).map(m => {
+                if (m["@_type"] === type && m["@_ref"] === ref) {
+                    const mem = deepCopy(m)
+                    mem["@_role"] = text
+                    return mem
+                }
+                return m
+            })
+        })
+    }
+
+    const handelEditMemberBlur = () => {
+        commitAction()
+    }
+
     return (
         <div className="p-2 overflow-scroll">
             <h3 className="text-base font-semibold mb-2">Relation {meta["@_id"]}</h3>
@@ -124,69 +149,50 @@ function RelationProperty({ id }: { id: string }) {
                 setTags={(tags) => { const metaNew = deepCopy(meta); metaNew.tag = tags; modifyRelationNoCommit(id, metaNew) }}
                 commitChange={commitAction}
             />
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-            >
-                <SortableContext
-                    items={items}
-                    strategy={verticalListSortingStrategy}
-                >
-                    {items.map(({ id, member }) => {
-                        if (member["@_type"] === "node") {
-                            return (
-                                <Draggable id={id} key={id}>
-                                    <MemberListItem
-                                        id={member["@_ref"]}
-                                        onDel={handleDelete}
-                                        select={{
-                                            active: localActiveMember,
-                                            setter: (item) => (item === localActiveMember ? setlocalActiveMember(undefined) : setlocalActiveMember(item))
-                                        }}
-                                        type="node" />
-                                </Draggable>
-                            );
-                        } else if (member["@_type"] === "way") {
-                            return (
-                                <Draggable id={id} key={id}>
-                                    <MemberListItem
-                                        id={member["@_ref"]}
-                                        onDel={handleDelete}
-                                        select={{
-                                            active: localActiveMember,
-                                            setter: (item) => (item === localActiveMember ? setlocalActiveMember(undefined) : setlocalActiveMember(item))
-                                        }}
-                                        type="way" />
-                                </Draggable>
-                            );
-                        } else {
-                            return (
-                                <Draggable id={id} key={id}>
-                                    <MemberListItem
-                                        id={member["@_ref"]}
-                                        onDel={handleDelete}
-                                        select={{
-                                            active: localActiveMember,
-                                            setter: (item) => (item === localActiveMember ? setlocalActiveMember(undefined) : setlocalActiveMember(item))
-                                        }}
-                                        type="relation" />
-                                </Draggable>
-                            )
-                        }
-                    })}
-                </SortableContext>
-                <DragOverlay>
-                    {(activeId && activeType) ? <MemberListItem id={activeId} type={activeType} onDel={() => { }} /> : null}
-                </DragOverlay>
-            </DndContext>
-            <div className="absolute right-64 bottom-0">
-                <InsertMember
-                    handelInsertTop={handleInsertTop}
-                    handelIntertBottom={handleInsertBottom}
-                    handelInsertAtActive={handleInsertAtActive}
-                />
+            <div className="flex flex-row">
+                <div>
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={items}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {items.map(({ id, member }) => {
+                                return (
+                                    <Draggable id={id} key={id}>
+                                        <MemberListItem
+                                            id={member["@_ref"]}
+                                            onDel={handleDelete}
+                                            select={{
+                                                active: localActiveMember,
+                                                setter: (item) => (item === localActiveMember ? setlocalActiveMember(undefined) : setlocalActiveMember(item))
+                                            }}
+                                            edit={{
+                                                text: member["@_role"] || '',
+                                                setter: (text) => handelEditMember(member["@_type"], member["@_ref"], text),
+                                                onBlur: handelEditMemberBlur
+                                            }}
+                                            type={member["@_type"]} />
+                                    </Draggable>
+                                );
+                            })}
+                        </SortableContext>
+                        <DragOverlay>
+                            {(activeId && activeType) ? <MemberListItem id={activeId} type={activeType} onDel={() => { }} /> : null}
+                        </DragOverlay>
+                    </DndContext>
+                </div>
+                <div className="relative bottom-0 right-0">
+                    <InsertMember
+                        handelInsertTop={handleInsertTop}
+                        handelIntertBottom={handleInsertBottom}
+                        handelInsertAtActive={handleInsertAtActive}
+                    />
+                </div>
             </div>
         </div>
     );
