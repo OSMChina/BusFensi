@@ -7,14 +7,16 @@ interface Tag {
 interface Node {
     "@_id": string,
     "@_visible": boolean,
-    "@_version": string,
-    "@_changeset": string,
-    "@_timestamp": string,
-    "@_user": string,
-    "@_uid": string,
+    "@_version"?: string,
+    "@_changeset"?: string,
+    "@_timestamp"?: string,
+    "@_user"?: string,
+    "@_uid"?: string,
     "@_lat": number,
     "@_lon": number,
+    '@_action'?: "modify" | "delete", 
     tag?: Tag | Tag[]
+
 }
 
 interface Nd {
@@ -26,11 +28,12 @@ interface Way {
     tag?: Tag | Tag[],
     "@_id": string,
     "@_visible": boolean,
-    "@_version": string,
-    "@_changeset": string,
-    "@_timestamp": string,
-    "@_user": string,
-    "@_uid": string
+    "@_version"?: string,
+    "@_changeset"?: string,
+    "@_timestamp"?: string,
+    "@_user"?: string,
+    "@_uid"?: string
+    '@_action'?: "modify" | "delete", 
 }
 
 interface Member {
@@ -44,11 +47,12 @@ interface Relation {
     tag?: Tag | Tag[],
     "@_id": string,
     "@_visible": boolean,
-    "@_version": string,
-    "@_changeset": string,
-    "@_timestamp": string,
-    "@_user": string,
-    "@_uid": string
+    "@_version"?: string,
+    "@_changeset"?: string,
+    "@_timestamp"?: string,
+    "@_user"?: string,
+    "@_uid"?: string
+    '@_action'?: "modify" | "delete", 
 }
 
 export interface OSMV06BBoxObj {
@@ -105,5 +109,30 @@ export interface OSMV06BatchFeatureObj {
         "@_copyright": string,
         "@_attribution": string,
         "@_license": string
+    }
+}
+
+// see https://wiki.openstreetmap.org/wiki/JOSM_file_format
+export interface JSOMExportObj {
+    "?xml": {
+        "@_version": 1,
+        "@_encoding": "UTF-8"
+    },
+    osm: {
+        bounds: {
+            "@_minlat": number,
+            "@_minlon": number,
+            "@_maxlat": number,
+            "@_maxlon": number,
+            '@_origin': `${string}-BusFensi`
+        },
+        node: Node[] 
+        way: Way[]
+        relation: Relation[]
+        "@_version": 0.6,
+        "@_generator": "BusFensi",
+        "@_copyright"?: string,
+        "@_attribution"?: string,
+        "@_license"?: string
     }
 }
