@@ -46,28 +46,3 @@
 具体的原因和过程将在下一个周报说明。
 
 
-## TODO
-
-成员关系 排序 添加 删除
-
-新建孤立结点
-
-在线上新建节点
-
-拆分线路（记得修改所有关联 relaion）
-
-style，目前先写 node 公交站和 stop point，变成白底黑 icon, 加上 line 方向箭头，差不多了
-
-拆分 active featyre, 不参与 select （至少不直接参与）,仅在 prop edit 里面作为 tab 供选择，不全局状态
-
-新建 way （多选 node 来实现）
-
-新建 relation
-
-导出 JSOM XML
-
-各种 tooltip
-
-父元素关系的显示
-
-合并 settings 到 state, 不用 ignore 反正 setting 撤回也很正常
