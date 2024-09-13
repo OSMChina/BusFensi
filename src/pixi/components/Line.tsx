@@ -1,4 +1,4 @@
-import { Container, Graphics } from "@pixi/react";
+import { Container, Graphics, Sprite } from "@pixi/react";
 import useBearStoreWithUndo from "../../logic/model/store";
 import { settings } from "../../logic/settings/settings";
 import { T2Arr } from "../../utils/helper/object";
@@ -8,7 +8,10 @@ import { Container as PIXIContainer, Polygon as PIXIPolygon, Graphics as PIXIGra
 import { useShallow } from "zustand/react/shallow";
 import { GlowFilter } from "pixi-filters";
 import { stateMachine } from "../../logic/states/stateMachine";
-import { lineToPoly } from '../utils/helper.ts'
+import { getLineSegments, lineToPoly } from '../utils/rapidAdapted/helper.ts'
+import { arrorowRightLongTexture } from "../textures/index.ts";
+import { wayIsOneWay, wayIsSided } from "../../utils/osm/wayTypes.ts";
+const ONEWAY_SPACING = 35;
 
 function Line({ idStr, width, height }: {
     idStr: string,
@@ -37,7 +40,7 @@ function Line({ idStr, width, height }: {
     const containerRef = useRef<PIXIContainer>(null)
     const drawOuter = useCallback((g: PIXIGraphics) => {
         g.clear();
-        g.lineStyle(9, 0xffd900)
+        g.lineStyle(11, 0xffd900)
         // paint stroke
         const [first, ...rest] = pixPath
         g.moveTo(first.x, first.y);
@@ -47,7 +50,7 @@ function Line({ idStr, width, height }: {
     }, [pixPath])
     const drawInner = useCallback((g: PIXIGraphics) => {
         g.clear();
-        g.lineStyle(5, 0xff3300)
+        g.lineStyle(7, 0xff3300)
         // paint fill
         const [first, ...rest] = pixPath
         g.moveTo(first.x, first.y);
@@ -82,7 +85,6 @@ function Line({ idStr, width, height }: {
             // containerRef.current.addChild(g)
         }
     }, [pixPath]);
-
 
     useEffect(() => {
         const container = containerRef.current
@@ -129,6 +131,8 @@ function Line({ idStr, width, height }: {
 
     }, [nodePath, viewpoint, zoom, width, height, idStr, highlighted, hovered, selected, visible, lineMeta, createHitArea])
 
+    const oneway = wayIsOneWay(T2Arr(lineMeta.tag))
+    const sided = wayIsSided(T2Arr(lineMeta.tag))
     return (visible && <Container
         zIndex={settings.pixiRender.zIndex.LINE}
         visible={visible}
@@ -157,7 +161,37 @@ function Line({ idStr, width, height }: {
         <Graphics
             draw={drawInner}
         />
+        {oneway && getLineSegments(pixPath.map(pix => ([pix.x, pix.y])), ONEWAY_SPACING, false, true)
+            .map((segment, i) => segment.coords.map(([x, y], j) => (
+                <Sprite
+                    key={`${i}-${j}`}
+                    eventMode="none"
+                    width={8}
+                    height={8}
+                    texture={arrorowRightLongTexture}
+                    sortableChildren={false}
+                    anchor={{ x: 0.5, y: 0.5 }}
+                    position={{ x: x, y: y }}
+                    rotation={segment.angle}
+                    tint={0x0}
+                />
+            ))).flat()}
 
+        {sided && getLineSegments(pixPath.map(pix => ([pix.x, pix.y])), ONEWAY_SPACING, true, true)
+            .map((segment, i) => segment.coords.map(([x, y], j) => (
+                <Sprite
+                    key={`${i}-${j}`}
+                    eventMode="none"
+                    width={8}
+                    height={8}
+                    texture={arrorowRightLongTexture}
+                    sortableChildren={false}
+                    anchor={{ x: 0.5, y: 0.5 }}
+                    position={{ x: x, y: y }}
+                    rotation={segment.angle}
+                    tint={0x0}
+                />
+            ))).flat()}
     </Container>)
 }
 

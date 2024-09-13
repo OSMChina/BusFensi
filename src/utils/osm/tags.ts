@@ -19,7 +19,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. 
  */
 
-export function osmIsInterestingTag(key:string) {
+export interface OSMTagFilterObj {
+    [id: string]: {
+        [id: string]: boolean
+    }
+}
+
+export function osmIsInterestingTag(key: string) {
     return key !== 'attribution' &&
         key !== 'created_by' &&
         key !== 'source' &&
@@ -45,7 +51,7 @@ export const osmLifecyclePrefixes = {
 };
 
 /** @param {string} key */
-export function osmRemoveLifecyclePrefix(key:string) {
+export function osmRemoveLifecyclePrefix(key: string) {
     const keySegments = key.split(':');
     if (keySegments.length === 1) return key;
 
@@ -57,7 +63,7 @@ export function osmRemoveLifecyclePrefix(key:string) {
 }
 
 
-export const osmAreaKeysExceptions = {
+export const osmAreaKeysExceptions: OSMTagFilterObj = {
     amenity: {
         bicycle_parking: true
     },
@@ -86,7 +92,7 @@ export const osmAreaKeysExceptions = {
     }
 };
 
-export const osmOneWayTags = {
+export const osmOneWayTags: OSMTagFilterObj = {
     'aerialway': {
         'chair_lift': true,
         'drag_lift': true,
@@ -138,7 +144,7 @@ export const osmOneWayTags = {
 };
 
 // solid and smooth surfaces akin to the assumed default road surface in OSM
-export const osmPavedTags = {
+export const osmPavedTags: OSMTagFilterObj = {
     'surface': {
         'paved': true,
         'asphalt': true,
@@ -153,7 +159,7 @@ export const osmPavedTags = {
 };
 
 // solid, if somewhat uncommon surfaces with a high range of smoothness
-export const osmSemipavedTags = {
+export const osmSemipavedTags: OSMTagFilterObj = {
     'surface': {
         'cobblestone': true,
         'cobblestone:flattened': true,
@@ -165,10 +171,10 @@ export const osmSemipavedTags = {
     }
 };
 
-export const osmRightSideIsInsideTags = {
+export const osmRightSideIsInsideTags: OSMTagFilterObj = {
     'natural': {
         'cliff': true,
-        'coastline': 'coastline',
+        'coastline': true,
     },
     'barrier': {
         'retaining_wall': true,
@@ -186,7 +192,7 @@ export const osmRightSideIsInsideTags = {
 
 // "highway" tag values for pedestrian or vehicle right-of-ways that make up the routable network
 // (does not include `raceway`)
-export const osmRoutableHighwayTagValues = {
+export const osmRoutableHighwayTagValues: { [key: string]: boolean } = {
     motorway: true, trunk: true, primary: true, secondary: true, tertiary: true, residential: true,
     motorway_link: true, trunk_link: true, primary_link: true, secondary_link: true, tertiary_link: true,
     unclassified: true, road: true, service: true, track: true, living_street: true, bus_guideway: true, busway: true,
@@ -194,24 +200,24 @@ export const osmRoutableHighwayTagValues = {
 };
 
 /** aeroway tags that are treated as routable for aircraft */
-export const osmRoutableAerowayTags = {
+export const osmRoutableAerowayTags: { [key: string]: boolean } = {
     runway: true, taxiway: true
 };
 
 // "highway" tag values that generally do not allow motor vehicles
-export const osmPathHighwayTagValues = {
+export const osmPathHighwayTagValues: { [key: string]: boolean } = {
     path: true, footway: true, cycleway: true, bridleway: true, pedestrian: true, corridor: true, steps: true
 };
 
 // "railway" tag values representing existing railroad tracks (purposely does not include 'abandoned')
-export const osmRailwayTrackTagValues = {
+export const osmRailwayTrackTagValues: { [key: string]: boolean } = {
     rail: true, light_rail: true, tram: true, subway: true,
     monorail: true, funicular: true, miniature: true, narrow_gauge: true,
     disused: true, preserved: true
 };
 
 // "waterway" tag values for line features representing water flow
-export const osmFlowingWaterwayTagValues = {
+export const osmFlowingWaterwayTagValues: { [key: string]: boolean } = {
     'canal': true,
     'ditch': true,
     'drain': true,
