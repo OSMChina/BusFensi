@@ -1,16 +1,19 @@
 import { Container, Graphics, Sprite } from "@pixi/react";
+import { DashLine } from '@rapideditor/pixi-dashed-line'; // wait rapid to fix this issue
 import useBearStoreWithUndo from "../../logic/model/store";
 import { settings } from "../../logic/settings/settings";
 import { T2Arr } from "../../utils/helper/object";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Container as PIXIContainer, Polygon as PIXIPolygon, Graphics as PIXIGraphics, LINE_JOIN as PIXILINE_JOIN, LINE_CAP as PIXILINE_CAP } from "pixi.js";
 import { useShallow } from "zustand/react/shallow";
 import { GlowFilter } from "pixi-filters";
 import { stateMachine } from "../../logic/states/stateMachine";
-import { getLineSegments, lineToPoly } from '../utils/rapidAdapted/helper.ts'
+import { getLineCapEnum, getLineJoinEnum, getLineSegments, lineToPoly } from '../utils/rapidAdapted/helper.ts';
 import { arrorowRightLongTexture } from "../textures/index.ts";
 import { wayIsOneWay, wayIsSided } from "../../utils/osm/wayTypes.ts";
+import { styleMatch } from "../utils/rapidAdapted/style.ts";
+
 const ONEWAY_SPACING = 35;
 
 function Line({ idStr, width, height }: {
@@ -19,50 +22,35 @@ function Line({ idStr, width, height }: {
     height: number
 }) {
     const { visible, hovered, selected, highlighted } = useBearStoreWithUndo((state) => state.renderedFeatureState.ways[idStr]);
-    const lineMeta = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.ways[idStr]))
+    const lineMeta = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.ways[idStr]));
     const { viewpoint, zoom } = useBearStoreWithUndo(useShallow((state) => {
         const { viewpoint, zoom } = state;
-        return { viewpoint, zoom }
-    }))
+        return { viewpoint, zoom };
+    }));
+
     const nodePath = useBearStoreWithUndo(useShallow((state) => {
         const lineMeta = state.renderedOSMFeatureMeta.ways[idStr];
         const nodePath = T2Arr(lineMeta.nd)
-            .map(nd => state.renderedOSMFeatureMeta.nodes[nd["@_ref"]])
+            .map(nd => state.renderedOSMFeatureMeta.nodes[nd["@_ref"]]);
         return nodePath;
-    }))
+    }));
+
     const pixPath = nodePath.map(node => getPixelByWGS84Locate(
         { lon: node["@_lon"], lat: node["@_lat"] },
         viewpoint,
         zoom,
         width,
         height
-    ))
-    const containerRef = useRef<PIXIContainer>(null)
-    const drawOuter = useCallback((g: PIXIGraphics) => {
-        g.clear();
-        g.lineStyle(11, 0xffd900)
-        // paint stroke
-        const [first, ...rest] = pixPath
-        g.moveTo(first.x, first.y);
-        rest.forEach(pixpoint => {
-            g.lineTo(pixpoint.x, pixpoint.y)
-        });
-    }, [pixPath])
-    const drawInner = useCallback((g: PIXIGraphics) => {
-        g.clear();
-        g.lineStyle(7, 0xff3300)
-        // paint fill
-        const [first, ...rest] = pixPath
-        g.moveTo(first.x, first.y);
-        rest.forEach(pixpoint => {
-            g.lineTo(pixpoint.x, pixpoint.y)
-        });
-    }, [pixPath])
+    ));
 
+    const containerRef = useRef<PIXIContainer>(null);
+    const haloRef = useRef<PIXIGraphics | null>(null)
 
-    const createHitArea = useCallback(() => {
-        const hitWidth = 3
-        const flatPath = pixPath.flatMap(p => [p.x, p.y])
+    const style = styleMatch(T2Arr(lineMeta.tag));  // Get the matched style
+
+    const bufdata = useMemo(() => {
+        const hitWidth = Math.max(3, style?.casing?.width || 0);
+        const flatPath = pixPath.flatMap(p => [p.x, p.y]);
         const hitStyle = {
             alignment: 0.5,  // middle of line
             color: 0x0,
@@ -71,28 +59,79 @@ function Line({ idStr, width, height }: {
             join: PIXILINE_JOIN.BEVEL,
             cap: PIXILINE_CAP.BUTT
         };
-        // Create the polygon hit area
-        const bufdata = lineToPoly(flatPath, hitStyle);
-        console.log(bufdata)
+        return lineToPoly(flatPath, hitStyle)
+    }, [pixPath, style])
+
+    const drawOuter = useCallback((g: PIXIGraphics) => {
+        g.clear();
+        const outerStyle = style.casing || {};  // Get stroke style
+        if (outerStyle.dash) {
+            g = new DashLine(g, {
+                dash: outerStyle.dash,
+                color: outerStyle.color,
+                width: outerStyle.width,
+                alpha: outerStyle.alpha || 1.0,
+                join: getLineJoinEnum(outerStyle.join),
+                cap: getLineCapEnum(outerStyle.cap),
+            });
+        } else {
+            g.lineStyle({
+                color: outerStyle.color,
+                width: outerStyle.width,
+                alpha: outerStyle.alpha || 1.0,
+                join: getLineJoinEnum(outerStyle.join),
+                cap: getLineCapEnum(outerStyle.cap),
+            });
+        }
+        // Draw the outer line
+        const [first, ...rest] = pixPath;
+        g.moveTo(first.x, first.y);
+        rest.forEach(pixpoint => {
+            g.lineTo(pixpoint.x, pixpoint.y);
+        });
+    }, [pixPath, style.casing]);
+
+    const drawInner = useCallback((g: PIXIGraphics) => {
+        g.clear();
+        const innerStyle = style.stroke || {};  // Get fill style
+        if (innerStyle.dash) {
+            g = new DashLine(g, {
+                dash: innerStyle.dash,
+                color: innerStyle.color,
+                width: innerStyle.width,
+                alpha: innerStyle.alpha || 1.0,
+                join: getLineJoinEnum(innerStyle.join),
+                cap: getLineCapEnum(innerStyle.cap),
+            });
+        } else {
+            g.lineStyle({
+                color: innerStyle.color,
+                width: innerStyle.width,
+                alpha: innerStyle.alpha || 1.0,
+                join: getLineJoinEnum(innerStyle.join),
+                cap: getLineCapEnum(innerStyle.cap),
+            });
+        }
+        // Draw the inner line
+        const [first, ...rest] = pixPath;
+        g.moveTo(first.x, first.y);
+        rest.forEach(pixpoint => {
+            g.lineTo(pixpoint.x, pixpoint.y);
+        });
+    }, [pixPath, style]);
+
+    const createHitArea = useCallback(() => {
         if (containerRef.current && bufdata.perimeter) {
             containerRef.current.hitArea = new PIXIPolygon(bufdata.perimeter);
-            // const g = new PIXIGraphics()
-            // g.beginFill(0x5d0015);
-            // g.drawPolygon(
-            //     bufdata.perimeter
-            // );
-            // g.endFill();
-            // containerRef.current.addChild(g)
         }
-    }, [pixPath]);
+    }, [containerRef, bufdata]);
 
     useEffect(() => {
-        const container = containerRef.current
+        const container = containerRef.current;
         if (container !== null) {
-
             const updateHitbox = () => {
-                createHitArea()
-            }
+                createHitArea();
+            };
 
             const updateHalo = () => {
                 const showHover = (visible && hovered);
@@ -112,87 +151,107 @@ function Line({ idStr, width, height }: {
                         glow.resolution = 2;
                         container.filters = [glow];
                     }
-                } else if (showSelect) {
-                    if (!container.filters) {
-                        const glow = new GlowFilter({ distance: 15, outerStrength: 3, color: 0xffff00 });
-                        glow.resolution = 2;
-                        container.filters = [glow];
-                    }
                 } else {
                     if (container.filters) {
                         container.filters = null;
                     }
                 }
-            }
 
-            updateHitbox()
-            updateHalo()
+                // Select
+                if (showSelect) {
+                    if (!haloRef.current) {
+                        haloRef.current = new PIXIGraphics();
+                        container.addChild(haloRef.current);
+                    }
+
+                    const HALO_STYLE = {
+                        alpha: 0.9,
+                        dash: [6, 3],
+                        width: 2,   // px
+                        color: 0xff0000
+                    };
+
+                    haloRef.current.clear();
+                    const dl = new DashLine(haloRef.current, HALO_STYLE);
+                    if (bufdata) {
+                        if (bufdata.outer && bufdata.inner) {
+                            dl.drawPolygon(bufdata.outer);
+                            dl.drawPolygon(bufdata.inner);
+                        } else {
+                            dl.drawPolygon(bufdata.perimeter);
+                        }
+                    }
+                } else {
+                    if (haloRef.current) {
+                        haloRef.current.destroy({ children: true });
+                        haloRef.current = null;
+                    }
+                }
+            };
+
+            updateHitbox();
+            updateHalo();
         }
+    }, [highlighted, hovered, selected, visible, createHitArea, bufdata]);
 
-    }, [nodePath, viewpoint, zoom, width, height, idStr, highlighted, hovered, selected, visible, lineMeta, createHitArea])
+    const oneway = wayIsOneWay(T2Arr(lineMeta.tag));
+    const sided = wayIsSided(T2Arr(lineMeta.tag));
 
-    const oneway = wayIsOneWay(T2Arr(lineMeta.tag))
-    const sided = wayIsSided(T2Arr(lineMeta.tag))
-    return (visible && <Container
-        zIndex={settings.pixiRender.zIndex.LINE}
-        visible={visible}
-        position={{ x: 0, y: 0 }}
-        ref={containerRef}
-        eventMode="static"
-        pointerover={(event) => {
-            console.log("line !")
+    return (visible && (
+        <Container
+            zIndex={settings.pixiRender.zIndex.LINE}
+            visible={visible}
+            position={{ x: 0, y: 0 }}
+            ref={containerRef}
+            eventMode="static"
+            pointerover={(event) => {
+                stateMachine.hookPIXIComponent(event, idStr, "way");
+            }}
+            pointerout={(event) => {
+                stateMachine.hookPIXIComponent(event, idStr, "way");
+            }}
+            pointerdown={(event) => {
+                stateMachine.hookPIXIComponent(event, idStr, "way");
+            }}
+            pointerup={(event) => {
+                stateMachine.hookPIXIComponent(event, idStr, "way");
+            }}
+        >
+            <Graphics draw={drawOuter} />
+            <Graphics draw={drawInner} />
+            {oneway && getLineSegments(pixPath.map(pix => ([pix.x, pix.y])), ONEWAY_SPACING, false, true)
+                .map((segment, i) => segment.coords.map(([x, y], j) => (
+                    <Sprite
+                        key={`${i}-${j}`}
+                        eventMode="none"
+                        width={8}
+                        height={8}
+                        texture={arrorowRightLongTexture}
+                        sortableChildren={false}
+                        anchor={{ x: 0.5, y: 0.5 }}
+                        position={{ x, y }}
+                        rotation={segment.angle}
+                        tint={0x0}
+                    />
+                ))).flat()}
 
-            stateMachine.hookPIXIComponent(event, idStr, "way")
-        }}
-        pointerout={(event) => {
-            stateMachine.hookPIXIComponent(event, idStr, "way")
-        }}
-        pointerdown={(event) => {
-            console.log("line down")
-            stateMachine.hookPIXIComponent(event, idStr, "way")
-        }}
-        pointerup={(event) => {
-            stateMachine.hookPIXIComponent(event, idStr, "way")
-        }}
-    >
-        <Graphics
-            draw={drawOuter}
-        />
-        <Graphics
-            draw={drawInner}
-        />
-        {oneway && getLineSegments(pixPath.map(pix => ([pix.x, pix.y])), ONEWAY_SPACING, false, true)
-            .map((segment, i) => segment.coords.map(([x, y], j) => (
-                <Sprite
-                    key={`${i}-${j}`}
-                    eventMode="none"
-                    width={8}
-                    height={8}
-                    texture={arrorowRightLongTexture}
-                    sortableChildren={false}
-                    anchor={{ x: 0.5, y: 0.5 }}
-                    position={{ x: x, y: y }}
-                    rotation={segment.angle}
-                    tint={0x0}
-                />
-            ))).flat()}
-
-        {sided && getLineSegments(pixPath.map(pix => ([pix.x, pix.y])), ONEWAY_SPACING, true, true)
-            .map((segment, i) => segment.coords.map(([x, y], j) => (
-                <Sprite
-                    key={`${i}-${j}`}
-                    eventMode="none"
-                    width={8}
-                    height={8}
-                    texture={arrorowRightLongTexture}
-                    sortableChildren={false}
-                    anchor={{ x: 0.5, y: 0.5 }}
-                    position={{ x: x, y: y }}
-                    rotation={segment.angle}
-                    tint={0x0}
-                />
-            ))).flat()}
-    </Container>)
+            {sided && getLineSegments(pixPath.map(pix => ([pix.x, pix.y])), ONEWAY_SPACING, true, true)
+                .map((segment, i) => segment.coords.map(([x, y], j) => (
+                    <Sprite
+                        key={`${i}-${j}`}
+                        eventMode="none"
+                        width={8}
+                        height={8}
+                        texture={arrorowRightLongTexture}
+                        sortableChildren={false}
+                        anchor={{ x: 0.5, y: 0.5 }}
+                        position={{ x, y }}
+                        rotation={segment.angle}
+                        tint={0x0}
+                    />
+                ))).flat()}
+        </Container>
+    ));
 }
 
 export default Line;

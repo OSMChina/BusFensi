@@ -323,7 +323,7 @@ export function flatCoordsToPoints(coords: any) {
  * @param   {string}   str - One of 'butt', 'square', or 'round' (default)
  * @returns {nummber}  The corresponding PIXI enum value
  */
-export function getLineCapEnum(str: 'butt' | 'square' | 'round') {
+export function getLineCapEnum(str: 'butt' | 'square' | 'round' | undefined) {
   if (str === 'butt') {
     return PIXI.LINE_CAP.BUTT;
   } else if (str === 'square') {
@@ -340,7 +340,7 @@ export function getLineCapEnum(str: 'butt' | 'square' | 'round') {
  * @param   {string}   str - One of 'bevel', 'miter', or 'round' (default)
  * @returns {nummber}  The corresponding PIXI enum value
  */
-export function getLineJoinEnum(str: 'bevel' | 'miter' | 'round') {
+export function getLineJoinEnum(str: 'bevel' | 'miter' | 'round' | undefined) {
   if (str === 'bevel') {
     return PIXI.LINE_JOIN.BEVEL;
   } else if (str === 'miter') {
