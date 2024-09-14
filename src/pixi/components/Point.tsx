@@ -146,8 +146,8 @@ function Point(
             visible={true}
             texture={display === "dot" ? circleTexture : locationPinTexture}
             anchor={display === "dot" ? { x: 0.5, y: 0.5 } : { x: 0.5, y: 1 }}
-            width={busStop ? 16 : 6}
-            height={busStop ? 16 : 6}   
+            width={busStop ? 16 : 8}
+            height={busStop ? 16 : 8}   
         />
         {busStop && <Sprite
             eventMode="none"
