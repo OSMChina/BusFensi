@@ -37,7 +37,7 @@ export function Layout() {
                 </div>
             </div>
             <Splitter {...mapAndEditorSeparatorProps} />
-            <div className="right-block" >
+            <div className="right-block flex-grow h-full overflow-hidden" >
                 <OutlineView />
                 <PropertyView />
             </div>

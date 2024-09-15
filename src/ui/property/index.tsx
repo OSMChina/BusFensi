@@ -18,21 +18,24 @@ function PropertyView() {
     }
   }, [selected, activeItem, setActive])
 
-  return <div className="property-view min-h-1/2 h-1/2 max-h-1/2 w-full flex flex-col p-1 rounded bg-base-100">
-    <div role="tablist" className="tabs tabs-lifted tabs-xs">
-      {selected.map(item => (
-        <a
-          key={`${item.type}-${item.id}`}
-          role="tab"
-          className={cn(
-            "tab",
-            (activeItem && item.id === activeItem.id && item.type === activeItem.type) && "tab-active"
-          )} onClick={() => setActive(item)}
-        >
-          {`${item.type}-${item.id}`}
-        </a>
-      ))}
+  return <div className="property-view min-h-1/2 h-1/2 max-h-1/2 w-full max-w-full flex flex-col p-1 rounded bg-base-100">
+    <div className="max-w-full overflow-x-scroll">
+      <div role="tablist" className="tabs tabs-lifted tabs-xs">
+        {selected.map(item => (
+          <a
+            key={`${item.type}-${item.id}`}
+            role="tab"
+            className={cn(
+              "tab",
+              (activeItem && item.id === activeItem.id && item.type === activeItem.type) && "tab-active"
+            )} onClick={() => setActive(item)}
+          >
+            {`${item.type}-${item.id}`}
+          </a>
+        ))}
+      </div>
     </div>
+
     {activeItem ?
       (activeItem.type === "node" ?
         <NodeProperty id={activeItem.id} />

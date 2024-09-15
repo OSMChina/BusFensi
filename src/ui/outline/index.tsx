@@ -9,7 +9,7 @@ function OutlineView() {
     const { ptv2, highway } = useBearStoreWithUndo((state) => state.collections)
 
     return (
-        <div className="outline-view min-h-1/2 h-1/2 max-h-1/2 w-full flex flex-col p-1 rounded bg-base-100">
+        <div className="outline-view min-h-1/2 h-1/2 max-h-1/2 w-full max-w-full flex flex-col p-1 rounded bg-base-100 overflow-x-scroll">
             <label className="input input-xs input-bordered flex items-center gap-2">
                 <FontAwesomeIcon icon={faSearch} />
                 <input type="text" className="grow" placeholder="Search" />
