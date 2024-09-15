@@ -2,38 +2,53 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Tag } from "../../../api/osm/type";
 import { deepCopy } from "../../../utils/helper/object";
 import { faDeleteLeft } from "@fortawesome/free-solid-svg-icons";
+import { useRef } from "react";
 
 function Tags({ tags, setTags, commitChange }: { tags: Tag[], setTags: (tags: Tag[]) => void, commitChange: () => void }) {
+    const focusBeforeEdit = useRef(false)
     const tagsNew = deepCopy(tags);
 
     const handleKeyChange = (index: number, newKey: string) => {
+        if (!focusBeforeEdit.current) {
+            commitChange()
+            focusBeforeEdit.current = false;
+        }
         tagsNew[index]["@_k"] = newKey;
         setTags([...tagsNew]);
     };
 
     const handleValueChange = (index: number, newValue: string) => {
+        if (!focusBeforeEdit.current) {
+            commitChange()
+            focusBeforeEdit.current = false;
+        }
         tagsNew[index]["@_v"] = newValue;
         setTags([...tagsNew]);
     };
 
-    const handleBlur = () => {
-        // This function is called when an input loses focus
-        commitChange(); // Save changes on blur
+    const handleFocus = () => {
+        // This function is called when an input get focus
+        focusBeforeEdit.current = true; // Save prevoius change on focus
     };
+
+    const handleBlur = () => {
+        focusBeforeEdit.current = false;
+    }
+
     const handleDelete = (index: number) => {
         const updatedTags = tagsNew.filter((_, i) => i !== index);
-        setTags(updatedTags);
         commitChange()
+        setTags(updatedTags);
     };
 
     const handleAdd = () => {
-        setTags([...tagsNew, { "@_k": "", "@_v": "" }]);
         commitChange()
+        setTags([...tagsNew, { "@_k": "", "@_v": "" }]);
     };
 
     const handleSave = () => {
-        setTags(tagsNew);
         commitChange()
+        setTags(tagsNew);
     };
 
     return (
@@ -52,6 +67,7 @@ function Tags({ tags, setTags, commitChange }: { tags: Tag[], setTags: (tags: Ta
                             <input
                                 type="text"
                                 value={tag["@_k"]}
+                                onFocus={handleFocus}
                                 onChange={(e) => handleKeyChange(index, e.target.value)}
                                 onBlur={handleBlur}
                                 className="input input-bordered input-xs rounded-md border max-w-xs"
@@ -61,6 +77,7 @@ function Tags({ tags, setTags, commitChange }: { tags: Tag[], setTags: (tags: Ta
                             <input
                                 type="text"
                                 value={tag["@_v"]}
+                                onFocus={handleFocus}
                                 onChange={(e) => handleValueChange(index, e.target.value)}
                                 onBlur={handleBlur}
                                 className="input input-bordered input-xs rounded-md border max-w-xs w-fit"

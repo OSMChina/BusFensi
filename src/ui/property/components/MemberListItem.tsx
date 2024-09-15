@@ -20,7 +20,8 @@ function MemberListItem({ id, type, onDel, select, edit }: {
     edit?: {
         text: string,
         setter: (text: string) => void
-        onBlur: () => void
+        onBlur: () => void,
+        onFocus: () => void
     }
 }) {
     const loaded = useBearStoreWithUndo(useShallow((state) => state.collections.global[`${type}sId`].has(id)))
@@ -50,7 +51,7 @@ function MemberListItem({ id, type, onDel, select, edit }: {
     return <div className={`rounded-sm border text-xs flex flex-row pl-1 ${(select?.active?.id === id && select.active.type) ? "bg-neutral text-neutral-content" : "bg-base-200 text-base-content"}`}>
         <span>{`${type}-${id}`}</span>
         <span className="ml-auto"></span>
-        {edit && editing ?
+        {edit && (editing ?
             <input
                 className="input input-xs input-bordered"
                 type="text"
@@ -68,10 +69,11 @@ function MemberListItem({ id, type, onDel, select, edit }: {
                 onMouseDown={(event) => {
                     event.stopPropagation();
                     setEditing(true)
+                    edit.onFocus()
                 }}
             >
                 <FontAwesomeIcon icon={faPenToSquare} />
-            </button>
+            </button>)
         }
         {!loaded && (loading ?
             (<span className="loading loading-spinner loading-xs"></span>)

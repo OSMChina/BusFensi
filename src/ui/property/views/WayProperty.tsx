@@ -56,6 +56,7 @@ function WayProperty({ id }: { id: string }) {
     function handleDragStart(event: DragStartEvent) {
         const { active } = event;
         setActive({ activeId: active.id as string, activeType: "node" });
+        commitAction();
     }
 
     function handleDragEnd(event: DragEndEvent) {
@@ -64,11 +65,9 @@ function WayProperty({ id }: { id: string }) {
         if (over && active.id !== over.id) {
             const oldIndex = items.findIndex(item => item.id === active.id);
             const newIndex = items.findIndex(item => item.id === over.id);
-
             modifyWayNoCommit(id, {
                 nd: arrayMove(items, oldIndex, newIndex).map(item => item.nd)
             });
-            commitAction();
         }
 
         setActive({ activeId: undefined, activeType: undefined });
@@ -90,18 +89,18 @@ function WayProperty({ id }: { id: string }) {
 
     const handleInsertTop: InsertHandeler = (items) => {
         console.log("Insert at Top: ", items);
+        commitAction()
         modifyWayNoCommit(id, {
             nd: [...itemsToNd(items), ...T2Arr(meta.nd)]
         })
-        commitAction()
     };
 
     const handleInsertBottom: InsertHandeler = (items) => {
         console.log("Insert at Bottom: ", items);
+        commitAction()
         modifyWayNoCommit(id, {
             nd: [...T2Arr(meta.nd), ...itemsToNd(items)]
         })
-        commitAction()
     };
 
     const handleInsertAtActive: InsertHandeler = (items) => {
@@ -112,10 +111,10 @@ function WayProperty({ id }: { id: string }) {
             const ndArray = [...T2Arr(meta.nd)];
             const insertIndex = ndArray.findIndex(m => m["@_ref"] === localActiveNd.id);
             ndArray.splice(insertIndex + 1, 0, ...itemsToNd(items));
+            commitAction();
             modifyWayNoCommit(id, {
                 nd: ndArray
             });
-            commitAction();
         }
     };
 

@@ -23,7 +23,7 @@ import Attributes from "../components/Attributes";
 import { T2Arr, deepCopy } from "../../../utils/helper/object";
 import FeatureState from "../components/FeatureStates";
 import MemberListItem from "../components/MemberListItem";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Draggable from "../components/Dragable";
 import InsertMember from "./InsertMember";
 import { InsertHandeler } from "../type";
@@ -46,6 +46,7 @@ function RelationProperty({ id }: { id: string }) {
     }
 
     const [{ activeId, activeType }, setActive] = useState<ActiveObj>({ activeId: undefined, activeType: undefined });
+    const focusBeforeEdit = useRef(false)
     if (!meta) {
         return null
     }
@@ -56,6 +57,7 @@ function RelationProperty({ id }: { id: string }) {
         console.log("drag memeber start:", active)
         const member = items.find((item) => item.id === active.id)?.member
         setActive({ activeId: member?.["@_ref"], activeType: member?.["@_type"] });
+        commitAction()
     }
 
     function handleDragEnd(event: DragEndEvent) {
@@ -66,17 +68,16 @@ function RelationProperty({ id }: { id: string }) {
             // id of drag list
             const oldIndex = items.findIndex(item => item.id === active.id);
             const newIndex = items.findIndex(item => item.id === over.id);
-
             modifyRelationNoCommit(id, {
                 member: arrayMove(items, oldIndex, newIndex).map(item => item.member)
             })
-            commitAction()
         }
 
         setActive({ activeId: undefined, activeType: undefined });
     }
 
     function handleDelete(itemSub: ItemRefObj) {
+        commitAction()
         modifyRelationNoCommit(id, {
             member: items.filter((item) => item.id !== `${itemSub.type}-${itemSub.id}`).map(item => item.member)
         })
@@ -93,18 +94,18 @@ function RelationProperty({ id }: { id: string }) {
 
     const handleInsertTop: InsertHandeler = (items) => {
         console.log("Insert at Top: ", items);
+        commitAction()
         modifyRelationNoCommit(id, {
             member: [...itemsToMember(items), ...T2Arr(meta.member)]
         })
-        commitAction()
     };
 
     const handleInsertBottom: InsertHandeler = (items) => {
         console.log("Insert at Bottom: ", items);
+        commitAction()
         modifyRelationNoCommit(id, {
             member: [...T2Arr(meta.member), ...itemsToMember(items)]
         })
-        commitAction()
     };
 
     const handleInsertAtActive: InsertHandeler = (items) => {
@@ -115,15 +116,19 @@ function RelationProperty({ id }: { id: string }) {
             const membersArray = [...T2Arr(meta.member)];
             const insertIndex = membersArray.findIndex(m => m["@_ref"] === localActiveMember.id && m["@_type"] === localActiveMember.type);
             membersArray.splice(insertIndex + 1, 0, ...itemsToMember(items));
+            commitAction();
             modifyRelationNoCommit(id, {
                 member: membersArray
             });
-            commitAction();
         }
     };
 
     const handelEditMember = (type: "node" | "way" | "relation", ref: string, text: string) => {
         console.log('edit', type, ref, text)
+        if (focusBeforeEdit.current) {
+            focusBeforeEdit.current = false;
+            commitAction()
+        }
         modifyRelationNoCommit(id, {
             member: T2Arr(meta.member).map(m => {
                 if (m["@_type"] === type && m["@_ref"] === ref) {
@@ -135,9 +140,12 @@ function RelationProperty({ id }: { id: string }) {
             })
         })
     }
+    const handelEditMemberFocus = () => {
+        focusBeforeEdit.current = true
+    }
 
     const handelEditMemberBlur = () => {
-        commitAction()
+        focusBeforeEdit.current = false
     }
 
     return (
@@ -174,6 +182,7 @@ function RelationProperty({ id }: { id: string }) {
                                             edit={{
                                                 text: member["@_role"] || '',
                                                 setter: (text) => handelEditMember(member["@_type"], member["@_ref"], text),
+                                                onFocus: handelEditMemberFocus,
                                                 onBlur: handelEditMemberBlur
                                             }}
                                             type={member["@_type"]} />
