@@ -20,10 +20,12 @@ class StateMachine {
         this.shiftKey = false
         document.addEventListener('keydown', (e) => {
             this.shiftKey = e.shiftKey
+            this.transform(e)
         })
-        document.addEventListener('keyup', (e) => [
+        document.addEventListener('keyup', (e) => {
             this.shiftKey = e.shiftKey
-        ])
+            this.transform(e)
+        })
     }
 
     /**

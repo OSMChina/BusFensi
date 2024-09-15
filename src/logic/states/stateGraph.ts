@@ -13,10 +13,10 @@ import { getNearestPointOnPolyline } from '../../utils/osm/featureLineProjection
 
 const Idle: State = {
     type: 'idle',
-    retain: (event: React.WheelEvent<HTMLCanvasElement>): boolean => {
+    retain: (event: any): boolean => {
         if (event.type === 'wheel') {
             // wheel roll, zoom in or out
-            const axis = event.deltaY < 0;
+            const axis = (event as React.WheelEvent<HTMLCanvasElement>).deltaY < 0;
             const { zoom, zoomNoTrack } = useBearStoreWithUndo.getState()
             const newZoom = zoom + (axis ? 1 : -1);
             if (newZoom >= 0 && newZoom <= settings.view.MAX_ZOOM) {
@@ -107,6 +107,12 @@ const splitWay: State = {
     nxt: []
 }
 
+const undoOrRedo: State = {
+    type: 'undo-or-redo',
+    retain: () => true,
+    nxt: []
+}
+
 Idle.nxt = [
     {
         state: ComponentHover,
@@ -168,6 +174,26 @@ Idle.nxt = [
             }
             return false
         }
+    },
+    {
+        state: undoOrRedo,
+        transfer: (event: KeyboardEvent) => {
+            if (event.type === 'keydown') {
+                const { undo, redo, pastStates } = useBearStoreWithUndo.temporal.getState()
+                if (event.code === 'KeyZ') {
+                    if (event.shiftKey && event.ctrlKey) {
+                        console.log('redo', pastStates)
+                        redo()
+                        return true
+                    } else if (event.ctrlKey) {
+                        console.log('undo', pastStates)
+                        undo()
+                        return true
+                    }
+                }
+            }
+            return false
+        }
     }
 ];
 
@@ -209,6 +235,8 @@ componentMousedown.nxt = [
                 && "node" === stateMachine.bucket.componentTarget?.type
             ) {
                 const { clientX, clientY } = event;
+                const { commitAction } = useBearStoreWithUndo.getState()
+                commitAction();
                 doComponentDragging(clientX, clientY);
                 return true;
             }
@@ -241,9 +269,8 @@ pointDrag.nxt = [
         state: ComponentHover,
         transfer: (event): boolean => {
             if (event.type === 'pointerup' && stateMachine.bucket.componentTarget) {
-                console.log('state back to hover');
-                const { commitAction, PIXIComponentHoverNoCommit } = useBearStoreWithUndo.getState()
-                commitAction() // end Drag, to hover
+                console.log('state back to hover, commit');
+                const { PIXIComponentHoverNoCommit } = useBearStoreWithUndo.getState()
                 PIXIComponentHoverNoCommit(stateMachine.bucket.componentTarget.type, stateMachine.bucket.componentTarget.id, true)
                 return true;
             }
@@ -255,8 +282,7 @@ pointDrag.nxt = [
         transfer: (event): boolean => {
             if (event.type === 'pointerupoutside') {
                 stateMachine.bucket.componentTarget = undefined;
-                const { commitAction } = useBearStoreWithUndo.getState()
-                commitAction()
+
                 return true;
             }
             return false;
@@ -357,13 +383,12 @@ addNodeOnWay.nxt = [{
                 const nodeId = createLocalNodeAction(nearestPoint)
                 const newNd = Array.from(T2Arr(way.nd))
                 newNd.splice(T2Arr(way.nd).findIndex(nd => nd['@_ref'] === insertAfter['@_id']) + 1, 0, { "@_ref": nodeId })
+                commitAction()
                 modifyWayNoCommit(
                     stateMachine.targetId, {
                     nd: newNd
                 })
                 console.log('nodeid', nodeId, newNd)
-
-                commitAction()
                 console.log('added node');
 
             }
@@ -386,6 +411,17 @@ splitWay.nxt = [{
             return true;
         }
 
+        return false
+    }
+}]
+
+undoOrRedo.nxt = [{
+    state: Idle,
+    transfer: (event: KeyboardEvent) => {
+        if (event.type === "keyup" && event.code === 'KeyZ') {
+            console.log('back to idle')
+            return true
+        }
         return false
     }
 }]
