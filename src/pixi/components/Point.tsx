@@ -1,32 +1,42 @@
 import { Container, Sprite } from "@pixi/react";
 import useBearStoreWithUndo from "../../logic/model/store"
 import { stateMachine } from "../../logic/states/stateMachine";
+import { DashLine } from '@rapideditor/pixi-dashed-line';
 import { busStopTexture, circleTexture, locationPinTexture } from "../textures";
 import { settings } from "../../logic/settings/settings";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
 import { GlowFilter } from "pixi-filters";
-import { useEffect, useRef } from "react";
-import { Container as PIXIContainer, Circle as PIXICircle } from "pixi.js";
+import {  useEffect, useRef } from "react";
+import { Container as PIXIContainer, Circle as PIXICircle, Graphics as PIXIGraphics, Rectangle as PIXIRectangle, DisplayObject } from "pixi.js";
 import { useShallow } from "zustand/react/shallow";
 import { isBusStop } from "../../utils/osm/nodeType";
 import { T2Arr } from "../../utils/helper/object";
 
 function Point(
-    { idStr, width, height }: {
+    { idStr, width, height, layerRef }: {
         idStr: string,
         width: number,
-        height: number
+        height: number,
+        layerRef: React.RefObject<PIXIContainer<DisplayObject>>
     }) {
     const PIXIComponentVisibleNoCommit = useBearStoreWithUndo((state) => state.PIXIComponentVisibleNoCommit)
     const viewpoint = useBearStoreWithUndo((state) => state.viewpoint)
     const zoom = useBearStoreWithUndo((state) => state.zoom)
     const node = useBearStoreWithUndo((state) => state.renderedOSMFeatureMeta.nodes[idStr])
     const { visible, hovered, selected, highlighted } = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState.nodes[idStr]));
+    const containerRef = useRef<PIXIContainer>(null)
+    const haloRef = useRef<PIXIGraphics | null>(null)
 
     const busStop = isBusStop(T2Arr(node.tag))
     const typeDisplay: "dot" | "pin" = "dot"
     const display = (typeDisplay !== "dot" && zoom >= 17) ? "pin" : "dot";
-    const containerRef = useRef<PIXIContainer>(null)
+    const position = getPixelByWGS84Locate(
+        { lon: node["@_lon"], lat: node["@_lat"] },
+        viewpoint,
+        zoom,
+        width,
+        height
+    )
 
     useEffect(() => {
         const container = containerRef.current;
@@ -61,8 +71,8 @@ function Point(
 
             const updateHalo = () => {
                 const showHover = (visible && hovered);
-                const showSelect = (visible && selected);
                 const showHighlight = (visible && highlighted);
+                const showSelect = (visible && selected);
 
                 // Hover
                 if (showHover) {
@@ -77,15 +87,37 @@ function Point(
                         glow.resolution = 2;
                         container.filters = [glow];
                     }
-                } else if (showSelect) {
-                    if (!container.filters) {
-                        const glow = new GlowFilter({ distance: 15, outerStrength: 3, color: 0xffff00 });
-                        glow.resolution = 2;
-                        container.filters = [glow];
-                    }
                 } else {
                     if (container.filters) {
                         container.filters = null;
+                    }
+                }
+
+                if (showSelect && layerRef.current) {
+                    if (!haloRef.current) {
+                        haloRef.current = new PIXIGraphics();
+                        layerRef.current.addChild(haloRef.current);
+                    }
+
+                    const HALO_STYLE = {
+                        alpha: 0.9,
+                        dash: [6, 3],
+                        width: 2,   // px
+                        color: 0xff0000
+                    };
+
+                    haloRef.current.clear();
+
+                    const shape = container.hitArea;
+                    if (shape instanceof PIXICircle) {
+                        new DashLine(haloRef.current, HALO_STYLE).drawCircle(shape.x, shape.y, shape.radius, 20);
+                    } else if (shape instanceof PIXIRectangle) {
+                        new DashLine(haloRef.current, HALO_STYLE).drawRect(shape.x, shape.y, shape.width, shape.height);
+                    }
+                } else {
+                    if (haloRef.current) {
+                        haloRef.current.destroy({ children: true });
+                        haloRef.current = null;
                     }
                 }
             }
@@ -93,7 +125,7 @@ function Point(
             updateHitbox();
             updateHalo();
         }
-    }, [zoom, highlighted, hovered, selected, visible, display]);
+    }, [zoom, highlighted, hovered, visible, display, selected, layerRef]);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -130,13 +162,7 @@ function Point(
         pointerout={(event) => {
             stateMachine.hookPIXIComponent(event, idStr, "node")
         }}
-        position={getPixelByWGS84Locate(
-            { lon: node["@_lon"], lat: node["@_lat"] },
-            viewpoint,
-            zoom,
-            width,
-            height
-        )}
+        position={position}
         visible={visible}
         ref={containerRef}
     >
@@ -147,7 +173,7 @@ function Point(
             texture={display === "dot" ? circleTexture : locationPinTexture}
             anchor={display === "dot" ? { x: 0.5, y: 0.5 } : { x: 0.5, y: 1 }}
             width={busStop ? 16 : 8}
-            height={busStop ? 16 : 8}   
+            height={busStop ? 16 : 8}
         />
         {busStop && <Sprite
             eventMode="none"
@@ -155,8 +181,7 @@ function Point(
             anchor={display === "dot" ? { x: 0.5, y: 0.5 } : { x: 0.5, y: 1 }}
             width={11}
             height={11}
-        />
-        }
+        />}
 
     </Container>)
 }

@@ -5,7 +5,7 @@ import { settings } from "../../logic/settings/settings";
 import { T2Arr } from "../../utils/helper/object";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { Container as PIXIContainer, Polygon as PIXIPolygon, Graphics as PIXIGraphics, LINE_JOIN as PIXILINE_JOIN, LINE_CAP as PIXILINE_CAP } from "pixi.js";
+import { Container as PIXIContainer, Polygon as PIXIPolygon, Graphics as PIXIGraphics, LINE_JOIN as PIXILINE_JOIN, LINE_CAP as PIXILINE_CAP, DisplayObject } from "pixi.js";
 import { useShallow } from "zustand/react/shallow";
 import { GlowFilter } from "pixi-filters";
 import { stateMachine } from "../../logic/states/stateMachine";
@@ -16,10 +16,11 @@ import { styleMatch } from "../utils/rapidAdapted/style.ts";
 
 const ONEWAY_SPACING = 35;
 
-function Line({ idStr, width, height }: {
+function Line({ idStr, width, height, layerRef }: {
     idStr: string,
     width: number,
-    height: number
+    height: number,
+    layerRef: React.RefObject<PIXIContainer<DisplayObject>>
 }) {
     const { visible, hovered, selected, highlighted } = useBearStoreWithUndo((state) => state.renderedFeatureState.ways[idStr]);
     const lineMeta = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.ways[idStr]));
@@ -158,10 +159,10 @@ function Line({ idStr, width, height }: {
                 }
 
                 // Select
-                if (showSelect) {
+                if (showSelect && layerRef.current) {
                     if (!haloRef.current) {
                         haloRef.current = new PIXIGraphics();
-                        container.addChild(haloRef.current);
+                        layerRef.current.addChild(haloRef.current);
                     }
 
                     const HALO_STYLE = {
@@ -192,7 +193,7 @@ function Line({ idStr, width, height }: {
             updateHitbox();
             updateHalo();
         }
-    }, [highlighted, hovered, selected, visible, createHitArea, bufdata]);
+    }, [highlighted, hovered, selected, visible, createHitArea, bufdata, layerRef]);
 
     const oneway = wayIsOneWay(T2Arr(lineMeta.tag));
     const sided = wayIsSided(T2Arr(lineMeta.tag));

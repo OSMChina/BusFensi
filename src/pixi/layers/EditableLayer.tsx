@@ -4,6 +4,8 @@ import { getBoundsByScene } from "../../utils/geo/mapProjection"
 import { T2Arr } from "../../utils/helper/object"
 import Line from "../components/Line"
 import Point from "../components/Point"
+import { useRef } from "react"
+import { Container as PIXIContainer } from "pixi.js"
 
 
 function EditableLayer({ width, height }: {
@@ -13,7 +15,7 @@ function EditableLayer({ width, height }: {
     const viewpoint = useBearStoreWithUndo(state => state.viewpoint)
     const zoom = useBearStoreWithUndo(state => state.zoom)
     const { nodes, ways } = useBearStoreWithUndo(state => state.renderedOSMFeatureMeta)
-
+    const containerRef = useRef<PIXIContainer>(null)
     const { left, bottom, right, top } = getBoundsByScene(viewpoint, zoom, width, height)
     const inBound = (lon: number, lat: number) => {
         return left <= lon && lon <= right && bottom <= lat && lat <= top
@@ -25,7 +27,7 @@ function EditableLayer({ width, height }: {
         if (Object.prototype.hasOwnProperty.call(nodes, key)) {
             const nodeMeta = nodes[key];
             if (inBound(nodeMeta["@_lon"], nodeMeta["@_lat"])) {
-                points.push(<Point idStr={key} width={width} height={height} />)
+                points.push(<Point idStr={key} width={width} height={height} layerRef={containerRef} />)
             }
         }
     }
@@ -37,12 +39,12 @@ function EditableLayer({ width, height }: {
                 const nodeMeta = nodes[nd["@_ref"]]
                 return inBound(nodeMeta["@_lon"], nodeMeta["@_lat"])
             })) {
-                lines.push(<Line idStr={key} width={width} height={height} />)
+                lines.push(<Line idStr={key} width={width} height={height} layerRef={containerRef} />)
             }
         }
     }
 
-    return <Container>
+    return <Container ref={containerRef}>
         {...lines}
         {...points}
     </Container>
