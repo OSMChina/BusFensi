@@ -1,7 +1,6 @@
-import { Assets } from "pixi.js";
+import { Texture } from "pixi.js";
 
-
-export const locationPinTexture = await Assets.load('src/location-pin.svg');
-export const circleTexture = await Assets.load('src/circle.svg');
-export const busStopTexture = await Assets.load('src/bus.svg')
-export const arrorowRightLongTexture = await Assets.load('src/arrow-right-long.svg');
+export const locationPinTexture = Texture.from('src/location-pin.svg');
+export const circleTexture = Texture.from('src/circle.svg');
+export const busStopTexture = Texture.from('src/bus.svg')
+export const arrorowRightLongTexture = Texture.from('src/arrow-right-long.svg');
