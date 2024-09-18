@@ -1,7 +1,10 @@
+// wait rapid to fix this issue
+// @ts-ignore
+import { DashLine } from '@rapideditor/pixi-dashed-line';
+
 import { Container, Sprite } from "@pixi/react";
 import useBearStoreWithUndo from "../../logic/model/store"
 import { stateMachine } from "../../logic/states/stateMachine";
-import { DashLine } from '@rapideditor/pixi-dashed-line';
 import { busStopTexture, circleTexture, locationPinTexture } from "../textures";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
 import { GlowFilter } from "pixi-filters";

@@ -1,5 +1,8 @@
+// wait rapid to fix this issue
+// @ts-ignore
+import { DashLine } from '@rapideditor/pixi-dashed-line';
+
 import { Container, Graphics, Sprite } from "@pixi/react";
-import { DashLine } from '@rapideditor/pixi-dashed-line'; // wait rapid to fix this issue
 import useBearStoreWithUndo from "../../logic/model/store";
 import { T2Arr } from "../../utils/helper/object";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
@@ -12,6 +15,7 @@ import { getLineCapEnum, getLineJoinEnum, getLineSegments, lineToPoly } from '..
 import { arrorowRightLongTexture } from "../textures/index.ts";
 import { wayIsOneWay, wayIsSided } from "../../utils/osm/wayTypes.ts";
 import { styleMatch } from "../utils/rapidAdapted/style.ts";
+
 
 const ONEWAY_SPACING = 35;
 
