@@ -1,7 +1,6 @@
 import { Container, Graphics, Sprite } from "@pixi/react";
 import { DashLine } from '@rapideditor/pixi-dashed-line'; // wait rapid to fix this issue
 import useBearStoreWithUndo from "../../logic/model/store";
-import { settings } from "../../logic/settings/settings";
 import { T2Arr } from "../../utils/helper/object";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
 import { useCallback, useEffect, useMemo, useRef } from "react";
@@ -23,6 +22,7 @@ function Line({ idStr, width, height, layerRef }: {
     layerRef: React.RefObject<PIXIContainer<DisplayObject>>
 }) {
     const { visible, hovered, selected, highlighted } = useBearStoreWithUndo((state) => state.renderedFeatureState.ways[idStr]);
+    const settings = useBearStoreWithUndo(useShallow((state) => state.settings))
     const lineMeta = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.ways[idStr]));
     const { viewpoint, zoom } = useBearStoreWithUndo(useShallow((state) => {
         const { viewpoint, zoom } = state;

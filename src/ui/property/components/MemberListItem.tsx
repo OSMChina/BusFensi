@@ -2,7 +2,6 @@ import { useShallow } from "zustand/react/shallow"
 import useBearStoreWithUndo from "../../../logic/model/store"
 import { useState } from "react"
 import { fetchNode, fetchNodes, fetchRelation, fetchWay } from "../../../api/osm/apiv0.6"
-import { settings } from "../../../logic/settings/settings"
 import { T2Arr } from "../../../utils/helper/object"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheck, faDeleteLeft, faDownload } from "@fortawesome/free-solid-svg-icons"
@@ -24,6 +23,7 @@ function MemberListItem({ id, type, onDel, select, edit }: {
         onFocus: () => void
     }
 }) {
+    const settings = useBearStoreWithUndo(useShallow((state) => state.settings))
     const loaded = useBearStoreWithUndo(useShallow((state) => state.collections.global[`${type}sId`].has(id)))
     const addNodeAction = useBearStoreWithUndo((state) => state.addNodeAction)
     const addWayAction = useBearStoreWithUndo((state) => state.addWayAction)

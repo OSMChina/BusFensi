@@ -87,6 +87,25 @@ interface StageState {
     cursor: string
 }
 
+
+export interface Settings {
+    osmAPI: {
+        BASEURL: string,
+        TILE_SOURCE: string
+    },
+    view: {
+        MAX_ZOOM: number
+    },
+    pixiRender: {
+        zIndex: {
+            LINE: number,
+            POINT: number
+        }
+    }
+};
+
+
+
 export interface DataState {
     /** changes be tracked by zundo */
     /** commit counter */
@@ -121,6 +140,7 @@ export interface DataState {
     zoom: number
     bboxs: Array<OSMV06BBoxObj>
     stage: StageState,
+    settings: Settings
     /**
      * All actions commits. commit means track state with zundo, allow undo/redo.
      * Some set don't commit, just temporary. need commit after stable
@@ -148,6 +168,9 @@ export interface DataState {
     PIXIComponentSelectClearAction: () => void
     PIXIComponentHoverNoCommit: (type: "node" | "way" | "relation", idStr: string, val: boolean) => void
     PIXIComponentVisibleNoCommit: (type: "node" | "way" | "relation", idStr: string, val: boolean) => void
+
+    updateSettingsAction: (settings: Partial<Settings>) => void
+
     viewpintMoveNoTrack: (viewpoint: PointWGS84) => void
     zoomNoTrack: (zoom: number) => void
     stageStateNoTrack: (stage: Partial<StageState>) => void

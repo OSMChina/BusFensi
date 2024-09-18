@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import { temporal } from "zundo";
 import { DEFAULT_VIEWPOINT_WGS84, DEFAULT_ZOOM } from "../../utils/geo/constants";
-import { Collection, CollectionItem, DataState, FeatureState, FeatureTree, FeatureTreeNode, NodesObj, RelationsObj, WaysObj } from "./type";
+import { Collection, CollectionItem, DataState, FeatureState, FeatureTree, FeatureTreeNode, NodesObj, RelationsObj, Settings, WaysObj } from "./type";
 import { Member, Nd, Node, OSMV06BBoxObj, Relation, Way } from "../../api/osm/type";
-import { deepCopy, T2Arr, union } from "../../utils/helper/object";
+import { deepCopy, deepMerge, T2Arr, union } from "../../utils/helper/object";
 import { produce } from "immer";
 import { enableMapSet } from "immer";
 import { filterBusPTv2, filterHighway } from "../../utils/osm/filter";
@@ -222,6 +222,21 @@ const useBearStoreWithUndo = create<DataState>()(
                     nodesID: new Set(),
                     waysID: new Set(),
                     relationsID: new Set()
+                }
+            },
+            settings: {
+                osmAPI: {
+                    BASEURL: 'https://api.openstreetmap.org',
+                    TILE_SOURCE: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+                },
+                view: {
+                    MAX_ZOOM: 19
+                },
+                pixiRender: {
+                    zIndex: {
+                        LINE: 10,
+                        POINT: 20
+                    }
                 }
             },
             commitAction: () => set(
@@ -638,6 +653,12 @@ const useBearStoreWithUndo = create<DataState>()(
             })),
             PIXIComponentHoverNoCommit: (type, idStr, val) => set(produce((state: DataState) => { state.renderedFeatureState[`${type}s`][idStr].hovered = val })),
             PIXIComponentVisibleNoCommit: (type, idStr, val) => set(produce((state: DataState) => { state.renderedFeatureState[`${type}s`][idStr].visible = val })),
+            updateSettingsAction: (newSettings: Partial<Settings>) => {
+                set(produce((state: DataState) => {
+                    // Deep merge new settings with the current settings
+                    deepMerge(state.settings, newSettings);
+                }));
+            },
             viewpintMoveNoTrack: (viewpoint) => set(
                 () => {
                     return {

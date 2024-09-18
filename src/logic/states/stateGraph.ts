@@ -5,7 +5,6 @@ import { getBoundsByScene, getPixelByWGS84Locate, getWGS84LocateByPixel } from '
 import { stateMachine } from './stateMachine';
 import { State } from './type';
 import useBearStoreWithUndo from '../model/store';
-import { settings } from '../settings/settings';
 import { PointWGS84 } from '../../utils/geo/types';
 import { bbox } from '../../api/osm/apiv0.6';
 import { T2Arr } from '../../utils/helper/object';
@@ -19,6 +18,7 @@ const Idle: State = {
             const axis = (event as React.WheelEvent<HTMLCanvasElement>).deltaY < 0;
             const { zoom, zoomNoTrack } = useBearStoreWithUndo.getState()
             const newZoom = zoom + (axis ? 1 : -1);
+            const settings = useBearStoreWithUndo.getState().settings
             if (newZoom >= 0 && newZoom <= settings.view.MAX_ZOOM) {
                 zoomNoTrack(newZoom)
             }
@@ -303,6 +303,7 @@ async function loadBBox(bboxs: OSMV06BBoxObj[], viewpoint: PointWGS84, zoom: num
     if (!bboxs.some(valid)) {
         console.log(`osm load data, faild to get cache: ${left} ${bottom} ${right} ${top}`, viewpoint, zoom)
         console.log("state bboxs", bboxs)
+        const settings = useBearStoreWithUndo.getState().settings
         const bboxobj = await bbox(settings.osmAPI.BASEURL, left, bottom, right, top);
         return bboxobj
     } else {

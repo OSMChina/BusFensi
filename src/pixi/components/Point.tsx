@@ -3,7 +3,6 @@ import useBearStoreWithUndo from "../../logic/model/store"
 import { stateMachine } from "../../logic/states/stateMachine";
 import { DashLine } from '@rapideditor/pixi-dashed-line';
 import { busStopTexture, circleTexture, locationPinTexture } from "../textures";
-import { settings } from "../../logic/settings/settings";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
 import { GlowFilter } from "pixi-filters";
 import {  useEffect, useRef } from "react";
@@ -20,6 +19,7 @@ function Point(
         layerRef: React.RefObject<PIXIContainer<DisplayObject>>
     }) {
     const PIXIComponentVisibleNoCommit = useBearStoreWithUndo((state) => state.PIXIComponentVisibleNoCommit)
+    const settings = useBearStoreWithUndo(useShallow((state) => state.settings))
     const viewpoint = useBearStoreWithUndo((state) => state.viewpoint)
     const zoom = useBearStoreWithUndo((state) => state.zoom)
     const node = useBearStoreWithUndo((state) => state.renderedOSMFeatureMeta.nodes[idStr])
