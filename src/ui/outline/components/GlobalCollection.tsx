@@ -5,10 +5,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import NodeItem from "./NodeItem";
 import WayItem from "./WayItem";
 import RelationItem from "./RelationItem";
-import { filterFunc } from "../type";
+import { FilterFunc } from "../type";
 
-function GlobalCollection({ name: coName }: {
-    name: string
+function GlobalCollection({ name: coName, filterFun }: {
+    name: string,
+    filterFun: FilterFunc
 }) {
     const {nodesId, waysId, relationsId} = useBearStoreWithUndo((state) => state.collections.global)
     
@@ -17,8 +18,9 @@ function GlobalCollection({ name: coName }: {
         e.stopPropagation(); // prevent selecting when collapsing
         setCollapsed(!collapsed);
     };
-    const filter: filterFunc = (meta, type) => (
+    const filter: FilterFunc = (meta, type) => (
         meta
+        && filterFun(meta, type)
         && (
             type === "node" && nodesId.has(meta["@_id"])
             || type === "way" && waysId.has(meta["@_id"])

@@ -6,9 +6,9 @@ import { useShallow } from "zustand/react/shallow";
 import NodeItem from "./NodeItem";
 import WayItem from "./WayItem";
 import { useState } from "react";
-import { filterFunc } from "../type";
+import { FilterFunc } from "../type";
 
-function RelationItem({ id, filter }: { id: string, filter: filterFunc }) {
+function RelationItem({ id, filter }: { id: string, filter: FilterFunc }) {
     const relations = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.relations[id]));
     const setSelectedComponent = useBearStoreWithUndo((state) => state.PIXIComponentSelectAction);
     const featureState = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState.relations[id]));

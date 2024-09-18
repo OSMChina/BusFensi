@@ -5,9 +5,9 @@ import NodeItem from "./NodeItem";
 import { T2Arr } from "../../../utils/helper/object";
 import { useShallow } from "zustand/react/shallow";
 import { useState } from "react";
-import { filterFunc } from "../type";
+import { FilterFunc } from "../type";
 
-function WayItem({ id, filter }: { id: string, filter: filterFunc }) {
+function WayItem({ id, filter }: { id: string, filter: FilterFunc }) {
     const nodesId = useBearStoreWithUndo(useShallow((state) => Object.keys(state.renderedOSMFeatureMeta.nodes)));
     const way = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.ways[id]));
     const setSelectedComponent = useBearStoreWithUndo((state) => state.PIXIComponentSelectAction);

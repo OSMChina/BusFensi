@@ -6,11 +6,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import NodeItem from "./NodeItem";
 import WayItem from "./WayItem";
 import RelationItem from "./RelationItem";
-import { filterFunc } from "../type";
+import { FilterFunc } from "../type";
 
-function CollectionItem({ collecion, name: coName }: {
+function CollectionItem({ collecion, name: coName, filterFun }: {
     collecion: ColItemType,
-    name: string
+    name: string,
+    filterFun: FilterFunc
 }) {
     const { nodesId, waysId, relationsId } = collecion
     const { roots } = useBearStoreWithUndo((state) => state.featureTree)
@@ -19,13 +20,14 @@ function CollectionItem({ collecion, name: coName }: {
         e.stopPropagation(); // prevent selecting when collapsing
         setCollapsed(!collapsed);
     };
-    const filter: filterFunc = (meta, type) => (
+    const filter: FilterFunc = (meta, type) => (
         meta
         && (
             type === "node" && nodesId.has(meta["@_id"])
             || type === "way" && waysId.has(meta["@_id"])
             || type === "relation" && relationsId.has(meta["@_id"])
         )
+        && filterFun(meta, type)
     )
     return (
         <li className="outline-list-item">

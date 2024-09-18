@@ -4,9 +4,9 @@ import useBearStoreWithUndo from "../../../logic/model/store";
 import { T2Arr } from "../../../utils/helper/object";
 import { isBusStop } from "../../../utils/osm/nodeType";
 import { useShallow } from "zustand/react/shallow";
-import { filterFunc } from "../type";
+import { FilterFunc } from "../type";
 
-function NodeItem({ id, filter }: { id: string, filter: filterFunc }) {
+function NodeItem({ id, filter }: { id: string, filter: FilterFunc }) {
     const meta = useBearStoreWithUndo(useShallow((state) => state.renderedOSMFeatureMeta.nodes[id]));
     const featureState = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState.nodes[id]));
     const setSelectedComponent = useBearStoreWithUndo((state) => state.PIXIComponentSelectAction)
