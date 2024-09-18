@@ -82,11 +82,15 @@ ddl: Next week
 
 下周的工作就是这个了。去找找各种寻路 API, 给他们灌数据
 
-#### 搜索
+#### 补充功能
 
 你又忘记了 outline 的搜索，快来实现吧
 
-改改 filter 就好咯，哦对了还有递归往上更新 active 🤓
+改改 filter 就好咯，哦对了还有递归往上更新 active ，另一个函数，逐层向上🤓
+
+嗯，你的 ID 显示……要不加个name再给tag限制宽度
+
+settings 给他按进 store
 
 #### 编辑上传
 
