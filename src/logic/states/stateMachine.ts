@@ -5,30 +5,35 @@ import { FederatedEvent } from 'pixi.js';
 class StateMachine {
     current: State;
     targetId: string | null;
+    targetType: "node" | "way" | "relation" | null;
     bucket: Bucket;
     shiftKey: boolean
     constructor() {
         this.current = defaultState;
         this.targetId = null;
+        this.targetType = null;
         this.bucket = {
             mapDrag: null,
-            componentTargetId: null,
+            componentTarget: undefined,
             componentDrag: null
         };
         this.shiftKey = false
         document.addEventListener('keydown', (e) => {
             this.shiftKey = e.shiftKey
+            this.transform(e)
         })
-        document.addEventListener('keyup', (e)=> [
+        document.addEventListener('keyup', (e) => {
             this.shiftKey = e.shiftKey
-        ])
+            this.transform(e)
+        })
     }
 
     /**
      * Hook PIXI component
      */
-    hookPIXIComponent(event: FederatedEvent, targetId: string) {
+    hookPIXIComponent(event: FederatedEvent, targetId: string, targetType: "node" | "way" | "relation") {
         this.targetId = targetId;
+        this.targetType = targetType;
         this.transform(event);
     }
 
@@ -40,6 +45,12 @@ class StateMachine {
         this.transform(event);
     }
 
+    /**
+     * 
+     */
+    hookCustomEvent(event: unknown) {
+        this.transform(event)
+    }
     /**
      * Transform state based on the event
      * 

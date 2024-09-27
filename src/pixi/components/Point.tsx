@@ -1,59 +1,49 @@
+// wait rapid to fix this issue
+// @ts-ignore
+import { DashLine } from '@rapideditor/pixi-dashed-line';
+
 import { Container, Sprite } from "@pixi/react";
 import useBearStoreWithUndo from "../../logic/model/store"
 import { stateMachine } from "../../logic/states/stateMachine";
-import { circleTexture, locationPinTexture } from "../textures";
-import { settings } from "../../logic/settings/settings";
+import { busStopTexture, circleTexture, locationPinTexture } from "../textures";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
 import { GlowFilter } from "pixi-filters";
-import { useEffect, useRef } from "react";
-import { Container as PIXIContainer, Circle as PIXICircle } from "pixi.js";
+import {  useEffect, useRef } from "react";
+import { Container as PIXIContainer, Circle as PIXICircle, Graphics as PIXIGraphics, Rectangle as PIXIRectangle, DisplayObject } from "pixi.js";
 import { useShallow } from "zustand/react/shallow";
-
-function Marker({ display }: {
-    display: "dot" | "pin"
-}) {
-
-    return <Sprite
-        eventMode="none"
-        sortableChildren={false}
-        visible={true}
-        texture={display === "dot" ? circleTexture : locationPinTexture}
-        anchor={display === "dot" ? { x: 0.5, y: 0.5 } : { x: 0.5, y: 1 }}
-    >
-    </Sprite>
-}
+import { isBusStop } from "../../utils/osm/nodeType";
+import { T2Arr } from "../../utils/helper/object";
 
 function Point(
-    { idStr, width, height }: {
+    { idStr, width, height, layerRef }: {
         idStr: string,
         width: number,
-        height: number
+        height: number,
+        layerRef: React.RefObject<PIXIContainer<DisplayObject>>
     }) {
     const PIXIComponentVisibleNoCommit = useBearStoreWithUndo((state) => state.PIXIComponentVisibleNoCommit)
+    const settings = useBearStoreWithUndo(useShallow((state) => state.settings))
     const viewpoint = useBearStoreWithUndo((state) => state.viewpoint)
     const zoom = useBearStoreWithUndo((state) => state.zoom)
     const node = useBearStoreWithUndo((state) => state.renderedOSMFeatureMeta.nodes[idStr])
-    const { visible, hovered, selected, highlighted } = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState[idStr]));
+    const { visible, hovered, selected, highlighted } = useBearStoreWithUndo(useShallow((state) => state.renderedFeatureState.nodes[idStr]));
+    const containerRef = useRef<PIXIContainer>(null)
+    const haloRef = useRef<PIXIGraphics | null>(null)
 
+    const busStop = isBusStop(T2Arr(node.tag))
     const typeDisplay: "dot" | "pin" = "dot"
     const display = (typeDisplay !== "dot" && zoom >= 17) ? "pin" : "dot";
-    const containerRef = useRef<PIXIContainer>(null)
+    const position = getPixelByWGS84Locate(
+        { lon: node["@_lon"], lat: node["@_lat"] },
+        viewpoint,
+        zoom,
+        width,
+        height
+    )
 
     useEffect(() => {
         const container = containerRef.current;
         if (container) {
-            const updateStyle = () => {
-                // if (zoom < 16) {  // Hide container and everything under it
-                //     PIXIComponentVisibleNoCommit(idStr, false)
-                // } else if (zoom < 17) {  // Markers drawn but smaller
-                //     PIXIComponentVisibleNoCommit(idStr, true)
-                //     container.scale.set(0.8, 0.8);
-                // } else {  // z >= 17 - Show the requested marker (circles OR pins)
-                //     PIXIComponentVisibleNoCommit(idStr, true)
-                //     container.scale.set(1, 1);
-                // }
-            }
-
             const updateHitbox = () => {
                 if (!visible) return;
 
@@ -84,8 +74,8 @@ function Point(
 
             const updateHalo = () => {
                 const showHover = (visible && hovered);
-                const showSelect = (visible && selected);
                 const showHighlight = (visible && highlighted);
+                const showSelect = (visible && selected);
 
                 // Hover
                 if (showHover) {
@@ -100,54 +90,101 @@ function Point(
                         glow.resolution = 2;
                         container.filters = [glow];
                     }
-                } else if (showSelect) {
-                    if (!container.filters) {
-                        const glow = new GlowFilter({ distance: 15, outerStrength: 3, color: 0xffff00 });
-                        glow.resolution = 2;
-                        container.filters = [glow];
-                    }
                 } else {
                     if (container.filters) {
                         container.filters = null;
                     }
                 }
+
+                if (showSelect && layerRef.current) {
+                    if (!haloRef.current) {
+                        haloRef.current = new PIXIGraphics();
+                        layerRef.current.addChild(haloRef.current);
+                    }
+
+                    const HALO_STYLE = {
+                        alpha: 0.9,
+                        dash: [6, 3],
+                        width: 2,   // px
+                        color: 0xff0000
+                    };
+
+                    haloRef.current.clear();
+
+                    const shape = container.hitArea;
+                    if (shape instanceof PIXICircle) {
+                        new DashLine(haloRef.current, HALO_STYLE).drawCircle(shape.x, shape.y, shape.radius, 20);
+                    } else if (shape instanceof PIXIRectangle) {
+                        new DashLine(haloRef.current, HALO_STYLE).drawRect(shape.x, shape.y, shape.width, shape.height);
+                    }
+                } else {
+                    if (haloRef.current) {
+                        haloRef.current.destroy({ children: true });
+                        haloRef.current = null;
+                    }
+                }
             }
 
-            updateStyle();
             updateHitbox();
             updateHalo();
         }
-    }, [node, viewpoint, zoom, highlighted, hovered, selected, visible, idStr, PIXIComponentVisibleNoCommit, display]);
+    }, [zoom, highlighted, hovered, visible, display, selected, layerRef]);
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (container) {
+
+            const updateStyle = () => {
+                if (zoom < 16) {  // Hide container and everything under it
+                    PIXIComponentVisibleNoCommit("node", idStr, false)
+                } else if (zoom < 17) {  // Markers drawn but smaller
+                    PIXIComponentVisibleNoCommit("node", idStr, true)
+                    container.scale.set(0.8, 0.8);
+                } else {  // z >= 17 - Show the requested marker (circles OR pins)
+                    PIXIComponentVisibleNoCommit("node", idStr, true)
+                    container.scale.set(1, 1);
+                }
+            }
+
+            updateStyle()
+        }
+    }, [PIXIComponentVisibleNoCommit, zoom, containerRef, idStr])
 
     return (visible && <Container
         zIndex={settings.pixiRender.zIndex.POINT}
         eventMode="static"
         pointerdown={(event) => {
-            stateMachine.hookPIXIComponent(event, idStr)
+            stateMachine.hookPIXIComponent(event, idStr, "node")
         }}
         pointerup={(event) => {
-            stateMachine.hookPIXIComponent(event, idStr)
+            stateMachine.hookPIXIComponent(event, idStr, "node")
         }}
         pointerover={(event) => {
-            console.log("pointer over!", idStr, event)
-            stateMachine.hookPIXIComponent(event, idStr)
+            stateMachine.hookPIXIComponent(event, idStr, "node")
         }}
         pointerout={(event) => {
-            stateMachine.hookPIXIComponent(event, idStr)
+            stateMachine.hookPIXIComponent(event, idStr, "node")
         }}
-        position={getPixelByWGS84Locate(
-            { lon: node["@_lon"], lat: node["@_lat"] },
-            viewpoint,
-            zoom,
-            width,
-            height
-        )}
+        position={position}
         visible={visible}
         ref={containerRef}
     >
-        <Marker
-            display={"dot"}
+        <Sprite
+            eventMode="none"
+            sortableChildren={false}
+            visible={true}
+            texture={display === "dot" ? circleTexture : locationPinTexture}
+            anchor={display === "dot" ? { x: 0.5, y: 0.5 } : { x: 0.5, y: 1 }}
+            width={busStop ? 16 : 8}
+            height={busStop ? 16 : 8}
         />
+        {busStop && <Sprite
+            eventMode="none"
+            texture={busStopTexture}
+            anchor={display === "dot" ? { x: 0.5, y: 0.5 } : { x: 0.5, y: 1 }}
+            width={11}
+            height={11}
+        />}
 
     </Container>)
 }

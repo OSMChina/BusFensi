@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Helper function to deep copy an object.
  * 
@@ -144,3 +145,18 @@ export function convertNumberBoolValues(obj: Record<string, any>): Record<string
 export function T2Arr<T>(obj: T | T[] | undefined): T[] {
     return obj ? (Array.isArray(obj) ? obj : [obj]) : [];
 }
+
+
+export function union<T>(...iterables: Iterable<T>[]): Set<T> {
+    const set = new Set<T>();
+
+    for (const iterable of iterables) {
+        for (const item of iterable) {
+            set.add(item);
+        }
+    }
+
+    return set;
+}
+
+export const cn = (...args: any[]) => args.filter(Boolean).join(" ");

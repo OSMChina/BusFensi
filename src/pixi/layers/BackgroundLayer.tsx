@@ -1,15 +1,16 @@
 import { Container } from "@pixi/react";
 import useBearStoreWithUndo from "../../logic/model/store";
-import { settings } from "../../logic/settings/settings";
 import { DEFAULT_TILE_SIZE } from "../../utils/geo/constants";
 import { convertWGS84ToAbsolutePixel } from "../../utils/geo/mapProjection";
 import BackgourndTile from "../components/BackgroundTile";
+import { useShallow } from "zustand/react/shallow";
 
 
 function BackgroundLayer({ width, height }:{
     width: number,
     height: number
 }) {
+    const settings = useBearStoreWithUndo(useShallow((state) => state.settings))
     const viewpoint = useBearStoreWithUndo(state => state.viewpoint)
     const zoom = useBearStoreWithUndo(state => state.zoom);
     const { x: xabs, y: yabs } = convertWGS84ToAbsolutePixel(viewpoint, zoom)

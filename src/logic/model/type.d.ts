@@ -9,61 +9,171 @@ export interface FeatureState {
     highlighted: boolean
 }
 
+export interface ItemRefObj {
+    type: "node" | "way" | "relation",
+    id: string
+}
+
+export interface NodesObj {
+    [id: string]: Node
+}
+
+export interface WaysObj {
+    [id: string]: Way
+}
+
+export interface RelationsObj {
+    [id: string]: Relation
+}
+
+export interface FeatureTreeNode {
+    id: string
+    type: "node" | "way" | "relation"
+    fathers: {
+        nodesID: string[]
+        waysID: string[]
+        relationsID: string[]
+    }
+    /** must in order, may includes non-exsist */
+    childs: {
+        nodesID: string[]
+        waysID: string[]
+        relationsID: string[]
+    }
+}
+
+export interface FeatureTree {
+    elems: {
+        nodes: {
+            [id: string]: FeatureTreeNode
+        },
+        ways: {
+            [id: string]: FeatureTreeNode
+        },
+        relations: {
+            [id: string]: FeatureTreeNode
+        }
+    }
+    roots: {
+        nodesID: Set<string>,
+        waysID: Set<string>,
+        relationsID: Set<string>
+    }
+}
+
+/**
+ * Collection is a collection of osm feature ids.
+ * 
+ * when data loaded, the meta stored in renderedOSMFeatureMeta,
+ * and the tree relationship between features will be maintained
+ * in feature relation tree
+ * 
+ */
+export interface CollectionItem {
+    nodesId: Set<string>
+    waysId: Set<string>
+    relationsId: Set<string>
+}
+
+export interface Collection {
+    ptv2: CollectionItem
+    highway: CollectionItem
+    global: CollectionItem
+}
+
+interface StageState {
+    width: number,
+    height: number,
+    cursor: string
+}
+
+
+export interface Settings {
+    osmAPI: {
+        BASEURL: string,
+        TILE_SOURCE: string
+    },
+    view: {
+        MAX_ZOOM: number
+    },
+    pixiRender: {
+        zIndex: {
+            LINE: number,
+            POINT: number
+        }
+    }
+};
+
+
+
 export interface DataState {
     /** changes be tracked by zundo */
     /** commit counter */
     commitCounter: number
-    /** changeset of editor */
-    edit: {
-        nodes: {
-            [id: string]: Node
-        }
-        ways: {
-            [id: string]: Way
-        }
-        relations: {
-            [id: string]: Relation
-        }
-    },
-    selectedComponent: string[]
+    selectedComponent: ItemRefObj[]
+    deletedOSMFeatureMeta: {
+        nodes: NodesObj
+        ways: WaysObj
+        relations: RelationsObj
+    }
     /** rendered osm features meta, */
     renderedOSMFeatureMeta: {
-        nodes: {
-            [id: string]: Node
-        }
-        ways: {
-            [id: string]: Way
-        }
-        relations: {
-            [id: string]: Relation
-        }
+        nodes: NodesObj
+        ways: WaysObj
+        relations: RelationsObj
     }
     renderedFeatureState: {
-        [id: string]: FeatureState
+        nodes: {
+            [id: string]: FeatureState
+        }
+        ways: {
+            [id: string]: FeatureState
+        }
+        relations: {
+            [id: string]: FeatureState
+        }
     }
-
+    collections: Collection
+    featureTree: FeatureTree
     /** local changes like viewpoint, won't be tracked by zundo */
     viewpoint: PointWGS84
     zoom: number
     bboxs: Array<OSMV06BBoxObj>
-    stage: {
-        width: number,
-        height: number
-    },
+    stage: StageState,
+    settings: Settings
     /**
      * All actions commits. commit means track state with zundo, allow undo/redo.
      * Some set don't commit, just temporary. need commit after stable
      * Some set only change untracked, like viewpoint and zoom
      */
     commitAction: () => void
-    OSMLoadedDataAction: (bbox: OSMV06BBoxObj) => void
+
+    OSMLoadedBboxAction: (bbox: OSMV06BBoxObj) => void
+    addNodeAction: (node: Node) => void
+    addWayAction: (way: Way, nodes: Node[]) => void
+    addRelationAction: (relation: Relation) => void
+    createLocalNodeAction: (location: PointWGS84) => string;
+    createLocalWayAction: (nodes: Nd[]) => string;
+    createLocalRelationAction: (members: Member[]) => string;
+    deleteNodeAction: (id: string) => void;
+    deleteWayAndSubNdAction: (id: string) => void;
+    deleteRelationAction: (id: string) => void;
+    modifyNodeNoCommit: (idStr: string, newNodeData: Partial<Node>) => void;
+    modifyWayNoCommit: (idStr: string, newWayData: Partial<Way>) => void;
+    modifyRelationNoCommit: (idStr: string, newRelationData: Partial<Relation>) => void;
+    splitWayAction: (node: Node) => void
+
     PIXIPointMoveNoCommit: (idStr: string, location: PointWGS84) => void
-    PIXIPointSelectAction: (idStr: string, clear: boolean) => void
-    PIXIComponentHoverNoCommit: (idStr: string, val: boolean) => void
-    PIXIComponentVisibleNoCommit: (idStr: string, val: boolean) => void
+    PIXIComponentSelectAction: (type: "node" | "way" | "relation", idStr: string, clear: boolean) => void
+    PIXIComponentSelectClearAction: () => void
+    PIXIComponentHoverNoCommit: (type: "node" | "way" | "relation", idStr: string, val: boolean) => void
+    PIXIComponentVisibleNoCommit: (type: "node" | "way" | "relation", idStr: string, val: boolean) => void
+
+    updateSettingsAction: (settings: Partial<Settings>) => void
+
     viewpintMoveNoTrack: (viewpoint: PointWGS84) => void
     zoomNoTrack: (zoom: number) => void
-    stageResizeNoTrack: (stage: { width: number, height: number }) => void
+    stageStateNoTrack: (stage: Partial<StageState>) => void
 }
 
 export type PartializedStoreState = Pick<DataState, "edit" | "selectedComponent" | "commitCounter" | "renderedOSMFeatures">;

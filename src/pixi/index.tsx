@@ -5,35 +5,35 @@ import EditableLayer from "./layers/EditableLayer";
 import { stateMachine } from "../logic/states/stateMachine";
 import useBearStoreWithUndo from "../logic/model/store";
 import { useShallow } from "zustand/react/shallow";
+import { Application } from "pixi.js";
+
+declare global {
+    // eslint-disable-next-line no-var
+    var __PIXI_APP__: Application | undefined;
+}
+
 
 function PIXIAppSet() {
-    const app = useApp()
+    const app = useApp();
     useEffect(() => {
         globalThis.__PIXI_APP__ = app;
         app.stage.hitArea = app.screen;
         return () => {
             globalThis.__PIXI_APP__ = undefined;
-        }
-    }, [app])
+        };
+    }, [app]);
 
-    return <></>
+    return null;
 }
 
-function PIXIApp() {
-    const { stage, stageResizeNoTrack } = useBearStoreWithUndo(useShallow((state) => { return { stage: state.stage, stageResizeNoTrack: state.stageResizeNoTrack } }))
-    const { width, height } = stage
+function PIXIApp({ width, height }: {
+    width: number,
+    height: number
+}) {
+    const stageResizeNoTrack = useBearStoreWithUndo(useShallow(state => state.stageStateNoTrack))
     useEffect(() => {
-        function handelReize() {
-            stageResizeNoTrack({ width: window.innerWidth, height: window.innerHeight });
-        }
-        window.addEventListener('resize', handelReize)
-        if (window.innerHeight !== height || window.innerWidth !== width) {
-            stageResizeNoTrack({ width: window.innerWidth, height: window.innerHeight })
-        }
-        return () => {
-            window.removeEventListener('resize', handelReize)
-        }
-    }, [stageResizeNoTrack, height, width])
+        stageResizeNoTrack({ width: width, height: height })
+    }, [width, height, stageResizeNoTrack])
     return (
         <Stage
             width={width}
