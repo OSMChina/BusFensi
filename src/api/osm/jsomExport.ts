@@ -14,7 +14,7 @@ export function exportJOSMXML(renderedOSMFeatureMeta: {
 ): string {
     const exObj: JSOMExportObj = {
         "?xml": {
-            "@_version": 1,
+            "@_version": "1.0",
             "@_encoding": "UTF-8"
         },
         osm: {
@@ -45,7 +45,9 @@ export function exportJOSMXML(renderedOSMFeatureMeta: {
     const builder = new XMLBuilder({
         ignoreAttributes: false,
         attributeNamePrefix: "@_",
+        suppressBooleanAttributes: false,
     })
     const xml = builder.build(exObj)
+    console.log(xml)
     return xml;
 }

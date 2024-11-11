@@ -15,7 +15,6 @@ async function baseget(baseurl: string, path: string): Promise<any> {
     const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: "@_",
-        allowBooleanAttributes: true,
     });
     const json = parser.parse(data);
     console.log(`Get ${url}`, JSON.stringify(json), json);
