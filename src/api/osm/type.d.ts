@@ -6,7 +6,7 @@ interface Tag {
 
 interface Node {
     "@_id": string,
-    "@_visible": boolean,
+    "@_visible": string,
     "@_version"?: string,
     "@_changeset"?: string,
     "@_timestamp"?: string,
@@ -27,7 +27,7 @@ interface Way {
     nd: Nd | Nd[],
     tag?: Tag | Tag[],
     "@_id": string,
-    "@_visible": boolean,
+    "@_visible": string,
     "@_version"?: string,
     "@_changeset"?: string,
     "@_timestamp"?: string,
@@ -46,7 +46,7 @@ interface Relation {
     member: Member | Member[],
     tag?: Tag | Tag[],
     "@_id": string,
-    "@_visible": boolean,
+    "@_visible": string,
     "@_version"?: string,
     "@_changeset"?: string,
     "@_timestamp"?: string,
@@ -115,7 +115,7 @@ export interface OSMV06BatchFeatureObj {
 // see https://wiki.openstreetmap.org/wiki/JOSM_file_format
 export interface JSOMExportObj {
     "?xml": {
-        "@_version": 1,
+        "@_version": string,
         "@_encoding": "UTF-8"
     },
     osm: {
