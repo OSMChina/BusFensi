@@ -14,6 +14,7 @@ export default function Toolbar() {
         deleteWayAndSubNdAction,
         deleteRelationAction,
         PIXIComponentSelectClearAction,
+        PIXIComponentSelectAction,
         updateSettingsAction,
         selectedComponent,
         renderedOSMFeatureMeta,
@@ -27,10 +28,12 @@ export default function Toolbar() {
 
 
     const handelCreateWay = () => {
-        createLocalWayAction(selectedComponent.filter(item => item.type === "node").map(item => ({ '@_ref': item.id })))
+        const tmpWayId = createLocalWayAction(selectedComponent.filter(item => item.type === "node").map(item => ({ '@_ref': item.id })))
+        PIXIComponentSelectAction("way", tmpWayId, false);
     }
     const handelCreateRelation = () => {
-        createLocalRelationAction(selectedComponent.map(item => ({ '@_ref': item.id, '@_type': item.type })))
+        const tmpoRealtionId = createLocalRelationAction(selectedComponent.map(item => ({ '@_ref': item.id, '@_type': item.type })))
+        PIXIComponentSelectAction("relation", tmpoRealtionId, false);
     }
     const handelDeleteSelected = () => {
         const selTmp = deepCopy(selectedComponent)
