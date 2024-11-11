@@ -6,8 +6,9 @@ import { Member, Nd, Node, OSMV06BBoxObj, Relation, Way } from "../../api/osm/ty
 import { deepCopy, deepMerge, T2Arr, union } from "../../utils/helper/object";
 import { produce } from "immer";
 import { enableMapSet } from "immer";
-import { filterBusPTv2, filterHighway } from "../../utils/osm/filter";
+import { filterBusPTv2, filterCreated, filterHighway } from "../../utils/osm/filter";
 import { PointWGS84 } from "../../utils/geo/types";
+// import { persist } from 'zustand/middleware';
 
 const DEFAULT_RENDERED_FEATURE_STATE: FeatureState = {
     visible: true,
@@ -118,10 +119,11 @@ const genCollection = (osmFeatureMeta: {
     const { nodes, ways, relations } = osmFeatureMeta
     const ptv2 = filterBusPTv2(nodes, ways, relations)
     const highway = filterHighway(nodes, ways, relations)
-
+    const created = filterCreated(nodes, ways, relations);
     return {
         ptv2: ptv2,
         highway: highway,
+        created: created,
         global: unionCollection(ptv2, highway)
     }
 }
@@ -134,7 +136,7 @@ const CreateNodeMeta = (location: PointWGS84) => {
         "@_id": id,
         "@_lat": location.lat,
         "@_lon": location.lon,
-        "@_visible": true,
+        "@_visible": "true",
     };
     return newNode
 }
@@ -146,7 +148,7 @@ const createLocalWayMeta = (nodes: Nd[]) => {
     const newWay: Way = {
         "@_id": id,
         nd: [...nodes],
-        "@_visible": true,
+        "@_visible": "true",
     };
     return newWay
 }
@@ -158,7 +160,7 @@ const createLocalRelationMeta = (members: Member[]) => {
     const newRelation: Relation = {
         "@_id": id,
         member: [...members],
-        "@_visible": true,
+        "@_visible": "true",
     };
     return newRelation
 }
@@ -202,6 +204,11 @@ const useBearStoreWithUndo = create<DataState>()(
                     relationsId: new Set(),
                 },
                 highway: {
+                    nodesId: new Set(),
+                    waysId: new Set(),
+                    relationsId: new Set()
+                },
+                created: {
                     nodesId: new Set(),
                     waysId: new Set(),
                     relationsId: new Set()
@@ -685,6 +692,8 @@ const useBearStoreWithUndo = create<DataState>()(
         equality: (pastState, currentState) => {
             return pastState.commitCounter === currentState.commitCounter
         },
+        // wrapTemporal: (storeInitializer) =>
+        //     persist(storeInitializer, { name: 'temporal-persist' }),
     }),
 );
 

@@ -8,7 +8,7 @@ import { FilterFunc } from "./type";
 
 
 function OutlineView() {
-    const { ptv2, highway } = useBearStoreWithUndo((state) => state.collections)
+    const { ptv2, highway, created } = useBearStoreWithUndo((state) => state.collections)
     const [searchTerm, setSearchTerm] = useState("");
     const searchFilter: FilterFunc = (meta, type) => 
         searchTerm === "" || `${type}-${JSON.stringify(meta)}`.includes(searchTerm)
@@ -30,6 +30,7 @@ function OutlineView() {
                 <ul className="menu menu-xs bg-base-200">
                     <CollectionItem name="Public Transport" collecion={ptv2} filterFun={searchFilter} />
                     <CollectionItem name="Highway" collecion={highway} filterFun={searchFilter} />
+                    <CollectionItem name="Created" collecion={created} filterFun={searchFilter} />
                     <GlobalCollection name="Global" filterFun={searchFilter} />
                 </ul>
             </div>
