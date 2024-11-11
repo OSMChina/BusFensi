@@ -1,5 +1,4 @@
-// wait rapid to fix this issue
-// @ts-ignore
+// @ts-expect-error wait rapid to fix this issue
 import { DashLine } from '@rapideditor/pixi-dashed-line';
 
 import { Container, Graphics, Sprite } from "@pixi/react";
