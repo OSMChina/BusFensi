@@ -155,3 +155,41 @@ export function filterHighway(
     };
 }
 
+export function filterCreated(
+    nodes: NodesObj,
+    ways: WaysObj,
+    relations: RelationsObj
+): CollectionItem {
+    const filteredNodes = new Set<string>()
+    const filteredWays = new Set<string>()
+    const filteredRelations = new Set<string>()
+
+    // Helper function to collect all members of a feature
+    const collectMembers = getCollector(filteredNodes, filteredWays, filteredRelations, nodes, ways, relations)
+
+    // Process highway relation
+    Object.values(relations).forEach((relation) => {
+        if (Number(relation["@_id"]) < 0) {
+            collectMembers(relation["@_id"], "relation");
+        }
+    });
+
+    Object.values(ways).forEach((way) => {
+        if (Number(way["@_id"]) < 0) {
+            collectMembers(way["@_id"], "way");
+        }
+    });
+
+    Object.values(nodes).forEach((node) => {
+        if (Number(node["@_id"]) < 0) {
+            collectMembers(node["@_id"], "node");
+        }
+    });
+
+    return {
+        nodesId: filteredNodes,
+        waysId: filteredWays,
+        relationsId: filteredRelations
+    };
+
+}

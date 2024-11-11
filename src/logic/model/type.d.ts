@@ -78,6 +78,7 @@ export interface CollectionItem {
 export interface Collection {
     ptv2: CollectionItem
     highway: CollectionItem
+    created: CollectionItem
     global: CollectionItem
 }
 
