@@ -148,7 +148,7 @@ function Point(
 
             updateStyle()
         }
-    }, [PIXIComponentVisibleNoCommit, zoom, containerRef, idStr])
+    }, [PIXIComponentVisibleNoCommit, idStr, zoom])
 
     return (visible && <Container
         zIndex={settings.pixiRender.zIndex.POINT}
