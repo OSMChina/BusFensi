@@ -19,7 +19,7 @@ function PropertyView() {
   }, [selected, activeItem, setActive])
 
   return <div className="property-view min-h-1/2 h-1/2 max-h-1/2 w-full max-w-full flex flex-col p-1 rounded bg-base-100">
-    <div className="max-w-full overflow-x-scroll">
+    <div className="max-w-full overflow-x-scroll h-16">
       <div role="tablist" className="tabs tabs-lifted tabs-xs">
         {selected.map(item => (
           <a
