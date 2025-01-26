@@ -47,7 +47,6 @@
 右键菜单的本体应该是视图，不过它表现上可以作为一个类似 modal 定位的 component,可以在制定的 px 下面显示出来。调用者给他一个视图作为 child 就行，类似一个工具类吧。可以作为 Map View 的子 util
 
 - [ ] 完成 Right Click Modal
-- [ ] 完成 Right Click View，嵌入 Modal 中
 
 ##### Outline 视图
 
@@ -168,3 +167,33 @@ Controller 的实现会比较复杂，所以会给 Controller 一个状态机（
 这很重要，比如典中典 select 应该怎么处理。就是说一些需要开洞实现的功能怎么操作。
 
 我怎么做到按下 Property View 中的吸管的时候把 Map View 的状态给切了去 select, 而且能 select 到的是当前显示的实体中可以兼容的部分。这个还需要思考，可能还会推翻现在的草稿设计。
+
+### 代码组织
+
+我个人的代码组织是比较随意的，所以这里吃回旋镖了。一个是文件夹层级过深，另一个是公共功能不够明显。
+
+这次我希望让类似的逻辑都放在一起，同时引入类似“依赖”的概念，也就是说有些文件夹应该独立，不依赖别的文件夹里面的逻辑，这样可以避免意大利面条式的交错。暂时管这个叫 root 逻辑？用 R 来标记好了。
+
+代码现在的组织很乱。我决定重新调整文件结构。暂时订成这个
+
+```
+src
+├── api        # (R)封装的，与 OSM v0.6 后端请求的函数
+├── app        # 最终的 UI，各个部分在这里组成完整程序
+├── components # (R)公共的，可复用的 UI 组件，原则上应该作为 VDOM 的叶子
+├── views      # 应用的视图组件，如 Map, Property 等。每个字文件夹相互独立
+├── store      # (R)用于状态管理的 zustand store
+├── utils      # (R)通用的工具函数
+├── config     # （待实现）应用的配置文件，包含客户端环境变量与服务端环境变量
+├── const      # （待实现）用于定义常量，如 action 类型、路由名等
+├── hooks      # （待实现）全应用复用自定义的工具 Hooks
+├── locales    # （待实现）国际化的语言文件
+└── types      # （待实现）TypeScript 的类型定义文件
+```
+
+所以现在需要实现：
+
+- [ ] `components`: 分成 `pixi` 和 `common` 两个文件夹好了。暂时让 common 空着。接下来把 pixi 的组件移进去。需要注意的是这里的 pixi component 需要改成一个完整的依赖 props 的渲染，而不是依赖 store hooks。每个组件分别用 index.tsx 导出
+- [ ] `store`: 按照这个标准来写 <https://github.com/lobehub/lobe-chat/wiki/State-Management-Intro.zh-CN>。暂时分成 `osmmeta` 和 `settings` 两个部分，一个复杂，一个简单。每个子文件夹 `index.ts` 导出一个 zustand 的 hook
+- [ ] `views`: 每个二级文件夹代表一个完整的 view。暂定 `outline` `property` `map`，每个分别一个 `index.tsx` 导出即可
+- [ ] `app` 组装成整个 APP。里面包含 layout 等逻辑。这里的逻辑很可能会比较乱，比较杂，但是无所谓，乱到一定程度就拆组件。
