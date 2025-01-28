@@ -193,7 +193,7 @@ src
 
 所以现在需要实现：
 
-- [ ] `components`: 分成 `pixi` 和 `common` 两个文件夹好了。暂时让 common 空着。接下来把 pixi 的组件移进去。需要注意的是这里的 pixi component 需要改成一个完整的依赖 props 的渲染，而不是依赖 store hooks。每个组件分别用 index.tsx 导出
+- [X] `components`: 分成 `pixi` 和 `common` 两个文件夹好了。暂时让 common 空着。接下来把 pixi 的组件移进去。需要注意的是这里的 pixi component 需要改成一个完整的依赖 props 的渲染，而不是依赖 store hooks。每个组件分别用 index.tsx 导出
 - [ ] `store`: 按照这个标准来写 <https://github.com/lobehub/lobe-chat/wiki/State-Management-Intro.zh-CN>。暂时分成 `osmmeta` 和 `settings` 两个部分，一个复杂，一个简单。每个子文件夹 `index.ts` 导出一个 zustand 的 hook
 - [ ] `views`: 每个二级文件夹代表一个完整的 view。暂定 `outline` `property` `map`，每个分别一个 `index.tsx` 导出即可
 - [ ] `app` 组装成整个 APP。里面包含 layout 等逻辑。这里的逻辑很可能会比较乱，比较杂，但是无所谓，乱到一定程度就拆组件。
