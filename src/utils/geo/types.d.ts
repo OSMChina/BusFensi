@@ -21,3 +21,10 @@ export interface PointPixel {
     x: number,
     y: number
 }
+
+export interface MapViewStatus {
+    viewpoint: PointWGS84,
+    zoom: number,
+    width: number,
+    height: number,
+}
