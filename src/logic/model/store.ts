@@ -8,6 +8,7 @@ import { produce } from "immer";
 import { enableMapSet } from "immer";
 import { filterBusPTv2, filterCreated, filterHighway } from "../../utils/osm/filter";
 import { PointWGS84 } from "../../utils/geo/types";
+import { NumericString } from "../../type/osm/refobj";
 // import { persist } from 'zustand/middleware';
 
 const DEFAULT_RENDERED_FEATURE_STATE: FeatureState = {
@@ -131,7 +132,7 @@ const genCollection = (osmFeatureMeta: {
 let newIdCounterNode = -1;
 
 const CreateNodeMeta = (location: PointWGS84) => {
-    const id = `${newIdCounterNode--}`;
+    const id = `${newIdCounterNode--}` as NumericString;
     const newNode: Node = {
         "@_id": id,
         "@_lat": location.lat,
@@ -144,7 +145,7 @@ const CreateNodeMeta = (location: PointWGS84) => {
 let newIdCounterWay = -1;
 
 const createLocalWayMeta = (nodes: Nd[]) => {
-    const id = `${newIdCounterWay--}`;
+    const id = `${newIdCounterWay--}` as NumericString;
     const newWay: Way = {
         "@_id": id,
         nd: [...nodes],
@@ -156,7 +157,7 @@ const createLocalWayMeta = (nodes: Nd[]) => {
 let newIdCounterRelation = -1;
 
 const createLocalRelationMeta = (members: Member[]) => {
-    const id = `${newIdCounterRelation--}`;
+    const id = `${newIdCounterRelation--}` as NumericString;
     const newRelation: Relation = {
         "@_id": id,
         member: [...members],
