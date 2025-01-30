@@ -5,9 +5,9 @@ export interface SettingsAction {
     updateSettingsAction: (newSettings: Partial<SettingsStore>) => void
 }
 
-export const createMapStatusActionSlice: StateCreator<
+export const createSettingsActionSlice: StateCreator<
     SettingsStore,
-    [['zustand/devtools', never]],
+    [["zustand/devtools", never], ["zustand/persist", unknown]],
     [],
     SettingsAction
 > = (set) => ({
