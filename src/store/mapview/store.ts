@@ -8,17 +8,17 @@ export type MapViewStore = MapState
     & MapViewAction
 
 const storageOptions = {
-    name: 'fishAndBearsStore',
+    name: 'mapViewStore',
     storage: createJSONStorage<MapViewStore>(() => URLSearchStorage),
 }
 
 // Apply the store creation with the correct middleware order
 export const useLocalAndUrlStore = create<MapViewStore>()(
-    persist(
-        devtools((...parameters) => ({
+    devtools(
+        persist((...parameters) => ({
             ...initialMapState,
             ...createMapStatusActionSlice(...parameters),
-        }), { name: 'MapView' }),  // devtools applied after persist
-        storageOptions,
+        }), storageOptions),  // devtools applied after persist
+        { name: 'MapView' },
     ),
 );
