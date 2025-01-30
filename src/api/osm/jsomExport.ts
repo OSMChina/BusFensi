@@ -43,7 +43,7 @@ export function exportJOSMXML(renderedOSMFeatureMeta: {
     }
     console.log(exObj, renderedOSMFeatureMeta)
     const builder = new XMLBuilder({
-        ignoreAttributes: false,
+        ignoreAttributes: ["localStates"],
         attributeNamePrefix: "@_",
         suppressBooleanAttributes: false,
     })
