@@ -4,6 +4,14 @@ import { XMLParser } from 'fast-xml-parser';
 import { Node, OSMV06BatchFeatureObj, OSMV06BBoxObj, OSMV06FeatureObj, Relation, Way } from '../../type/osm/meta';
 import { T2Arr } from '../../utils/helper/object';
 
+const ALWAYS_ARRAY = [
+    "tag",
+    "nd",
+    "member",
+    "node",
+    "way",
+    "relation"
+]
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function baseget(baseurl: string, path: string): Promise<any> {
     const url = `${baseurl}${path}`;
@@ -15,6 +23,9 @@ async function baseget(baseurl: string, path: string): Promise<any> {
     const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: "@_",
+        isArray: (name, _jpath, _isLeafNode, isAttribute) => {
+            return !isAttribute && ALWAYS_ARRAY.includes(name)
+        },
     });
     const json = parser.parse(data);
     console.log(`Get ${url}`, JSON.stringify(json), json);

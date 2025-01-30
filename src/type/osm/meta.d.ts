@@ -1,11 +1,12 @@
+import { FeatureTypes, NumericString, LocalActionAttr } from "./refobj"
 
 interface Tag {
     "@_k": string
     "@_v": string
 }
 
-interface Node {
-    "@_id": string,
+interface Node extends LocalActionAttr {
+    "@_id": NumericString,
     "@_visible": string,
     "@_version"?: string,
     "@_changeset"?: string,
@@ -14,45 +15,41 @@ interface Node {
     "@_uid"?: string,
     "@_lat": number,
     "@_lon": number,
-    '@_action'?: "modify" | "delete", 
-    tag?: Tag | Tag[]
-
-}
+    tag?: Tag[]
+} 
 
 interface Nd {
-    "@_ref": string
+    "@_ref": NumericString
 }
 
-interface Way {
-    nd: Nd | Nd[],
-    tag?: Tag | Tag[],
-    "@_id": string,
+interface Way extends LocalActionAttr {
+    nd: Nd[],
+    tag?: Tag[],
+    "@_id": NumericString,
     "@_visible": string,
     "@_version"?: string,
     "@_changeset"?: string,
     "@_timestamp"?: string,
     "@_user"?: string,
     "@_uid"?: string
-    '@_action'?: "modify" | "delete", 
 }
 
 interface Member {
-    "@_type": "way" | "node" | "relation",
-    "@_ref": string,
+    "@_type": FeatureTypes,
+    "@_ref": NumericString,
     "@_role"? : string
 }
 
-interface Relation {
-    member: Member | Member[],
-    tag?: Tag | Tag[],
-    "@_id": string,
+interface Relation extends LocalActionAttr {
+    member: Member[],
+    tag?: Tag[],
+    "@_id": NumericString,
     "@_visible": string,
     "@_version"?: string,
     "@_changeset"?: string,
     "@_timestamp"?: string,
     "@_user"?: string,
     "@_uid"?: string
-    '@_action'?: "modify" | "delete", 
 }
 
 export interface OSMV06BBoxObj {
@@ -67,9 +64,9 @@ export interface OSMV06BBoxObj {
             "@_maxlat": number,
             "@_maxlon": number
         },
-        node: Node | Node[],
-        way: Way | Way[],
-        relation: Relation | Relation[],
+        node: Node[],
+        way: Way[],
+        relation: Relation[],
         "@_version": 0.6,
         "@_generator": string,
         "@_copyright": string,
@@ -101,9 +98,9 @@ export interface OSMV06BatchFeatureObj {
         "@_encoding": "UTF-8"
     },
     osm: {
-        node: Node | Node[] 
-        way: Way | Way[]
-        relation: Relation | Relation[]
+        node: Node[] 
+        way: Way[]
+        relation: Relation[]
         "@_version": 0.6,
         "@_generator": string,
         "@_copyright": string,
@@ -112,7 +109,7 @@ export interface OSMV06BatchFeatureObj {
     }
 }
 
-// see https://wiki.openstreetmap.org/wiki/JOSM_file_format
+// see https://wiki.openstreetmap.org/Relation | wiki/JOSM_file_format
 export interface JSOMExportObj {
     "?xml": {
         "@_version": string,
