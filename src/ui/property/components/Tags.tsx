@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Tag } from "../../../api/osm/type";
+import { Tag } from "../../../type/osm/meta";
 import { deepCopy } from "../../../utils/helper/object";
 import { faDeleteLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRef } from "react";

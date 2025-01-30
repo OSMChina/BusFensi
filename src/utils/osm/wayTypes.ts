@@ -1,4 +1,4 @@
-import { Tag } from "../../api/osm/type";
+import { Tag } from "../../type/osm/meta";
 import { osmOneWayTags, osmRemoveLifecyclePrefix, osmRightSideIsInsideTags, OSMTagFilterObj } from "./tags";
 
 export function wayIsHighway(tags: Tag[]): boolean {

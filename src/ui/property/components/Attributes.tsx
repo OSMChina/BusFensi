@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Node, Way, Relation } from "../../../api/osm/type";
+import { Node, Way, Relation } from "../../../type/osm/meta";
 
 function Attributes({ meta }: { meta: Node | Way | Relation }) {
     return (

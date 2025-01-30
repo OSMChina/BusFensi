@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { temporal } from "zundo";
 import { DEFAULT_VIEWPOINT_WGS84, DEFAULT_ZOOM } from "../../utils/geo/constants";
 import { Collection, CollectionItem, DataState, FeatureState, FeatureTree, FeatureTreeNode, NodesObj, RelationsObj, Settings, WaysObj } from "./type";
-import { Member, Nd, Node, OSMV06BBoxObj, Relation, Way } from "../../api/osm/type";
+import { Member, Nd, Node, OSMV06BBoxObj, Relation, Way } from "../../type/osm/meta";
 import { deepCopy, deepMerge, T2Arr, union } from "../../utils/helper/object";
 import { produce } from "immer";
 import { enableMapSet } from "immer";

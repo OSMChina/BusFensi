@@ -1,5 +1,5 @@
 import { NodesObj, RelationsObj, WaysObj } from "../../logic/model/type";
-import { JSOMExportObj, OSMV06BBoxObj } from "./type";
+import { JSOMExportObj, OSMV06BBoxObj } from "../../type/osm/meta";
 import { XMLBuilder } from 'fast-xml-parser';
 
 export function exportJOSMXML(renderedOSMFeatureMeta: {

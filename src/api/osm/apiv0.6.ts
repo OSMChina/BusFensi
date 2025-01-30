@@ -1,7 +1,7 @@
 // from: https://wiki.openstreetmap.org/wiki/API_v0.6
 
 import { XMLParser } from 'fast-xml-parser';
-import { Node, OSMV06BatchFeatureObj, OSMV06BBoxObj, OSMV06FeatureObj, Relation, Way } from './type';
+import { Node, OSMV06BatchFeatureObj, OSMV06BBoxObj, OSMV06FeatureObj, Relation, Way } from '../../type/osm/meta';
 import { T2Arr } from '../../utils/helper/object';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

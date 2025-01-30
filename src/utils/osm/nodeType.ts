@@ -1,4 +1,4 @@
-import { Tag } from "../../api/osm/type";
+import { Tag } from "../../type/osm/meta";
 
 /**
  * If there is no real platform and you will only find a simple sign for the passengers … 

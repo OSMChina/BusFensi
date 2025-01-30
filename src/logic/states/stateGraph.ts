@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
-import { OSMV06BBoxObj } from '../../api/osm/type';
+import { OSMV06BBoxObj } from '../../type/osm/meta';
 import { getBoundsByScene, getPixelByWGS84Locate, getWGS84LocateByPixel } from '../../utils/geo/mapProjection';
 import { stateMachine } from './stateMachine';
 import { State } from './type';
