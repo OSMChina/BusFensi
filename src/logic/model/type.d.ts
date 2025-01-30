@@ -1,4 +1,4 @@
-import { Node, OSMV06BBoxObj, Relation, Way } from "../../api/osm/type"
+import { Node, OSMV06BBoxObj, Relation, Way } from "../../type/osm/meta"
 import { PointWGS84 } from "../../utils/geo/types"
 
 export interface FeatureState {

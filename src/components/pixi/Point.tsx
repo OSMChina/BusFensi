@@ -10,7 +10,7 @@ import { Container as PIXIContainer, Circle as PIXICircle, Graphics as PIXIGraph
 import { isBusStop } from "../../utils/osm/nodeType";
 import { T2Arr } from "../../utils/helper/object";
 import { MapViewStatus } from '../../utils/geo/types';
-import { Node } from '../../api/osm/type';
+import { Node } from '../../type/osm/meta';
 import { FeatureState } from '../../logic/model/type';
 
 type PointProps = React.ComponentProps<typeof Container> & {

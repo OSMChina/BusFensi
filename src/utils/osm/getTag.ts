@@ -1,4 +1,4 @@
-import { Tag } from "../../api/osm/type";
+import { Tag } from "../../type/osm/meta";
 import { T2Arr } from "../helper/object";
 
 export function getPropFromTags(key: string, tags?: Tag | Tag[]): string|null {

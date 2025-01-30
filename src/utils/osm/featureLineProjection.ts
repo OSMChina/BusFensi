@@ -1,6 +1,6 @@
 import { vec2 } from 'gl-matrix';
 import { PointWGS84 } from '../geo/types';
-import { Node } from '../../api/osm/type';
+import { Node } from '../../type/osm/meta';
 
 // Define types for point and polyline
 type Polyline = Node[];

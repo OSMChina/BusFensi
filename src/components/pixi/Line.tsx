@@ -11,7 +11,7 @@ import { getLineCapEnum, getLineJoinEnum, getLineSegments, lineToPoly } from './
 import { arrorowRightLongTexture } from "./textures/index.ts";
 import { wayIsOneWay, wayIsSided } from "../../utils/osm/wayTypes.ts";
 import { styleMatch } from "./utils/rapidAdapted/style.ts";
-import { Way } from '../../api/osm/type';
+import { Way } from '../../type/osm/meta';
 import { FeatureState, NodesObj } from '../../logic/model/type';
 import { MapViewStatus } from '../../utils/geo/types';
 
