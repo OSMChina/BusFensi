@@ -1,5 +1,5 @@
 {
-  "name": "my-vue-app",
+  "name": "bus-fensi",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -28,8 +28,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-resizable-layout": "^0.7.2",
-    "zundo": "^2.1.0",
-    "zustand": "^4.5.4"
+    "zundo": "^2.3.0",
+    "zustand": "^5.0.3",
+    "zustand-computed": "^2.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
