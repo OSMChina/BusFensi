@@ -35,7 +35,7 @@ export const createFeatureStateActionSlice: StateCreator<
     }),
     selectFeature: (type, id, clear) => set(state => {
         commitHelper(state);
-        clear && clearSelectHelper(state)
+        if (clear) { clearSelectHelper(state) }
         selectFeatureHelper(state, type, id)
     }),
     clearSelect: () => set(state => {

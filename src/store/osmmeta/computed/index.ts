@@ -3,7 +3,7 @@ import { FeatureMetaGroup, FeatureTypes, NumericString } from "../../../type/osm
 import { OSMMapStore } from "../store"
 import { filterBusPTv2, filterCreated, filterHighway } from "../../../utils/osm/filterV2"
 
-type CollectionItem = Record<FeatureTypes, Record<NumericString, boolean>>
+export type CollectionItem = Record<FeatureTypes, Record<NumericString, boolean>>
 
 type FeatureTreeNode = {
     id: NumericString
@@ -18,7 +18,7 @@ export type FeatureTree = {
     roots: Record<FeatureTypes, Record<NumericString, boolean>>
 }
 
-type Collection = {
+export type Collection = {
     ptv2: CollectionItem,
     highway: CollectionItem,
     created: CollectionItem,
@@ -30,7 +30,7 @@ export interface ComputedFeatures {
     tree: FeatureTree,
 }
 
-const genTree = (
+export const genTree = (
     renderedOSMFeatureMeta: FeatureMetaGroup
 ): FeatureTree => {
     const { node, way, relation } = renderedOSMFeatureMeta
@@ -102,14 +102,14 @@ const genTree = (
     })
     Object.values(featureTree.elems.relation).forEach(relation => {
         if (faEmpty(relation)) {
-            featureTree.roots.relation[relation.id]
+            featureTree.roots.relation[relation.id] = true
         }
     })
 
     return featureTree
 };
 
-const genCollection = (osmFeatureMeta: FeatureMetaGroup): Collection => {
+export const genCollection = (osmFeatureMeta: FeatureMetaGroup): Collection => {
     const unionCollection = (...iterable: CollectionItem[]): CollectionItem => ({
         node: iterable.reduce((acc, col) => ({ ...acc, ...col.node }), {}),
         way: iterable.reduce((acc, col) => ({ ...acc, ...col.way }), {}),

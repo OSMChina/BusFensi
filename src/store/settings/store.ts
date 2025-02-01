@@ -11,7 +11,7 @@ const storageOptions = {
 }
 
 // Apply the store creation with the correct middleware order
-export const useLocalAndUrlStore = create<SettingsStore>()(
+export const useSettingsStore = create<SettingsStore>()(
     devtools(
         persist((...parameters) => ({
             ...initialState,

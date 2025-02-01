@@ -8,3 +8,4 @@
 export * from './slice/commit/helper'
 export * from './slice/featureState/helper'
 export * from './slice/meta/helper'
+export * from './slice/remote/helper'
