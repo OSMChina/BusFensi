@@ -1,14 +1,30 @@
-<h1 align="center>BusFensi</h1>
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="[https://github.com/othneildrew/Best-README-Template](https://github.com/OSMChina/BusFensi)">
+    <img src="https://github.com/fltb.png" alt="Logo" width="80" height="80">
+  </a>
 
-<img src="https://github.com/fltb.png"/>
+  <h3 align="center">BusFensi</h3>
 
-<p align="center">
-  
-一个基于前端技术的便于操作的OpenStreetMap中公共交通线路编辑器
+  <p align="center">
+    一个基于前端技术的便于操作的OpenStreetMap中公共交通线路编辑器
+    <br />
+    An Easy-to-Use OpenStreetMap Public Transport Route Editor Based on Front-End Technology
+    <br />
+    <a href=""><strong>Explore the docs » (还没写好，请前往 /docs 目录)</strong></a>
+    <br />
+    <!--
+    <br />
+    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
+    &middot;
+    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    &middot;
+    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    -->
+  </p>
+</div>
 
-An Easy-to-Use OpenStreetMap Public Transport Route Editor Based on Front-End Technology
-
-</p>
 <hr/>
 
 ## 愿景
@@ -17,7 +33,7 @@ An Easy-to-Use OpenStreetMap Public Transport Route Editor Based on Front-End Te
 
 ## 主要功能
 
-### 代码介绍
+### 结构介绍
 
 目前主要的部分（可能按照这些去阅读代码会有帮助（
 
@@ -25,6 +41,10 @@ An Easy-to-Use OpenStreetMap Public Transport Route Editor Based on Front-End Te
 * layer
 * tiles
 * UI
+
+### 运行调试
+
+<!-- 那你跟着npm走就是了，npm build之类的一串指令感觉没必要写了占空间，而且我忘了当时怎么跑起来的了，请 @fltb 回头合PR的时候把这个地方改一下 -->
 
 ## 相关文档
 
