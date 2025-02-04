@@ -59,3 +59,7 @@
 ### 可供参考的项目
 
 * [NorthCrab's Diary](https://www.openstreetmap.org/user/NorthCrab/diary/401755) ([GitHub](https://github.com/Zaczero/osm-relatify)）
+
+## 声明
+
+本项目接受了中国科学院软件研究所在[OSPP 2024](https://summer-ospp.ac.cn/org/prodetail/24c480495)中的资助。
