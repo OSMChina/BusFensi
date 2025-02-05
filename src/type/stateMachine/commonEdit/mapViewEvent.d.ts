@@ -1,4 +1,4 @@
 import { BaseEvent } from "../baseEvent";
-import { FederatedPointerEvent, FederatedWheelEvent } from 'pixi.js';
 
-export type PointerOnMapViewEvent = BaseEvent & FederatedPointerEvent & FederatedWheelEvent
+export type PointerOnMapViewEvent = BaseEvent & React.PointerEvent<HTMLCanvasElement>
+    | BaseEvent & React.WheelEvent<HTMLCanvasElement>
