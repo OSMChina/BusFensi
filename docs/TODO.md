@@ -65,8 +65,8 @@
 
 #### 重构 Zustand 状态管理
 
-- [ ] 首先修复 persist state
-- [ ] 其次，需要拆分 state 了，完全不同的状态需要不同的 slice, 比如 zoom 和 lat lon 可以用 URL store 中间件，而编辑数据需要存在 zundo 中间件。最后在这些 middleware 暴露的接口上面组成一个完整的全局 store 以供使用。
+- [X] 首先修复 persist state
+- [X] 其次，需要拆分 state 了，完全不同的状态需要不同的 slice, 比如 zoom 和 lat lon 可以用 URL store 中间件，而编辑数据需要存在 zundo 中间件。最后在这些 middleware 暴露的接口上面组成一个完整的全局 store 以供使用。
 
 #### 编辑模式的抽象
 
@@ -90,8 +90,8 @@ Controller 的实现会比较复杂，所以会给 Controller 一个状态机（
 
 以及，将状态机操作数据看作一种输出，应该也算能够理解的行为，毕竟至少数据还是单向流动的。所以暂时不对这个部分开到，毕竟可以将 zustand 提供的接口视为 edit system， data model 和 view model 的复合，至少在目前还没有局限，后续根据 zustand 的灵活性也能定制拓展。
 
-- [ ] 新建一个 State 的 Class, 规范化 State 的实例化和连接，以及状态转移函数。比如 new 之后 appendTransform
-- [ ] 重构 State Machine，取消 retain, 取消对每个事件的接口，统一抽象。允许 State Machine 之间相互拼接， 使用 appendIn, appendOut
+- [X] 新建一个 State 的 Class, 规范化 State 的实例化和连接，以及状态转移函数。比如 new 之后 appendTransform
+- [X] 重构 State Machine，取消 retain, 取消对每个事件的接口，统一抽象。允许 State Machine 之间相互拼接， 使用 appendNext
 - [ ] 将 Controller 接入 State Machine
 
 #### 新建公交相关业务逻辑编写
@@ -172,7 +172,7 @@ Controller 的实现会比较复杂，所以会给 Controller 一个状态机（
 
 我个人的代码组织是比较随意的，所以这里吃回旋镖了。一个是文件夹层级过深，另一个是公共功能不够明显。
 
-这次我希望让类似的逻辑都放在一起，同时引入类似“依赖”的概念，也就是说有些文件夹应该独立，不依赖别的文件夹里面的逻辑，这样可以避免意大利面条式的交错。暂时管这个叫 root 逻辑？用 R 来标记好了。
+这次我希望让类似的逻辑都放在一起，同时引入类似“依赖”的概念，也就是说有些文件夹应该独立，不依赖别的文件夹里面的逻辑，这样可以避免意大利面条式的交错。暂时管这个叫 root 逻辑？用 R 来标记好了。utils 可以被 root 模块引用，叫 U 好了
 
 代码现在的组织很乱。我决定重新调整文件结构。暂时订成这个
 
@@ -183,7 +183,7 @@ src
 ├── components # (R)公共的，可复用的 UI 组件，原则上应该作为 VDOM 的叶子
 ├── views      # 应用的视图组件，如 Map, Property 等。每个字文件夹相互独立
 ├── store      # (R)用于状态管理的 zustand store
-├── utils      # (R)通用的工具函数
+├── utils      # (U)通用的工具函数
 ├── config     # （待实现）应用的配置文件，包含客户端环境变量与服务端环境变量
 ├── const      # （待实现）用于定义常量，如 action 类型、路由名等
 ├── hooks      # （待实现）全应用复用自定义的工具 Hooks
@@ -194,6 +194,6 @@ src
 所以现在需要实现：
 
 - [X] `components`: 分成 `pixi` 和 `common` 两个文件夹好了。暂时让 common 空着。接下来把 pixi 的组件移进去。需要注意的是这里的 pixi component 需要改成一个完整的依赖 props 的渲染，而不是依赖 store hooks。每个组件分别用 index.tsx 导出
-- [ ] `store`: 按照这个标准来写 <https://github.com/lobehub/lobe-chat/wiki/State-Management-Intro.zh-CN>。暂时分成 `osmmeta` 和 `settings` 两个部分，一个复杂，一个简单。每个子文件夹 `index.ts` 导出一个 zustand 的 hook
+- [X] `store`: 按照这个标准来写 <https://github.com/lobehub/lobe-chat/wiki/State-Management-Intro.zh-CN>。暂时分成 `osmmeta` 和 `settings` 两个部分，一个复杂，一个简单。每个子文件夹 `index.ts` 导出一个 zustand 的 hook
 - [ ] `views`: 每个二级文件夹代表一个完整的 view。暂定 `outline` `property` `map`，每个分别一个 `index.tsx` 导出即可
 - [ ] `app` 组装成整个 APP。里面包含 layout 等逻辑。这里的逻辑很可能会比较乱，比较杂，但是无所谓，乱到一定程度就拆组件。
