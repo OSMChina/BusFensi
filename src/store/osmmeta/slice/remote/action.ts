@@ -3,13 +3,12 @@ import { NumericString } from "../../../../type/osm/refobj";
 import { OSMMapStore } from "../../store";
 import { addFeatureMetaHelper, commitHelper } from "../../helper";
 import { MapViewStatus } from "../../../../utils/geo/types";
-import { useSettingsStore } from "../../../settings";
 import { loadBBox } from "../../helper";
 import { deepCopy } from "../../../../utils/helper/object";
 import { genCollection } from "../../computed";
 
 export interface RemoteApiAction {
-    loadbbox: (mapview: MapViewStatus) => Promise<void>
+    loadbbox: (mapview: MapViewStatus, baseurl: string) => Promise<void>
 }
 
 export const createRemoteApiActionSlice: StateCreator<
@@ -23,11 +22,10 @@ export const createRemoteApiActionSlice: StateCreator<
     [],
     RemoteApiAction
 > = (set, get) => ({
-    loadbbox: async (mapview) => {
-        const settings = useSettingsStore.getState();
+    loadbbox: async (mapview, baseurl) => {
         const { bbox, meta } = get();
         try {
-            const b = await loadBBox(bbox || [], mapview, settings.osmAPI.BASEURL)
+            const b = await loadBBox(bbox || [], mapview, baseurl)
             if (b === null) { return }
             const { node: nodesTmp, way: waysTmp, relation: relationsTmp } = deepCopy(meta);
             const addedNodes: NumericString[] = [],
