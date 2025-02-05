@@ -9,6 +9,7 @@ import { PointWGS84 } from '../../utils/geo/types';
 import { bbox } from '../../api/osm/apiv0.6';
 import { T2Arr } from '../../utils/helper/object';
 import { getNearestPointOnPolyline } from '../../utils/osm/featureLineProjection';
+import { NumericString } from '../../type/osm/refobj';
 
 const Idle: State = {
     type: 'idle',
@@ -383,7 +384,7 @@ addNodeOnWay.nxt = [{
                 const { nearestPoint, insertAfter } = getNearestPointOnPolyline(point, pointPath)
                 const nodeId = createLocalNodeAction(nearestPoint)
                 const newNd = Array.from(T2Arr(way.nd))
-                newNd.splice(T2Arr(way.nd).findIndex(nd => nd['@_ref'] === insertAfter['@_id']) + 1, 0, { "@_ref": nodeId })
+                newNd.splice(T2Arr(way.nd).findIndex(nd => nd['@_ref'] === insertAfter['@_id']) + 1, 0, { "@_ref": nodeId as NumericString })
                 commitAction()
                 modifyWayNoCommit(
                     stateMachine.targetId, {
