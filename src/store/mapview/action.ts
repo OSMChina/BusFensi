@@ -5,6 +5,7 @@ import { MapViewStore } from "./store";
 export interface MapViewAction {
     setViewpoint: (viewpoint: PointWGS84) => void,
     setZoom: (zoom: number) => void
+    setStage: (width: number, height: number) => void
 }
 
 export const createMapStatusActionSlice: StateCreator<
