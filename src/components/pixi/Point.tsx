@@ -133,7 +133,6 @@ function Point({
     useEffect(() => {
         const container = containerRef.current;
         if (container) {
-
             const updateStyle = () => {
                 if (zoom < 16) {  // Hide container and everything under it
                     setStatusVisible(false)
@@ -145,10 +144,9 @@ function Point({
                     container.scale.set(1, 1);
                 }
             }
-
             updateStyle()
         }
-    }, [zoom])
+    }, [setStatusVisible, zoom])
 
     return (visible && <Container
         {...containerProps}

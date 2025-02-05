@@ -11,14 +11,15 @@ import { getLineCapEnum, getLineJoinEnum, getLineSegments, lineToPoly } from './
 import { arrorowRightLongTexture } from "./textures/index.ts";
 import { wayIsOneWay, wayIsSided } from "../../utils/osm/wayTypes.ts";
 import { styleMatch } from "./utils/rapidAdapted/style.ts";
-import { Way } from '../../type/osm/meta';
-import { FeatureState, NodesObj } from '../../logic/model/type';
+import { Node, Way } from '../../type/osm/meta';
+import { FeatureState } from '../../logic/model/type';
 import { MapViewStatus } from '../../utils/geo/types';
 
 type LineProps = React.ComponentProps<typeof Container> & {
     line: Way,
-    nodes: NodesObj,
+    nodePath: Node[],
     mapViewStatus: MapViewStatus,
+    setStatusVisible: (visible: boolean) => void,
     status: FeatureState,
     layerRef: React.RefObject<PIXIContainer<DisplayObject>>,
 }
@@ -27,15 +28,13 @@ const ONEWAY_SPACING = 35;
 
 function Line({
     line,
-    nodes,
+    nodePath,
     mapViewStatus: { viewpoint, zoom, width, height },
     status: { visible, hovered, selected, highlighted },
     layerRef,
+    setStatusVisible,
     ...containerProps
 }: LineProps) {
-    const nodePath = useMemo(
-        () => T2Arr(line.nd).map(nd => nodes[nd["@_ref"]]),
-        [line, nodes])
 
     const pixPath = nodePath.map(node => getPixelByWGS84Locate(
         { lon: node["@_lon"], lat: node["@_lat"] },
@@ -195,6 +194,21 @@ function Line({
             updateHalo();
         }
     }, [highlighted, hovered, selected, visible, createHitArea, bufdata, layerRef]);
+    
+    useEffect(() => {
+        const container = containerRef.current;
+        if (container) {
+            const updateStyle = () => {
+                if (zoom < 16) {  // Hide container and everything under it
+                    setStatusVisible(false)
+                } else {  // z >= 16 - Show
+                    setStatusVisible(true)
+                    container.scale.set(1, 1);
+                }
+            }
+            updateStyle()
+        }
+    }, [setStatusVisible, zoom])
 
     const oneway = wayIsOneWay(T2Arr(line.tag));
     const sided = wayIsSided(T2Arr(line.tag));
