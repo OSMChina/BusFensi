@@ -9,11 +9,12 @@ export type MapViewStore = MapState
 
 const storageOptions = {
     name: 'mapViewStore',
-    storage: createJSONStorage<MapViewStore>(() => URLSearchStorage),
+    storage: createJSONStorage(() => URLSearchStorage),
+    partialize: (state: MapViewStore) => ({ viewpoint: state.viewpoint, zoom: state.zoom }),
 }
 
 // Apply the store creation with the correct middleware order
-export const useLocalAndUrlStore = create<MapViewStore>()(
+export const useMapViewStore = create<MapViewStore>()(
     devtools(
         persist((...parameters) => ({
             ...initialMapState,

@@ -15,4 +15,5 @@ export const createMapStatusActionSlice: StateCreator<
 > = (set) => ({
     setViewpoint: (viewpoint: PointWGS84) => set(() => ({ viewpoint: viewpoint })),
     setZoom: (zoom: number) => set(() => ({ zoom: zoom })),
+    setStage: (width: number, height: number) => set({ width, height }),
 })

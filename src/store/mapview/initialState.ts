@@ -11,7 +11,9 @@ const DEFAULT_ZOOM = 17;
 
 export interface MapState {
     viewpoint: PointWGS84,
-    zoom: number
+    zoom: number,
+    width?: number,
+    height?: number
 }
 
 export const initialMapState: MapState = {
