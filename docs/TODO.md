@@ -39,7 +39,7 @@
 
 考虑到 React 的 Functianal Component, 只需要规定他们的 props 相同 Type 即可。
 
-- [ ] 定义一个 View 规范
+- [X] 定义一个 View 规范
 - [ ] 将 Outline 和 Property 迁移到 View
 
 ##### 右键菜单
@@ -78,9 +78,9 @@
 
 Controller 的实现会比较复杂，所以会给 Controller 一个状态机（stateMachine）来做抽象，归纳用户行为在对应状态下对数据的影响，可以理解成状态机状态转换的输出。
 
-- [ ] 定义 Mode Component，使用类似 Tabs 的切换方式
-- [ ] 将现有代码装进 Mode Component
-- [ ] 定义 Controller, 接受各种事件，并且执行行为
+- [X] 定义 Mode Component，使用类似 Tabs 的切换方式
+- [X] 将现有代码装进 Mode Component
+- [X] 定义 Controller(StateMachine), 接受各种事件，并且执行行为
 
 ##### State Machine 实现
 
@@ -92,7 +92,7 @@ Controller 的实现会比较复杂，所以会给 Controller 一个状态机（
 
 - [X] 新建一个 State 的 Class, 规范化 State 的实例化和连接，以及状态转移函数。比如 new 之后 appendTransform
 - [X] 重构 State Machine，取消 retain, 取消对每个事件的接口，统一抽象。允许 State Machine 之间相互拼接， 使用 appendNext
-- [ ] 将 Controller 接入 State Machine
+- [X] 将 Controller 接入 State Machine
 
 #### 新建公交相关业务逻辑编写
 
