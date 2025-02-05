@@ -1,4 +1,3 @@
-import { FederatedWheelEvent } from "pixi.js";
 import { BaseContext, StoreType } from "../../../../../type/stateMachine/baseEvent";
 import { CommonStateEvent } from "../../../../../type/stateMachine/commonEdit";
 import { PointerWithOSMEvent } from "../../../../../type/stateMachine/commonEdit/componentEvent";
@@ -32,7 +31,7 @@ export class MapViewStateMachine extends BaseStateMachine<CommonStateEvent, MapV
         const context = this.context;
         if (event.type === 'wheel') {
           // wheel roll, zoom in or out
-          const axis = (event as FederatedWheelEvent).deltaY < 0;
+          const axis = (event as React.WheelEvent<HTMLCanvasElement>).deltaY < 0;
           const { zoom, setZoom } = context.store.view.getState()
           const newZoom = zoom + (axis ? 1 : -1);
           const settings = context.store.settings.getState()
