@@ -1,14 +1,16 @@
 import { StateCreator } from "zustand";
 import { OSMMapStore } from "../../store";
-import { ModifyFeatureMetaFunction } from "./type";
-import { createLocalNodeHelper, createLocalRelationHelper, createLocalWayHelper, deleteFeatureFaSubHelper, modifyFeatureHelper, splitWayHelper } from "./helper";
+import { AddFeatureMetaBatchFunction, ModifyFeatureMetaFunction } from "./type";
+import { addFeatureMetaHelper, createLocalNodeHelper, createLocalRelationHelper, createLocalWayHelper, deleteFeatureFaSubHelper, modifyFeatureHelper, splitWayHelper } from "./helper";
 import { PointWGS84 } from "../../../../utils/geo/types";
 import { Member, Nd } from "../../../../type/osm/meta";
 import { commitHelper } from "../commit/helper";
 import { ComputedFeatures } from "../../computed";
 import { FeatureTypes, NumericString } from "../../../../type/osm/refobj";
+import { T2Arr } from "../../../../utils/helper/object";
 
 export interface MetaAction {
+    addFeatureMetaBatch: AddFeatureMetaBatchFunction,
     createLocalNode: (location: PointWGS84) => NumericString,
     createLocalWay: (nds: Nd[]) => NumericString,
     createLocalRelation: (members: Member[]) => NumericString,
@@ -28,6 +30,7 @@ export const createMetaActionSlice: StateCreator<
     [],
     MetaAction
 > = (set, get) => ({
+    addFeatureMetaBatch: (type, meta) => set(state => T2Arr(meta).forEach(m => addFeatureMetaHelper(state, type, m))),
     createLocalNode: (location) => {
         let id: NumericString = "0";
         set(state => {

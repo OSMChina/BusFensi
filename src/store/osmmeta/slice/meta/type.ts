@@ -25,6 +25,11 @@ type HandlerTypeMap = {
     relation: WritableRelation;
 }
 
+export type AddFeatureMetaBatchFunction = <T extends FeatureTypes>(
+    type: T,
+    feature: FeatureTypeMap[T] | FeatureTypeMap[T][]
+) => void;
+
 export type ModifyFeatureMetaFunction = <T extends FeatureTypes>(
     type: T,
     id: NumericString,
