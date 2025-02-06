@@ -10,30 +10,44 @@ export function deepCopy<T>(obj: T): T {
     return JSON.parse(JSON.stringify(obj));
 }
 
-export const typedKeys = <T extends Record<string, unknown>>(obj: T): (keyof T)[] => 
+export const typedKeys = <T extends object>(obj: T): (keyof T)[] =>
     Object.keys(obj) as (keyof T)[];
 
 /**
- * Helper function to deep merge properties from source to target.
- * 
- * @param {Record<string, any>} target - The target object to merge into.
- * @param {Record<string, any>} source - The source object to merge from.
+ * 深度合并 source 对象到 target 对象中，返回合并后的结果。
+ * 仅支持合并属性值为 string、number、boolean、对象等，不支持函数、数组特殊处理（可根据需求扩展）。
+ *
+ * @param target - 目标对象
+ * @param source - 源对象
+ * @returns 合并后的对象，类型为 T & U
  */
-export function deepMerge(target: Record<string, any>, source: Record<string, any>): void {
+export function deepMerge<T extends object, U extends object>(
+    target: T,
+    source: U
+): T & U {
     for (const key in source) {
         if (Object.prototype.hasOwnProperty.call(source, key)) {
-            if (typeof source[key] === 'object' && source[key] !== null) {
-                if (!target[key]) {
-                    target[key] = {};
+            // 将 key 显式转换为 string 类型（实际上是 U 的键）
+            const k = key as Extract<keyof U, string>;
+            const sourceValue = source[k];
+            if (
+                typeof sourceValue === "object" &&
+                sourceValue !== null &&
+                !Array.isArray(sourceValue)
+            ) {
+                // 如果 target[k] 不存在或不是对象则初始化为 {}
+                if (!(k in target) || typeof (target as any)[k] !== "object" || (target as any)[k] === null) {
+                    (target as any)[k] = {};
                 }
-                deepMerge(target[key], source[key]);
+                // 递归合并
+                deepMerge((target as any)[k], sourceValue);
             } else {
-                target[key] = source[key];
+                (target as any)[k] = sourceValue;
             }
         }
     }
+    return target as T & U;
 }
-
 /**
  * Helper function to compute the deep difference between two objects.
  * 
