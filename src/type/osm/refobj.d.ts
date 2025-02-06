@@ -17,6 +17,8 @@ export type NodesObj = Record<NumericString, Node>
 export type WaysObj = Record<NumericString, Way>
 export type RelationsObj = Record<NumericString, Relation>
 
+export type CollectionItem = Record<FeatureTypes, Record<NumericString, boolean>>
+
 export interface FeatureMetaGroup {
     node: NodesObj,
     way: WaysObj,

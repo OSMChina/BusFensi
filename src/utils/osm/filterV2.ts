@@ -1,11 +1,10 @@
 // see https://wiki.openstreetmap.org/wiki/Public_transport for detail
 
 import { NodesObj, RelationsObj, WaysObj } from "../../logic/model/type";
-import { FeatureTypes, NumericString } from "../../type/osm/refobj";
+import { CollectionItem, NumericString } from "../../type/osm/refobj";
 import { T2Arr } from "../helper/object";
 import { getPropFromTags } from "./getTag";
 
-type CollectionItem = Record<FeatureTypes, Record<NumericString, boolean>>
 
 const getCollector = (
     filteredNodes: Record<NumericString, boolean>,
