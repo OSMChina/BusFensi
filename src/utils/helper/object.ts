@@ -10,6 +10,9 @@ export function deepCopy<T>(obj: T): T {
     return JSON.parse(JSON.stringify(obj));
 }
 
+export const typedKeys = <T extends Record<string, unknown>>(obj: T): (keyof T)[] => 
+    Object.keys(obj) as (keyof T)[];
+
 /**
  * Helper function to deep merge properties from source to target.
  * 
