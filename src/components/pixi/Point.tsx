@@ -17,17 +17,17 @@ type PointProps = React.ComponentProps<typeof Container> & {
     node: Node,
     mapViewStatus: MapViewStatus,
     status: FeatureState,
-    setStatusVisible: (val: boolean) => void
     layerRef: React.RefObject<PIXIContainer<DisplayObject>>,
 }
 
 function Point({
     node,
     mapViewStatus: { width, height, viewpoint, zoom },
-    status: { visible, hovered, selected, highlighted },
+    status: { visible: _v, hovered, selected, highlighted },
     layerRef,
-    setStatusVisible,
     ...containerProps }: PointProps) {
+    const visible = zoom >= 16 && _v;
+
     const containerRef = useRef<PIXIContainer>(null)
     const haloRef = useRef<PIXIGraphics | null>(null)
     const busStop = isBusStop(T2Arr(node.tag))
@@ -97,6 +97,7 @@ function Point({
                 }
 
                 if (showSelect && layerRef.current) {
+                    console.log("show select")
                     if (!haloRef.current) {
                         haloRef.current = new PIXIGraphics();
                         layerRef.current.addChild(haloRef.current);
@@ -105,7 +106,7 @@ function Point({
                     const HALO_STYLE = {
                         alpha: 0.9,
                         dash: [6, 3],
-                        width: 2,   // px
+                        width: 3,   // px
                         color: 0xff0000
                     };
 
@@ -113,9 +114,10 @@ function Point({
 
                     const shape = container.hitArea;
                     if (shape instanceof PIXICircle) {
-                        new DashLine(haloRef.current, HALO_STYLE).drawCircle(shape.x, shape.y, shape.radius, 20);
+                        new DashLine(haloRef.current, HALO_STYLE).drawCircle(shape.x + position.x, shape.y + position.y, shape.radius, 20);
+                        console.log(haloRef.current)
                     } else if (shape instanceof PIXIRectangle) {
-                        new DashLine(haloRef.current, HALO_STYLE).drawRect(shape.x, shape.y, shape.width, shape.height);
+                        new DashLine(haloRef.current, HALO_STYLE).drawRect(shape.x + position.x, shape.y + position.y, shape.width, shape.height);
                     }
                 } else {
                     if (haloRef.current) {
@@ -128,27 +130,30 @@ function Point({
             updateHitbox();
             updateHalo();
         }
-    }, [zoom, highlighted, hovered, visible, display, selected, layerRef]);
+
+    }, [zoom, highlighted, hovered, visible, display, selected, layerRef, position]);
 
     useEffect(() => {
         const container = containerRef.current;
         if (container) {
             const updateStyle = () => {
                 if (zoom < 16) {  // Hide container and everything under it
-                    setStatusVisible(false)
+                    //setStatusVisible(false)
                 } else if (zoom < 17) {  // Markers drawn but smaller
-                    setStatusVisible(true)
+                    //setStatusVisible(true)
                     container.scale.set(0.8, 0.8);
                 } else {  // z >= 17 - Show the requested marker (circles OR pins)
-                    setStatusVisible(true)
+                    //setStatusVisible(true)
                     container.scale.set(1, 1);
                 }
             }
             updateStyle()
         }
-    }, [setStatusVisible, zoom])
-
-    return (visible && <Container
+    }, [zoom])
+    if (zoom < 16) {
+        return null;
+    }
+    return (<Container
         {...containerProps}
         position={position}
         visible={visible}

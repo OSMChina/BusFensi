@@ -19,7 +19,6 @@ type LineProps = React.ComponentProps<typeof Container> & {
     line: Way,
     nodePath: Node[],
     mapViewStatus: MapViewStatus,
-    setStatusVisible: (visible: boolean) => void,
     status: FeatureState,
     layerRef: React.RefObject<PIXIContainer<DisplayObject>>,
 }
@@ -30,12 +29,11 @@ function Line({
     line,
     nodePath,
     mapViewStatus: { viewpoint, zoom, width, height },
-    status: { visible, hovered, selected, highlighted },
+    status: { visible:_v, hovered, selected, highlighted },
     layerRef,
-    setStatusVisible,
     ...containerProps
 }: LineProps) {
-
+    const visible = zoom >= 16 && _v
     const pixPath = nodePath.map(node => getPixelByWGS84Locate(
         { lon: node["@_lon"], lat: node["@_lat"] },
         viewpoint,
@@ -194,27 +192,11 @@ function Line({
             updateHalo();
         }
     }, [highlighted, hovered, selected, visible, createHitArea, bufdata, layerRef]);
-    
-    useEffect(() => {
-        const container = containerRef.current;
-        if (container) {
-            const updateStyle = () => {
-                if (zoom < 16) {  // Hide container and everything under it
-                    setStatusVisible(false)
-                } else {  // z >= 16 - Show
-                    setStatusVisible(true)
-                    container.scale.set(1, 1);
-                }
-            }
-            updateStyle()
-        }
-    }, [setStatusVisible, zoom])
 
     const oneway = wayIsOneWay(T2Arr(line.tag));
     const sided = wayIsSided(T2Arr(line.tag));
 
-    return (visible && (
-        <Container
+    return (<Container
             visible={visible}
             position={{ x: 0, y: 0 }}
             ref={containerRef}
@@ -254,7 +236,7 @@ function Line({
                     />
                 ))).flat()}
         </Container>
-    ));
+    );
 }
 
 export default Line;
