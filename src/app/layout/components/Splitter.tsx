@@ -16,9 +16,9 @@ const Splitter = ({
         data-testid={id}
         tabIndex={0}
         className={cn(
-          'flex-shrink-0 w-1 bg-base-300 transition-colors',
-          dir === 'horizontal' ? 'cursor-row-resize' : 'cursor-col-resize',
-          (isDragging || isFocused) && 'bg-accent'
+          'flex-shrink-0 bg-base-300 transition-colors',
+          dir === 'horizontal' ? 'cursor-row-resize h-1' : 'cursor-col-resize w-1',
+          (isDragging || isFocused) && 'bg-accent',
         )}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
