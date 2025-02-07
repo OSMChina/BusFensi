@@ -40,7 +40,7 @@
 考虑到 React 的 Functianal Component, 只需要规定他们的 props 相同 Type 即可。
 
 - [X] 定义一个 View 规范
-- [ ] 将 Outline 和 Property 迁移到 View
+- [X] 将 Outline 和 Property 迁移到 View
 
 ##### 右键菜单
 
@@ -106,7 +106,7 @@ Controller 的实现会比较复杂，所以会给 Controller 一个状态机（
 
 总之，名字什么的还是需要提示的，但是也支持高级的关系编辑直接加 tags
 
-- [ ] 在 Map View 当中添加切换 Mode 的一列按钮。可以放在左上角。
+- [X] 在 Map View 当中添加切换 Mode 的一列按钮。可以放在左上角。
 
 ##### 新建和添加站点
 
