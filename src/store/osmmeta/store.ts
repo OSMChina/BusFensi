@@ -25,26 +25,27 @@ const storageOptions = {
 export const useOSMMapStore = create<OSMMapStore>()(
     devtools(
         persist(
-            temporal(
-                immer(
-                    computed((...params) => ({
-                        ...initialState,
-                        ...createCommitActionSlice(...params),
-                        ...createFeatureStateActionSlice(...params),
-                        ...createMetaActionSlice(...params),
-                        ...createRemoteApiActionSlice(...params),
-                    }))
-                ), {
-                partialize: (state) => {
-                    // ignore computed value
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    const { tree, collections, ...tracked } = state as OSMMapStoreWithComputed;
-                    return tracked;
-                },
-                equality: (pastState, currentState) => {
-                    return pastState.commitCounter === currentState.commitCounter
-                },
-            }),
+            computed(
+                temporal(
+                    immer(
+                        (...params) => ({
+                            ...initialState,
+                            ...createCommitActionSlice(...params),
+                            ...createFeatureStateActionSlice(...params),
+                            ...createMetaActionSlice(...params),
+                            ...createRemoteApiActionSlice(...params),
+                        })
+                    ), {
+                    partialize: (state) => {
+                        // may ignore some value in future
+                        const { ...tracked } = state;
+                        return tracked;
+                    },
+                    equality: (pastState, currentState) => {
+                        return pastState.commitCounter === currentState.commitCounter
+                    },
+                }),
+            ),
             storageOptions
         ),
         { name: 'OSMMapState' }

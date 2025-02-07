@@ -23,9 +23,9 @@ export const createMetaActionSlice: StateCreator<
     OSMMapStore, [
         ["zustand/devtools", never],
         ["zustand/persist", unknown],
+        ["chrisvander/zustand-computed", ComputedFeatures],
         ["temporal", unknown],
         ["zustand/immer", never],
-        ["chrisvander/zustand-computed", ComputedFeatures]
     ],
     [],
     MetaAction

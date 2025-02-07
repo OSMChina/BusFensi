@@ -9,9 +9,9 @@ export const createCommitActionSlice: StateCreator<
     OSMMapStore, [
         ["zustand/devtools", never],
         ["zustand/persist", unknown],
+        ["chrisvander/zustand-computed", unknown],
         ["temporal", unknown],
         ["zustand/immer", never],
-        ["chrisvander/zustand-computed", unknown]
     ],
     [],
     CommitAction
