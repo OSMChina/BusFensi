@@ -48,7 +48,7 @@ function CommonEditApp({ width, height }: {
             height={height}
             options={{ background: '#1099bb' }}
             onPointerDown={(event) => { stateMachineRef.current.transform(event) }}
-            onPointerMove={(event) => { stateMachineRef.current.transform(event) }}
+            onPointerMove={(event) => { stateMachineRef.current.debouncedTransform(event) }}
             onPointerUp={(event) => { stateMachineRef.current.transform(event) }}
             onWheel={(event) => { stateMachineRef.current.transform(event) }}
         >

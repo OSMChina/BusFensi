@@ -48,7 +48,7 @@ export class MapViewStateMachine extends BaseStateMachine<CommonStateEvent, MapV
     this.idle.appendNext(this.mapDrag, {
       transform: (event) => {
         const context = this.context;
-        if (!(event as PointerWithOSMEvent).componentTarget) {
+        if ((event as PointerWithOSMEvent).componentTarget) {
           return false;
         }
         if (event.type === "pointerdown" && !event.shiftKey) {

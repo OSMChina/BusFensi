@@ -18,13 +18,12 @@ type PointWarpProps = Pick<React.ComponentProps<typeof Point>, "mapViewStatus" |
 }
 
 function PointWrap({ id, stateMachine, ...props }: PointWarpProps) {
-    const [node, status, modifyFeatureStateNC] = useOSMMapStore(useShallow(
-        (state) => [state.meta.node[id], state.meta.node[id]["@_localStates"], state.modifyFeatureStateNC]))
+    const [node, status] = useOSMMapStore(useShallow(
+        (state) => [state.meta.node[id], state.meta.node[id]["@_localStates"]]))
     return <Point
         {...props}
         node={node}
         status={status!}
-        setStatusVisible={(visible) => modifyFeatureStateNC("node", id, n => n.visible = visible)}
         eventMode="static"
         pointerdown={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
         pointerup={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
@@ -39,15 +38,14 @@ type LineWarpProps = Pick<React.ComponentProps<typeof Line>, "mapViewStatus" | "
 }
 
 function LineWarp({ id, stateMachine, ...props }: LineWarpProps) {
-    const [way, status, node, modifyFeatureStateNC] = useOSMMapStore(useShallow(
-        (state) => [state.meta.way[id], state.meta.way[id]["@_localStates"], state.meta.node, state.modifyFeatureStateNC]))
+    const [way, status, node] = useOSMMapStore(useShallow(
+        (state) => [state.meta.way[id], state.meta.way[id]["@_localStates"], state.meta.node]))
     const nodePath = useMemo(() => way.nd.map(nd => node[nd["@_ref"]]), [node, way.nd])
     return <Line
         {...props}
         line={way}
         nodePath={nodePath}
         status={status!}
-        setStatusVisible={(visible) => modifyFeatureStateNC("way", id, n => n.visible = visible)}
         eventMode="static"
         pointerover={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
         pointerout={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}

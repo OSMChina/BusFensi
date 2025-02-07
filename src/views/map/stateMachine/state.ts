@@ -1,4 +1,5 @@
 import { BaseContext, BaseEvent, StoreType } from "../../../type/stateMachine/baseEvent";
+import { Debouncer } from "../../../utils/helper/object";
 
 export type StateTransformFun<EventType = BaseEvent> = (event: EventType) => boolean;
 
@@ -26,13 +27,9 @@ type AppendOptions<T> = EpsilonOptions | NonEpsilonOptions<T>;
 export class StateItem<T = BaseEvent> {
     name: string;
     next: Transition<T>[] = [];
-    private transformWithCapturedContext?: StateTransformFun<T>;
 
-    constructor(name: string, transform?: (event: T, context: BaseContext) => boolean, context?: BaseContext) {
+    constructor(name: string) {
         this.name = name;
-        if (transform && context) {
-            this.transformWithCapturedContext = (event: T) => transform(event, context);
-        }
     }
 
     appendNext(state: StateItem<T> | BaseStateMachine<T>, options: AppendOptions<T>): void {
@@ -43,7 +40,7 @@ export class StateItem<T = BaseEvent> {
             if (!options.transform) {
                 throw new Error("Non-ε transition requires a transform function.");
             }
-            this.next.push({ isEpsilon: false, transform: this.transformWithCapturedContext!, state: targetState });
+            this.next.push({ isEpsilon: false, transform: options.transform, state: targetState });
         }
     }
 }
@@ -53,11 +50,14 @@ export class BaseStateMachine<T = BaseEvent, U extends BaseContext = BaseContext
     entry?: StateItem<T>;
     current?: StateItem<T>;
     accept?: StateItem<T>[];
+    debouncer: Debouncer;
+    static DEBOUNCE_DELAY = 20;
     context: U;
 
     constructor(store: StoreType) {
         this.name = "base";
         this.context = { store } as U;
+        this.debouncer = new Debouncer();
     }
 
     appendNext(state: StateItem<T> | BaseStateMachine<T>, options: AppendOptions<T>): void {
@@ -84,7 +84,6 @@ export class BaseStateMachine<T = BaseEvent, U extends BaseContext = BaseContext
 
     transform(event: T): void {
         const closure = this.computeEpsilonClosure(this.current!);
-
         for (const state of closure) {
             for (const transition of state.next) {
                 if (!transition.isEpsilon && transition.transform(event)) {
@@ -93,5 +92,9 @@ export class BaseStateMachine<T = BaseEvent, U extends BaseContext = BaseContext
                 }
             }
         }
+    }
+
+    debouncedTransform(event: T): void {
+        this.debouncer.debounce(this.transform.bind(this), BaseStateMachine.DEBOUNCE_DELAY, (event as BaseEvent).type, true)(event);
     }
 }

@@ -48,6 +48,97 @@ export function deepMerge<T extends object, U extends object>(
     }
     return target as T & U;
 }
+
+/**
+ * 防抖函数：在指定延迟时间内，如果多次调用函数，则只执行最后一次调用。
+ *
+ * @param func - 需要防抖的函数
+ * @param delay - 延迟时间（毫秒）
+ * @returns 防抖后的新函数
+ */
+export function debounce<F extends (...args: any[]) => void>(
+    func: F,
+    delay: number
+): (...args: Parameters<F>) => void {
+    let timer: ReturnType<typeof setTimeout>;
+    return (...args: Parameters<F>): void => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            func(...args);
+        }, delay);
+    };
+}
+
+/**
+ * 类封装的防抖器，根据传入的类型分类进行防抖操作。
+ */
+export class Debouncer {
+    // 使用 Map 存储定时器，键为字符串 type
+    private timers = new Map<string, ReturnType<typeof setTimeout>>();
+
+    /**
+     * 对传入的函数进行防抖包装，根据 type 进行分类处理，并支持立即执行
+     *
+     * @param func 需要防抖的函数
+     * @param delay 延迟时间（毫秒）
+     * @param type 分类标识，相同 type 的函数会共享同一个定时器
+     * @param immediate 如果为 true，则在首次调用时立即执行函数（leading edge），延迟期间不重复执行
+     * @returns 返回一个防抖后的函数，其参数类型与 func 保持一致
+     */
+    public debounce<F extends (...args: any[]) => void>(
+        func: F,
+        delay: number,
+        type: string,
+        immediate: boolean = false
+    ): (...args: Parameters<F>) => void {
+        return (...args: Parameters<F>): void => {
+            // 如果 immediate 为 true 且当前没有定时器，则立即执行
+            const callNow = immediate && !this.timers.has(type);
+            // 如果当前 type 已存在定时器，则清除旧的定时器
+            if (this.timers.has(type)) {
+                clearTimeout(this.timers.get(type));
+            }
+            // 创建一个新的定时器
+            const timer = setTimeout(() => {
+                // 延迟结束后删除定时器
+                this.timers.delete(type);
+                // 如果 immediate 为 false，则在延迟结束后执行函数
+                if (!immediate) {
+                    func(...args);
+                }
+            }, delay);
+            this.timers.set(type, timer);
+            // 如果应立即执行，则直接调用函数
+            if (callNow) {
+                func(...args);
+            }
+        };
+    }
+
+
+    /**
+     * 根据 type 取消对应的防抖操作
+     * @param type 防抖类型
+     */
+    public cancel(type: string): void {
+        if (this.timers.has(type)) {
+            clearTimeout(this.timers.get(type));
+            this.timers.delete(type);
+        }
+    }
+
+    /**
+     * 取消所有待执行的防抖操作
+     */
+    public cancelAll(): void {
+        for (const timer of this.timers.values()) {
+            clearTimeout(timer);
+        }
+        this.timers.clear();
+    }
+}
+
+
 /**
  * Helper function to compute the deep difference between two objects.
  * 
