@@ -5,7 +5,7 @@ import { addFeatureMetaHelper, commitHelper } from "../../helper";
 import { MapViewStatus } from "../../../../utils/geo/types";
 import { loadBBox } from "../../helper";
 import { deepCopy } from "../../../../utils/helper/object";
-import { genCollection } from "../../computed";
+import { genCollection } from "../../middleware/computed";
 import { Node, Relation, Way } from "../../../../type/osm/meta";
 
 export interface RemoteApiAction {
@@ -73,13 +73,13 @@ export const createRemoteApiActionSlice: StateCreator<
             set((state) => {
                 commitHelper(state);
                 validNodes.forEach(n => {
-                    addFeatureMetaHelper(state, "node", n);
+                    if (!state.meta.node[n["@_id"]]) addFeatureMetaHelper(state, "node", n);
                 });
                 validWays.forEach(w => {
-                    addFeatureMetaHelper(state, "way", w);
+                    if (!state.meta.way[w["@_id"]]) addFeatureMetaHelper(state, "way", w);
                 });
                 validRelations.forEach(r => {
-                    addFeatureMetaHelper(state, "relation", r);
+                    if (!state.meta.relation[r["@_id"]]) addFeatureMetaHelper(state, "relation", r);
                 });
                 // 修改 bbox，直接对 state.bbox 进行原地修改
                 state.bbox.push({

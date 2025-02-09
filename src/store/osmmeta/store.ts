@@ -4,7 +4,7 @@ import { CommitAction, createCommitActionSlice } from "./slice/commit/action";
 import { immer } from "zustand/middleware/immer";
 import { create } from "zustand";
 import { temporal } from "zundo";
-import { computed, ComputedFeatures } from "./computed";
+import { computed, ComputedFeatures } from "./middleware/computed";
 import { createFeatureStateActionSlice, FeatureStateAction } from "./slice/featureState/action";
 import { createMetaActionSlice, MetaAction } from "./slice/meta/action";
 import { createRemoteApiActionSlice, RemoteApiAction } from "./slice/remote/action";
@@ -16,11 +16,6 @@ export type OSMMapStore = OSMMapState
     & RemoteApiAction
 
 export type OSMMapStoreWithComputed = OSMMapStore & ComputedFeatures
-
-const storageOptions = {
-    name: 'OSMMapStateStore',
-    storage: createJSONStorage<OSMMapStoreWithComputed>(() => localStorage),
-}
 
 export const useOSMMapStore = create<OSMMapStore>()(
     devtools(
@@ -38,7 +33,8 @@ export const useOSMMapStore = create<OSMMapStore>()(
                     ), {
                     partialize: (state) => {
                         // may ignore some value in future
-                        const { ...tracked } = state;
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const { tree, collections, ...tracked } = state as OSMMapStoreWithComputed;
                         return tracked;
                     },
                     equality: (pastState, currentState) => {
@@ -46,7 +42,16 @@ export const useOSMMapStore = create<OSMMapStore>()(
                     },
                 }),
             ),
-            storageOptions
+            {
+                name: 'OSMMapStateStore',
+                storage: createJSONStorage(() => localStorage),
+                partialize: (state) => {
+                    // may ignore some value in future
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    const { tree, collections, ...tracked } = state as OSMMapStoreWithComputed;
+                    return tracked;
+                },
+            }
         ),
         { name: 'OSMMapState' }
     ),  // devtools applied after persist

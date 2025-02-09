@@ -5,7 +5,7 @@ import { addFeatureMetaHelper, createLocalNodeHelper, createLocalRelationHelper,
 import { PointWGS84 } from "../../../../utils/geo/types";
 import { Member, Nd } from "../../../../type/osm/meta";
 import { commitHelper } from "../commit/helper";
-import { ComputedFeatures } from "../../computed";
+import { ComputedFeatures } from "../../middleware/computed";
 import { FeatureTypes, NumericString } from "../../../../type/osm/refobj";
 import { T2Arr } from "../../../../utils/helper/object";
 

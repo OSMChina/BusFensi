@@ -1,7 +1,7 @@
 import { createComputed } from "zustand-computed"
-import { FeatureMetaGroup, FeatureTypes, NumericString } from "../../../type/osm/refobj"
-import { OSMMapStore } from "../store"
-import { filterBusPTv2, filterCreated, filterHighway } from "../../../utils/osm/filterV2"
+import { FeatureMetaGroup, FeatureTypes, NumericString } from "../../../../type/osm/refobj"
+import { OSMMapStore } from "../../store"
+import { filterBusPTv2, filterCreated, filterHighway } from "../../../../utils/osm/filterV2"
 
 export type CollectionItem = Record<FeatureTypes, Record<NumericString, boolean>>
 

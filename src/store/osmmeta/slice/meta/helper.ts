@@ -4,7 +4,7 @@ import { FeatureTypes, NumericString } from "../../../../type/osm/refobj";
 import { FeatureTypeMap, ModifyFeatureMetaHelper, WritableFeatureTypeMap } from "./type";
 import { PointWGS84 } from "../../../../utils/geo/types";
 import { Member, Nd, Node, Relation, Way } from "../../../../type/osm/meta";
-import { FeatureTree } from "../../computed";
+import { FeatureTree } from "../../middleware/computed";
 import { createFeatureStateHelper } from "../../helper";
 
 let newIdCounterNode = -1;
