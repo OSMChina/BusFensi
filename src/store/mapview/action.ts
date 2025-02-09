@@ -10,7 +10,7 @@ export interface MapViewAction {
 
 export const createMapStatusActionSlice: StateCreator<
     MapViewStore,
-    [["zustand/devtools", never], ["zustand/persist", unknown]],
+    [["zustand/devtools", never]],
     [],
     MapViewAction
 > = (set) => ({
