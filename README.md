@@ -1,13 +1,32 @@
- <a href="[https://github.com/othneildrew/Best-README-Template](https://github.com/OSMChina/BusFensi)">
-    <img src="https://github.com/fltb.png" alt="Logo" width="200" height="200">
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="[https://github.com/othneildrew/Best-README-Template](https://github.com/OSMChina/BusFensi)">
+    <img src="https://github.com/fltb.png" alt="Logo" width="80" height="80">
   </a>
 
-# BusFensi
+  <h3 align="center">BusFensi</h3>
 
-##### BusFensi 是一款易于使用的 OpenStreetMap 公共交通路线编辑器，是一款用户友好的工具，旨在简化 OpenStreetMap 上公共交通路线的创建和管理。
+  <p align="center">
+    BusFensi 是一款易于使用的 OpenStreetMap 公共交通路线编辑器，是一款用户友好的工具，旨在简化 OpenStreetMap 上公共交通路线的创建和管理。
+    <br />
+    <a href=""><strong>Explore the docs » (还没写好，请前往 /docs 目录)</strong></a>
+    <br />
+    <a href="/README.en.md"><strong>[English](README.en.md)</strong></a>
+    <br />
+    <!--
+    <br />
+    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
+    &middot;
+    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    &middot;
+    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    -->
+  </p>
+</div>
 
-###### <a href="https://github.com/OSMChina/BusFensi/blob/main"><strong>Explore the docs » (还没写好，请前往 /docs 目录)</strong></a>
-------------
+<hr/>
+
 ##  目标
 
 ##### 我们的目标是简化连接符合 PTv2 的公共交通路线上各个车站的流程。通过提供更便捷的操作，BusFensi 旨在用自动化工具取代手动路线管理，使地图绘制者的任务变得更轻松。
@@ -19,11 +38,11 @@
 
 * API: 实现OSMAPI的读取、写入访问
 * Layer: OSM层的管理
-* 瓷砖：地图瓷砖的处理
+* Tiles: 地图瓷砖的处理
 * UI: 用户界面组件
 
 ## 使用的技术 😎
-* 打字搞
+* Typescript
 * ReactJS
 * OSM, Open Street Map
 
@@ -58,7 +77,7 @@ http://localhost:5173/BusFensi/
 ```
 
 ## 截图
-   <img src="/public/src/screenshot.jpeg" alt="Logo">
+   <img src="/public/src/screenshot.jpeg" alt="screenshot">
 
 ## 有关文档
 
