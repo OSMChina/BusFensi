@@ -8,11 +8,9 @@
   <h3 align="center">BusFensi</h3>
 
   <p align="center">
-    BusFensi 是一款易于使用的 OpenStreetMap 公共交通路线编辑器，是一款用户友好的工具，旨在简化 OpenStreetMap 上公共交通路线的创建和管理。
+    An Easy-to-Use OpenStreetMap Public Transport Route Editor, BusFensi is a user-friendly tool designed to streamline the creation and management of public transport routes on OpenStreetMap.
     <br />
-    <a href=""><strong>Explore the docs » (还没写好，请前往 /docs 目录)</strong></a>
-    <br />
-    <a href="/README.en.md"><strong>[English](README.en.md)</strong></a>
+    <a href=""><strong>Explore the docs » (Not finished yet, please go to the /docs directory)</strong></a>
     <br />
     <!--
     <br />
@@ -27,61 +25,61 @@
 
 <hr/>
 
-##  目标
+##  Vision
 
-##### 我们的目标是简化连接符合 PTv2 的公共交通路线上各个车站的流程。通过提供更便捷的操作，BusFensi 旨在用自动化工具取代手动路线管理，使地图绘制者的任务变得更轻松。
+##### Our goal is to simplify the process of connecting various stations on public transportation routes that comply with PTv2. By providing more convenient operations, BusFensi aims to replace manual route management with automated tools, making the task easier for mappers.
 
-## 主要功能
+## Key Features
 
-### 结构介绍
-#### 以下是 BusFensi 的主要组成部分，您在探索代码时可能会发现很有帮助：
+### Structure Introduction
+#### Here are the main components of BusFensi that you might find helpful when exploring the code:
 
-* API: 实现OSMAPI的读取、写入访问
-* Layer: OSM层的管理
-* Tiles: 地图瓷砖的处理
-* UI: 用户界面组件
+* API: Implemented reading of OSMAPI, Write access
+* Layer: Management of OSM layers
+* Tiles: Handling of map tiles
+* UI: User interface components
 
-## 使用的技术 😎
+## Technologies used 😎
 * Typescript
 * ReactJS
 * OSM, Open Street Map
 
-## 正在开始
+## Getting Started
 
-### 先决条件
-* Node.js（推荐使用 LTS 版本）
+### Pre-requisites
+* Node.js (LTS version recommended)
 
-### 克隆存储库
+### Clone the Repository
 ```sh
 git clone https://github.com/OSMChina/BusFensi.git
 ```
 
-### 导航到项目目录
+### Navigate to the project directory
    ```sh
 cd BusFensi
 ```
 
-### 安装依赖项
+### Install dependencies
    ```sh
 npm install
 ```
 
-### 运行应用程序
+### Run the application
    ```sh
 npm run dev
 ```
 
-### 在浏览器打开链接
+### Visit URL in browser
    ```sh
 http://localhost:5173/BusFensi/
 ```
 
-## 截图
+## Screenshot
    <img src="/public/src/screenshot.jpeg" alt="screenshot">
 
-## 有关文档
+## Related Document
 
-### 开发日志
+### Development Log
 
 * [OpenStreetMap Public Transport Relation Editor Based on Modern Frontend Tech Stack - Starting ](https://fltb.github.io/opening-of-busfensi-osm/2024-07-16/)
 * [OpenStreetMap Public Transport Relation Editor Based on Modern Frontend Tech Stack - Weekly Report#1](https://fltb.github.io/weekly-post-busfensi-1/2024-07-18/)
@@ -89,14 +87,14 @@ http://localhost:5173/BusFensi/
 * [OpenStreetMap Public Transport Relation Editor Based on Modern Frontend Tech Stack - Weekly Report#3](https://fltb.github.io/weekly-post-busfensi-3/2024-09-02/)
 * [OpenStreetMap Public Transport Relation Editor Based on Modern Frontend Tech Stack - Weekly Report#4](https://fltb.github.io/weekly-post-busfensi-4/2024-09-15/)
 
-### 参考项目
+### Projects for Reference
 * [NorthCrab's Diary](https://www.openstreetmap.org/user/NorthCrab/diary/401755) ([GitHub](https://github.com/Zaczero/osm-relatify)）
 
-### 声明书
-##### 该项目得到了中国科学院软件研究所的支持（OSPP 2024）。(https://summer-ospp.ac.cn/org/prodetail/24c480495)).
+### Statement
+##### This project was supported by the Institute of Software, Chinese Academy of Sciences in ([OSPP 2024](https://summer-ospp.ac.cn/org/prodetail/24c480495)).
 
-## 执照
-##### 该项目根据 MIT 许可证获得许可。了解有关详细信息，请参阅许可证文件。
+## License
+##### This project is licensed under the MIT License. See the LICENSE file for details.
 
-## 联系
-##### 如有任何疑问或建议，请随时提出问题或联系维护人员。
+## Contact
+##### For any questions or suggestions, feel free to open an issue or reach out to the maintainers.
