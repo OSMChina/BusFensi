@@ -67,6 +67,10 @@ function EditableLayer({ width, height, stateMachine }: {
         return left <= lon && lon <= right && bottom <= lat && lat <= top
     }, [left, bottom, right, top])
 
+    if (zoom < 16) {
+        return null;
+    }
+
     return <Container ref={containerRef}>
         {Object.values(way).filter(w => w.nd.map(nd => node[nd["@_ref"]]).some(inBound))
             .map(w => <LineWarp
