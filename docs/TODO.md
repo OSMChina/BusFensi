@@ -195,5 +195,19 @@ src
 
 - [X] `components`: 分成 `pixi` 和 `common` 两个文件夹好了。暂时让 common 空着。接下来把 pixi 的组件移进去。需要注意的是这里的 pixi component 需要改成一个完整的依赖 props 的渲染，而不是依赖 store hooks。每个组件分别用 index.tsx 导出
 - [X] `store`: 按照这个标准来写 <https://github.com/lobehub/lobe-chat/wiki/State-Management-Intro.zh-CN>。暂时分成 `osmmeta` 和 `settings` 两个部分，一个复杂，一个简单。每个子文件夹 `index.ts` 导出一个 zustand 的 hook
-- [ ] `views`: 每个二级文件夹代表一个完整的 view。暂定 `outline` `property` `map`，每个分别一个 `index.tsx` 导出即可
-- [ ] `app` 组装成整个 APP。里面包含 layout 等逻辑。这里的逻辑很可能会比较乱，比较杂，但是无所谓，乱到一定程度就拆组件。
+- [X] `views`: 每个二级文件夹代表一个完整的 view。暂定 `outline` `property` `map`，每个分别一个 `index.tsx` 导出即可
+- [X] `app` 组装成整个 APP。里面包含 layout 等逻辑。这里的逻辑很可能会比较乱，比较杂，但是无所谓，乱到一定程度就拆组件。
+
+## 其他优化
+
+这些功能准备引入，但是没有设计好怎么加入。
+
+- [ ] 加入 JOSM 导入数据功能
+- [ ] 添加一个开启/关闭滑动加载的按钮
+
+## Known Issue
+
+- [X] <s>**(HIGH)** 拖动地图的时候很卡，具体表现为有时候拖不动，不管有没有元素显示都一样。需要搞清楚是 react 还是 pixi 事件问题。</s>确定了是 debounce 的问题了，先关掉 debounce。后续研究再袖箍
+- [ ] **(MEDIUM)** computed 属性性能较差，需要优化。
+- [ ] **(MEDIUM)** OSM 数据会爆 localStorage 空间。
+- [ ] **(MEDIUM)** zundo 的全量状态历史记录非常耗内存，而且给的 diff 接口假设 delta state, 就是说只能拿单层 state, 对 nested state 并不能支持增量。并且没给 merge 接口，所以得手动 fork 并拓展 zundo ，或者要使用一个独立的中间件注入 set 函数来实现 deepMerge。
