@@ -1,7 +1,4 @@
-import { Stage, useApp } from "@pixi/react";
 import { useEffect, useRef } from "react";
-import { useShallow } from "zustand/react/shallow";
-import { Application } from "pixi.js";
 import { useMapViewStore } from "../../../../store/mapview";
 import { CommonEditStateMachine } from "../../stateMachine/commonEdit";
 import { useOSMMapStore } from "../../../../store/osmmeta";
@@ -13,44 +10,20 @@ import { ViewFCProps } from "../../../../type/view/props";
 import SplitterView from "../../../../components/layout/SplitView";
 import OutlineView from "../../../outline";
 import PropertyView from "../../../property";
-
-declare global {
-    // eslint-disable-next-line no-var
-    var __PIXI_APP__: Application | undefined;
-}
-
-function PIXIAppSet() {
-    const app = useApp();
-    const setStage = useMapViewStore(state => state.setStageApp)
-    useEffect(() => {
-        globalThis.__PIXI_APP__ = app;
-        app.stage.hitArea = app.screen;
-        setStage(app)
-        return () => {
-            globalThis.__PIXI_APP__ = undefined;
-            setStage(undefined)
-        };
-    }, [app, setStage]);
-
-    return null;
-}
+import PIXIStage from "../../layer/Stage";
 
 function CommonEditStage({ width, height }: {
     width: number,
     height: number
 }) {
-    const stageResizeNoTrack = useMapViewStore(useShallow(state => state.setStage))
     const stateMachineRef = useRef(new CommonEditStateMachine({ meta: useOSMMapStore, view: useMapViewStore, settings: useSettingsStore }))
-    useEffect(() => {
-        stageResizeNoTrack(width, height)
-    }, [width, height, stageResizeNoTrack])
     useEffect(() => {
         const keydownListener = (event: KeyboardEvent) => stateMachineRef.current.transform(event)
         document.addEventListener("keydown", keydownListener)
         return () => document.removeEventListener("keydown", keydownListener)
     }, [])
     return (<>
-        <Stage
+        <PIXIStage
             width={width}
             height={height}
             options={{ background: '#1099bb' }}
@@ -68,8 +41,7 @@ function CommonEditStage({ width, height }: {
                 height={height}
                 stateMachine={stateMachineRef.current}
             />
-            <PIXIAppSet />
-        </Stage>
+        </PIXIStage>
         <div className="slot-top absolute inset-x-0 top-0 flex flex-row align-middle justify-center" style={{ width }}>
             <CommonEditToolbar stateMachine={stateMachineRef.current} />
         </div>
