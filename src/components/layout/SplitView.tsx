@@ -14,7 +14,7 @@ type ViewProps = UseResizableProps & ViewFCProps & {
 const SplitterView: FC<ViewProps> = ({ width, height, children, ...props }) => {
     // 根据分割方向设置初始位置（各占一半）
     const { axis } = props;
-    const initialPosition = props.initial || axis === "x" ? width / 2 : height / 2;
+    const initialPosition = props.initial || (axis === "x" ? width / 2 : height / 2);
 
     // 调用 useResizable 获取当前分割位置和分隔条属性
     const { position, separatorProps } = useResizable({
