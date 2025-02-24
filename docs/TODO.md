@@ -203,7 +203,10 @@ src
 这些功能准备引入，但是没有设计好怎么加入。
 
 - [ ] 加入 JOSM 导入数据功能
-- [ ] 添加一个开启/关闭滑动加载的按钮
+- [X] 添加一个开启/关闭滑动加载的按钮
+- [ ] 分数 zoom 缩放
+- [ ] zoom 和 lon lat 的数值修改
+- [ ] console log level
 
 ## Known Issue
 
@@ -211,3 +214,4 @@ src
 - [ ] **(MEDIUM)** computed 属性性能较差，需要优化。
 - [ ] **(MEDIUM)** OSM 数据会爆 localStorage 空间。
 - [ ] **(MEDIUM)** zundo 的全量状态历史记录非常耗内存，而且给的 diff 接口假设 delta state, 就是说只能拿单层 state, 对 nested state 并不能支持增量。并且没给 merge 接口，所以得手动 fork 并拓展 zundo ，或者要使用一个独立的中间件注入 set 函数来实现 deepMerge。
+- [ ] **(MEDIUM)** 拖动后 select dash line 并不会消失。哪天顺手修一个
