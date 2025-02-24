@@ -1,7 +1,7 @@
 import { CSSProperties, FC, ReactElement } from "react";
 import { useResizable, UseResizableProps } from "react-resizable-layout";
 import Splitter from "./Splitter";
-import { ViewFCProps } from "../../../type/view/props";
+import { ViewFCProps } from "../../type/view/props";
 
 // View 组件的 props 类型，要求 children 为一个包含两个函数的元组，这两个函数分别接收 ViewChildProps 并返回 React 元素
 type ViewProps = UseResizableProps & ViewFCProps & {

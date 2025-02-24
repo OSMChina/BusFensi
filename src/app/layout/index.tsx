@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import SplitterView from './components/SplitView';
+import SplitterView from '../../components/layout/SplitView';
 import { MapView } from '../../views/map';
 import OutlineView from '../../views/outline';
 import PropertyView from '../../views/property';
