@@ -1,3 +1,4 @@
+import { Application } from "pixi.js";
 import { PointWGS84 } from "../../utils/geo/types";
 
 /**
@@ -13,7 +14,8 @@ export interface MapState {
     viewpoint: PointWGS84,
     zoom: number,
     width?: number,
-    height?: number
+    height?: number,
+    stage?: Application
 }
 
 export const initialMapState: MapState = {

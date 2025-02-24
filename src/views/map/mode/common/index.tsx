@@ -17,13 +17,16 @@ declare global {
 
 function PIXIAppSet() {
     const app = useApp();
+    const setStage = useMapViewStore(state => state.setStageApp)
     useEffect(() => {
         globalThis.__PIXI_APP__ = app;
         app.stage.hitArea = app.screen;
+        setStage(app)
         return () => {
             globalThis.__PIXI_APP__ = undefined;
+            setStage(undefined)
         };
-    }, [app]);
+    }, [app, setStage]);
 
     return null;
 }
