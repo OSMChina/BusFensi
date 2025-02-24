@@ -11,7 +11,7 @@ import { isBusStop } from "../../utils/osm/nodeType";
 import { T2Arr } from "../../utils/helper/object";
 import { MapViewStatus } from '../../utils/geo/types';
 import { Node } from '../../type/osm/meta';
-import { FeatureState } from '../../logic/model/type';
+import { FeatureState } from '../../type/osm/refobj';
 
 type PointProps = React.ComponentProps<typeof Container> & {
     node: Node,

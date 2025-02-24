@@ -12,8 +12,8 @@ import { arrorowRightLongTexture } from "./textures/index.ts";
 import { wayIsOneWay, wayIsSided } from "../../utils/osm/wayTypes.ts";
 import { styleMatch } from "./utils/rapidAdapted/style.ts";
 import { Node, Way } from '../../type/osm/meta';
-import { FeatureState } from '../../logic/model/type';
 import { MapViewStatus } from '../../utils/geo/types';
+import { FeatureState } from '../../type/osm/refobj';
 
 type LineProps = React.ComponentProps<typeof Container> & {
     line: Way,
