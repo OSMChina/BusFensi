@@ -9,6 +9,10 @@ import { useSettingsStore } from "../../../../store/settings";
 import { BackgroundLayer } from "../../layer/BackgroundLayer";
 import EditableLayer from "../../layer/EditableLayer";
 import CommonEditToolbar from "../../components/CoomonEditToolbar";
+import { ViewFCProps } from "../../../../type/view/props";
+import SplitterView from "../../../../components/layout/SplitView";
+import OutlineView from "../../../outline";
+import PropertyView from "../../../property";
 
 declare global {
     // eslint-disable-next-line no-var
@@ -31,7 +35,7 @@ function PIXIAppSet() {
     return null;
 }
 
-function CommonEditApp({ width, height }: {
+function CommonEditStage({ width, height }: {
     width: number,
     height: number
 }) {
@@ -73,6 +77,17 @@ function CommonEditApp({ width, height }: {
             <span className="text-base-content bg-base-300 px-2 rounded">data©openstreetmap contributor</span>
         </div>
     </>)
+}
+
+function CommonEditApp({ width, height }: ViewFCProps) {
+    return <SplitterView width={width} height={height} axis='x' initial={(width / 4) * 3}>
+        {(props) => <CommonEditStage  {...props} />}
+        {(props) => <SplitterView {...props} axis='y'>
+            {(props) => <OutlineView {...props} />}
+            {(props) => <PropertyView {...props} />}
+        </SplitterView>}
+    </SplitterView>
+
 }
 
 export default CommonEditApp;
