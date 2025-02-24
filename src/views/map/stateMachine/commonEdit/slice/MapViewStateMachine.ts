@@ -92,12 +92,14 @@ export class MapViewStateMachine extends BaseStateMachine<CommonStateEvent, MapV
         if (event.type === 'pointerup' || event.type === 'pointerupoutside') {
           context.startPoint = undefined
           context.viewpointBeforeDrag = undefined
-          // request map data
-          const { viewpoint, zoom, width: _w, height: _h } = context.store.view.getState();
-          const width = _w!, height = _h!;
-          const { loadbbox } = context.store.meta.getState();
-          const settings = context.store.settings.getState();
-          loadbbox({ width, height, zoom, viewpoint }, settings.osmAPI.BASEURL)
+          if (context.store.meta.getState().autoload) {
+            // request map data
+            const { viewpoint, zoom, width: _w, height: _h } = context.store.view.getState();
+            const width = _w!, height = _h!;
+            const { loadbbox } = context.store.meta.getState();
+            const settings = context.store.settings.getState();
+            loadbbox({ width, height, zoom, viewpoint }, settings.osmAPI.BASEURL)
+          }
           return true;
         }
         return false;

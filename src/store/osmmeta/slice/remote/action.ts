@@ -10,6 +10,7 @@ import { Node, Relation, Way } from "../../../../type/osm/meta";
 
 export interface RemoteApiAction {
     loadbbox: (mapview: MapViewStatus, baseurl: string) => Promise<void>
+    setAutoloadNC: (enable: boolean | (() => boolean)) => void
 }
 
 export const createRemoteApiActionSlice: StateCreator<
@@ -95,5 +96,6 @@ export const createRemoteApiActionSlice: StateCreator<
         } catch (err) {
             console.log(err);
         }
-    }
+    },
+    setAutoloadNC: (enable) => set(state => { state.autoload = (typeof enable === "function" ? enable() : enable) }),
 })
