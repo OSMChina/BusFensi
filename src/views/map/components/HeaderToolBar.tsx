@@ -59,7 +59,7 @@ function ChangeSettingsLi() {
 }
 
 export function HeaderToolbar() {
-    return <ul className="menu menu-horizontal px-1">
+    return <ul className="menu menu-horizontal">
         <AutoLoadLi />
         <LoadBBoxLi />
         <ExportToJSOMLi />
