@@ -1,25 +1,23 @@
-import { Container } from "@pixi/react"
-import { getBoundsByScene } from "../../../utils/geo/mapProjection"
-import { useCallback, useMemo, useRef } from "react"
+import { useMemo, useRef } from "react"
 import { Container as PIXIContainer } from "pixi.js"
 import Line from "../../../components/pixi/Line"
 import Point from "../../../components/pixi/Point"
 import { useMapViewStore } from "../../../store/mapview"
 import { useOSMMapStore } from "../../../store/osmmeta"
-import { NumericString } from "../../../type/osm/refobj"
+import { NodesObj } from "../../../type/osm/refobj"
 import { useShallow } from "zustand/shallow"
 import { CommonEditStateMachine } from "../stateMachine/commonEdit"
 import { PointerWithOSMEvent } from "../../../type/stateMachine/commonEdit/componentEvent"
-import { Node } from "../../../type/osm/meta"
+import { HeadlessMetaRender } from "../components/HeadlessOSMMetaRender"
+import { Node, Way } from "../../../type/osm/meta"
 
 type PointWarpProps = Pick<React.ComponentProps<typeof Point>, "mapViewStatus" | "layerRef"> & {
-    id: NumericString,
+    node: Node,
     stateMachine: CommonEditStateMachine
 }
 
-function PointWrap({ id, stateMachine, ...props }: PointWarpProps) {
-    const [node, status] = useOSMMapStore(useShallow(
-        (state) => [state.meta.node[id], state.meta.node[id]["@_localStates"]]))
+function PointWrap({ node, stateMachine, ...props }: PointWarpProps) {
+    const status = node["@_localStates"], id = node["@_id"]
     return <Point
         {...props}
         node={node}
@@ -33,13 +31,13 @@ function PointWrap({ id, stateMachine, ...props }: PointWarpProps) {
 }
 
 type LineWarpProps = Pick<React.ComponentProps<typeof Line>, "mapViewStatus" | "layerRef"> & {
-    id: NumericString,
+    way: Way,
+    node: NodesObj,
     stateMachine: CommonEditStateMachine
 }
 
-function LineWarp({ id, stateMachine, ...props }: LineWarpProps) {
-    const [way, status, node] = useOSMMapStore(useShallow(
-        (state) => [state.meta.way[id], state.meta.way[id]["@_localStates"], state.meta.node]))
+function LineWarp({ way, node, stateMachine, ...props }: LineWarpProps) {
+    const status = way["@_localStates"], id = way["@_id"];
     const nodePath = useMemo(() => way.nd.map(nd => node[nd["@_ref"]]), [node, way.nd])
     return <Line
         {...props}
@@ -62,33 +60,27 @@ function EditableLayer({ width, height, stateMachine }: {
     const [viewpoint, zoom] = useMapViewStore(useShallow(state => ([state.viewpoint, state.zoom])))
     const { node, way } = useOSMMapStore(state => state.meta)
     const containerRef = useRef<PIXIContainer>(null)
-    const { left, bottom, right, top } = getBoundsByScene(viewpoint, zoom, width, height)
-    const inBound = useCallback(({ '@_lon': lon, '@_lat': lat }: Node) => {
-        return left <= lon && lon <= right && bottom <= lat && lat <= top
-    }, [left, bottom, right, top])
 
-    if (zoom < 16) {
-        return null;
-    }
-
-    return <Container ref={containerRef}>
-        {Object.values(way).filter(w => w.nd.map(nd => node[nd["@_ref"]]).some(inBound))
-            .map(w => <LineWarp
-                id={w["@_id"]}
-                key={w["@_id"]}
-                stateMachine={stateMachine}
-                mapViewStatus={{ width, height, viewpoint, zoom }}
-                layerRef={containerRef}
-            />)}
-        {Object.values(node).filter(inBound)
-            .map(n => <PointWrap
-                id={n["@_id"]}
-                key={n["@_id"]}
-                stateMachine={stateMachine}
-                mapViewStatus={{ width, height, viewpoint, zoom }}
-                layerRef={containerRef}
-            />)}
-    </Container>
+    return <HeadlessMetaRender
+        view={{ viewpoint, zoom, width, height }}
+        meta={{ node, way }}
+        ref={containerRef}
+        wayRenderer={w => <LineWarp
+            way={w}
+            node={node}
+            key={w["@_id"]}
+            stateMachine={stateMachine}
+            mapViewStatus={{ width, height, viewpoint, zoom }}
+            layerRef={containerRef}
+        />}
+        pointRenderer={n => <PointWrap
+            node={n}
+            key={n["@_id"]}
+            stateMachine={stateMachine}
+            mapViewStatus={{ width, height, viewpoint, zoom }}
+            layerRef={containerRef}
+        />}
+    />
 }
 
 export default EditableLayer
