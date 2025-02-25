@@ -11,6 +11,7 @@ import SplitterView from "../../../../components/layout/SplitView";
 import OutlineView from "../../../outline";
 import PropertyView from "../../../property";
 import PIXIStage from "../../layer/Stage";
+import InfoLayer from "../../layer/InfoLayer";
 
 function CommonEditStage({ width, height }: {
     width: number,
@@ -41,12 +42,10 @@ function CommonEditStage({ width, height }: {
                 height={height}
                 stateMachine={stateMachineRef.current}
             />
+            <InfoLayer width={width} />
         </PIXIStage>
         <div className="slot-top absolute inset-x-0 top-0 flex flex-row align-middle justify-center" style={{ width }}>
             <CommonEditToolbar stateMachine={stateMachineRef.current} />
-        </div>
-        <div className="slot-bottom absolute inset-x-0 bottom-0 flex flex-row align-middle justify-center" style={{ width }}>
-            <span className="text-base-content bg-base-300 px-2 rounded">data©openstreetmap contributor</span>
         </div>
     </>)
 }
