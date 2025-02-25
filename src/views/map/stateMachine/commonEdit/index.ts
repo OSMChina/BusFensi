@@ -1,8 +1,8 @@
 import { BaseContext, StoreType } from "../../../../type/stateMachine/baseEvent";
 import { CommonStateEvent } from "../../../../type/stateMachine/commonEdit";
 import { BaseStateMachine, StateItem } from "../state";
-import { ComponentStateMachine } from "./slice/ComponentStateMachine";
-import { MapViewStateMachine } from "./slice/MapViewStateMachine";
+import { ComponentStateMachine } from "../slice/components/ComponentStateMachine";
+import { MapViewStateMachine } from "../slice/map/MapViewStateMachine";
 import { UtilStateMachine } from "./slice/UtilStateMachine";
 
 type BaseMachine = BaseStateMachine<CommonStateEvent, BaseContext>
