@@ -42,8 +42,8 @@ function CommonEditStage({ width, height }: {
                 height={height}
                 stateMachine={stateMachineRef.current}
             />
-            <InfoLayer width={width} />
         </PIXIStage>
+        <InfoLayer width={width} />
         <div className="slot-top absolute inset-x-0 top-0 flex flex-row align-middle justify-center" style={{ width }}>
             <CommonEditToolbar stateMachine={stateMachineRef.current} />
         </div>
