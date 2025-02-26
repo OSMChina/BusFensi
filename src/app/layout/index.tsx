@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { MapView } from '../../views/map';
 
-export function Layout() {
+export default function Layout() {
     const [{ width, height }, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight })
     useEffect(() => {
         const resize = () => {
