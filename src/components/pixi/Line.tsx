@@ -192,6 +192,13 @@ function Line({
             updateHalo();
         }
     }, [highlighted, hovered, selected, visible, createHitArea, bufdata, layerRef]);
+    
+    useEffect(() => () => {
+        if (haloRef.current) {
+            haloRef.current.destroy({ children: true });
+            haloRef.current = null;
+        }
+    }, [])
 
     const oneway = wayIsOneWay(T2Arr(line.tag));
     const sided = wayIsSided(T2Arr(line.tag));
