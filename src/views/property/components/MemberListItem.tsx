@@ -4,19 +4,18 @@ import { fetchNode, fetchNodes, fetchRelation, fetchWay } from "../../../api/osm
 import { T2Arr } from "../../../utils/helper/object"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheck, faDeleteLeft, faDownload } from "@fortawesome/free-solid-svg-icons"
-import { ItemRefObj } from "../../../logic/model/type"
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons"
-import { FeatureTypes, NumericString } from "../../../type/osm/refobj"
+import { FeatureRefObj, FeatureTypes, NumericString } from "../../../type/osm/refobj"
 import { useOSMMapStore } from "../../../store/osmmeta"
 import { useSettingsStore } from "../../../store/settings"
 
 function MemberListItem({ id, type, onDel, select, edit }: {
     id: NumericString,
     type: FeatureTypes,
-    onDel: (item: ItemRefObj) => void,
+    onDel: (item: FeatureRefObj) => void,
     select?: {
-        active?: ItemRefObj
-        setter: (item: ItemRefObj) => void
+        active?: FeatureRefObj
+        setter: (item: FeatureRefObj) => void
     },
     edit?: {
         text: string,

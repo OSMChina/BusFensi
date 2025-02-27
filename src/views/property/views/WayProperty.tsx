@@ -25,7 +25,7 @@ import FeatureState from "../components/FeatureStates";
 import MemberListItem from "../components/MemberListItem";
 import { useState } from "react";
 import Draggable from "../components/Dragable";
-import { ItemRefObj } from "../../../logic/model/type";
+import { FeatureRefObj as ItemRefObj } from "../../../type/osm/refobj"
 import InsertMember from "./InsertMember";
 import { useOSMMapStore } from "../../../store/osmmeta";
 import { NumericString } from "../../../type/osm/refobj";
