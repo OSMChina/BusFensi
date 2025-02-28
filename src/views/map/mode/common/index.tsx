@@ -12,6 +12,7 @@ import OutlineView from "../../../outline";
 import PropertyView from "../../../property";
 import PIXIStage from "../../layer/Stage";
 import InfoLayer from "../../layer/InfoLayer";
+import { BaseStateMachine } from "../../stateMachine/state";
 
 function CommonEditStage({ width, height }: {
     width: number,
@@ -28,9 +29,10 @@ function CommonEditStage({ width, height }: {
             width={width}
             height={height}
             options={{ background: '#1099bb' }}
-            onPointerDown={(event) => { stateMachineRef.current.transform(event) }}
+            onContextMenu={(e) => e.preventDefault()}
+            onMouseDown={(event) => { stateMachineRef.current.transform(event) }}
             onPointerMove={(event) => { stateMachineRef.current.transform(event) }}
-            onPointerUp={(event) => { stateMachineRef.current.transform(event) }}
+            onMouseUp={(event) => { stateMachineRef.current.transform(event) }}
             onWheel={(event) => { stateMachineRef.current.transform(event) }}
         >
             <BackgroundLayer
@@ -40,7 +42,7 @@ function CommonEditStage({ width, height }: {
             <EditableLayer
                 width={width}
                 height={height}
-                stateMachine={stateMachineRef.current}
+                stateMachine={stateMachineRef.current as BaseStateMachine}
             />
         </PIXIStage>
         <InfoLayer width={width} />

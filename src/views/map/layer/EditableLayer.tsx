@@ -6,14 +6,14 @@ import { useMapViewStore } from "../../../store/mapview"
 import { useOSMMapStore } from "../../../store/osmmeta"
 import { NodesObj } from "../../../type/osm/refobj"
 import { useShallow } from "zustand/shallow"
-import { CommonEditStateMachine } from "../stateMachine/commonEdit"
 import { PointerWithOSMEvent } from "../../../type/stateMachine/commonEdit/componentEvent"
-import { HeadlessMetaRender } from "../components/HeadlessOSMMetaRender"
+import HeadlessMetaRender from "../components/HeadlessOSMMetaRender"
 import { Node, Way } from "../../../type/osm/meta"
+import { BaseStateMachine } from "../stateMachine/state"
 
 type PointWarpProps = Pick<React.ComponentProps<typeof Point>, "mapViewStatus" | "layerRef"> & {
     node: Node,
-    stateMachine: CommonEditStateMachine
+    stateMachine: BaseStateMachine
 }
 
 function PointWrap({ node, stateMachine, ...props }: PointWarpProps) {
@@ -23,8 +23,8 @@ function PointWrap({ node, stateMachine, ...props }: PointWarpProps) {
         node={node}
         status={status!}
         eventMode="static"
-        pointerdown={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
-        pointerup={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
+        mousedown={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
+        mouseup={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
         pointerover={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
         pointerout={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
     />
@@ -33,7 +33,7 @@ function PointWrap({ node, stateMachine, ...props }: PointWarpProps) {
 type LineWarpProps = Pick<React.ComponentProps<typeof Line>, "mapViewStatus" | "layerRef"> & {
     way: Way,
     node: NodesObj,
-    stateMachine: CommonEditStateMachine
+    stateMachine: BaseStateMachine
 }
 
 function LineWarp({ way, node, stateMachine, ...props }: LineWarpProps) {
@@ -47,15 +47,15 @@ function LineWarp({ way, node, stateMachine, ...props }: LineWarpProps) {
         eventMode="static"
         pointerover={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
         pointerout={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
-        pointerdown={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
-        pointerup={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
+        mousedown={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
+        mouseup={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
     />
 }
 
 function EditableLayer({ width, height, stateMachine }: {
     width: number,
     height: number,
-    stateMachine: CommonEditStateMachine
+    stateMachine: BaseStateMachine
 }) {
     const [viewpoint, zoom] = useMapViewStore(useShallow(state => ([state.viewpoint, state.zoom])))
     const { node, way } = useOSMMapStore(state => state.meta)
