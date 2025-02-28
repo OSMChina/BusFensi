@@ -16,3 +16,18 @@ export function isBusStop(tags: Tag[]): boolean {
     return tags.some(tag => tag["@_k"] === "public_transport" && tag["@_v"] === "platform")
         && tags.some(tag => tag["@_k"] === "highway" && tag["@_v"] === "bus_stop")
 }
+
+/**
+ * 
+ * stop position should have these tags
+ * 
+ * public_transport=stop_position
+ * name=* 
+ * bus=*
+ * @param tags 
+ */
+export function isStopPosition(tags: Tag[]): boolean {
+    return tags.some(t => t["@_k"] === "public_transport" && t["@_v"] === "stop_position")
+        && tags.some(t => t["@_k"] === "name")
+        && tags.some(t => t["@_k"] === "bus")
+}
