@@ -207,6 +207,7 @@ src
 - [ ] 分数 zoom 缩放
 - [ ] zoom 和 lon lat 的数值修改
 - [ ] console log level
+- [ ] 清除本地所有数据的按钮
 
 ## Known Issue
 
