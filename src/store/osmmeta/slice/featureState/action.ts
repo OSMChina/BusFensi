@@ -1,5 +1,5 @@
 import { StateCreator } from "zustand";
-import { FeatureRefObj, FeatureState, FeatureTypes, NumericString } from "../../../../type/osm/refobj";
+import { FeatureState, FeatureTypes, NumericString } from "../../../../type/osm/refobj";
 import { OSMMapStore } from "../../store";
 import { WritableDraft } from "immer";
 import { clearSelectHelper, modifyFeatureStateHelper, selectFeatureHelper, unSelectFeatureHelper } from "./helper";
