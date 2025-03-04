@@ -9,16 +9,17 @@ import { faCheckCircle } from "@fortawesome/free-regular-svg-icons/faCheckCircle
 import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash";
 import { cn } from "../../../../../utils/helper/object";
 import { useShallow } from "zustand/shallow";
-import { useConfirm } from "../../../../../components/modal/simpleConform";
+import SimpleConfirm from "../../../../../components/modal/SimpleConfirm";
 import { Node } from "../../../../../type/osm/meta";
 import { FeatureTypeMap } from "../../../../../store/osmmeta/slice/meta/type";
 import { faXmarkCircle } from "@fortawesome/free-regular-svg-icons/faXmarkCircle";
+import { createConfirmation } from "react-confirm";
 
 export function FeatureItem<T extends FeatureTypes>({ type, meta }: { type: T, meta: FeatureTypeMap[T] }) {
     const id = meta["@_id"];
     const [selectFeature, unselectFeature, deleteFeature] = useOSMMapStore(useShallow(state => ([state.selectFeature, state.unSelectFeature, state.deleteFeature])))
     const setViewpoint = useMapViewStore(state => state.setViewpoint);
-    const confirmModal = useConfirm();
+    const confirmModal = createConfirmation(SimpleConfirm)
 
     return <ItemBase
         featuretype={type}
@@ -51,11 +52,14 @@ export function FeatureItem<T extends FeatureTypes>({ type, meta }: { type: T, m
         <button className="btn btn-xs btn-square tooltip tooltip-bottom"
             data-tip="Delete"
             onClick={async () => {
-                if (await confirmModal({
+                console.debug("deleting: ", type, id)
+                const res = await confirmModal({
                     title: "Confirm delete feature",
                     message: "Are you sure you want delete this feature?\n" + (getName(meta.tag || []) || id)
                 })
-                ) {
+                console.debug("confirmed deleting: ", res, type, id)
+                if (res) {
+
                     deleteFeature(type, id)
                 }
             }}>
