@@ -19,7 +19,7 @@ export type WritableFeatureTypeMap = {
     relation: WritableDraft<Relation>;
 }
 
-type HandlerTypeMap = {
+export type HandlerTypeMap = {
     node: WritableNode;
     way: WritableWay;
     relation: WritableRelation;

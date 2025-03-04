@@ -8,12 +8,14 @@ import { computed, ComputedFeatures } from "./middleware/computed";
 import { createFeatureStateActionSlice, FeatureStateAction } from "./slice/featureState/action";
 import { createMetaActionSlice, MetaAction } from "./slice/meta/action";
 import { createRemoteApiActionSlice, RemoteApiAction } from "./slice/remote/action";
+import { BusEditAction, createBusEditActionSlice } from "./slice/bus/action";
 
 export type OSMMapStore = OSMMapState
     & CommitAction
     & FeatureStateAction
     & MetaAction
     & RemoteApiAction
+    & BusEditAction
 
 export type OSMMapStoreWithComputed = OSMMapStore & ComputedFeatures
 
@@ -29,6 +31,7 @@ export const useOSMMapStore = create<OSMMapStore>()(
                             ...createFeatureStateActionSlice(...params),
                             ...createMetaActionSlice(...params),
                             ...createRemoteApiActionSlice(...params),
+                            ...createBusEditActionSlice(...params),
                         })
                     ), {
                     partialize: (state) => {

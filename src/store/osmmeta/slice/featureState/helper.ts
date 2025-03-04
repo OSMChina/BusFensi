@@ -92,3 +92,22 @@ export function selectFeatureHelper(
     _selectFeature(state, type, id)
     _activeFeature(state, type, id);
 }
+
+export function unSelectFeatureHelper(
+    state: WritableDraft<OSMMapStore>,
+    type: FeatureTypes,
+    id: NumericString,
+) {
+    const feature = state.meta[type][id]["@_localStates"]
+    if (feature?.active) {
+        feature.active = false;
+        delete state.activeRef;
+    }
+    if (feature?.selected) {
+        feature.selected = false;
+        state.selectedRef = state.selectedRef.filter(f => !(f.id === id && f.type === type))
+    }
+    if (!state.activeRef && state.selectedRef.length) {
+        state.activeRef = state.selectedRef[0];
+    }
+}
