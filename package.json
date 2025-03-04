@@ -26,6 +26,7 @@
     "pixi.js": "^7.4.2",
     "proj4": "^2.11.0",
     "react": "^18.3.1",
+    "react-confirm": "^0.3.0",
     "react-dom": "^18.3.1",
     "react-resizable-layout": "^0.7.2",
     "zundo": "^2.3.0",
@@ -48,6 +49,6 @@
     "tailwindcss": "^3.4.9",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.0",
-    "vite": "^5.4.0"
+    "vite": "^6.2.0"
   }
 }
