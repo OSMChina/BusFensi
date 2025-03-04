@@ -2,13 +2,16 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { ModalProvider } from './components/modal/modalProvider';
 
 const rootElement = document.getElementById('root');
 
 if (rootElement) {
   createRoot(rootElement).render(
     <StrictMode>
-      <App />
+      <ModalProvider>
+        <App />
+      </ModalProvider>
     </StrictMode>,
   );
 } else {
