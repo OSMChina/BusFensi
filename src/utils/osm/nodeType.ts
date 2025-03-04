@@ -12,7 +12,8 @@ import { Tag } from "../../type/osm/meta";
  * 
  * @param tags 
  */
-export function isBusStop(tags: Tag[]): boolean {
+export function isBusStop(tags?: Tag[]): boolean {
+    tags = tags || []
     return tags.some(tag => tag["@_k"] === "public_transport" && tag["@_v"] === "platform")
         && tags.some(tag => tag["@_k"] === "highway" && tag["@_v"] === "bus_stop")
 }
@@ -26,8 +27,14 @@ export function isBusStop(tags: Tag[]): boolean {
  * bus=*
  * @param tags 
  */
-export function isStopPosition(tags: Tag[]): boolean {
+export function isStopPosition(tags?: Tag[]): boolean {
+    tags = tags || []
     return tags.some(t => t["@_k"] === "public_transport" && t["@_v"] === "stop_position")
         && tags.some(t => t["@_k"] === "name")
         && tags.some(t => t["@_k"] === "bus")
+}
+
+export function getName(tags?: Tag[]): string | undefined {
+    tags = tags || []
+    return tags.find(t => t["@_k"] === "name")?.["@_v"]
 }
