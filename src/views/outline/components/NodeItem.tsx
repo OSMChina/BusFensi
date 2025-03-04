@@ -9,10 +9,10 @@ import { NumericString } from "../../../type/osm/refobj";
 
 function NodeItem({ id, filter }: { id: NumericString, filter: FilterFunc }) {
     const meta = useOSMMapStore(useShallow((state) => state.meta.node[id]));
-    const featureState = useOSMMapStore(useShallow((state) => state.meta.node[id]["@_localStates"]));
+    const featureState = useOSMMapStore(useShallow((state) => state.meta.node[id]?.["@_localStates"]));
     const setSelectedComponent = useOSMMapStore((state) => state.selectFeature)
 
-    if (!meta || !filter(meta, "node")) {
+    if (!meta || !filter(meta, "node") || !featureState) {
         return null
     }
 

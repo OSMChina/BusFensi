@@ -19,7 +19,7 @@ export function Attributes({ meta }: { meta: Node | Way | Relation }) {
         const value = meta[key] as Primitive;
         return (
           <li key={key}>
-            <span>
+            <span className="select-text">
               <span className="font-semibold">{String(key).substring(2)}</span>
               <span className="ml-auto text-base-content">{value.toString()}</span>
             </span>

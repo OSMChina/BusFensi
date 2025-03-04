@@ -12,9 +12,9 @@ function WayItem({ id, filter }: { id: NumericString, filter: FilterFunc }) {
     const nodesId = useOSMMapStore(useShallow((state) => Object.keys(state.meta.node)));
     const way = useOSMMapStore(useShallow((state) => state.meta.way[id]));
     const setSelectedComponent = useOSMMapStore((state) => state.selectFeature);
-    const featureState = useOSMMapStore(useShallow((state) => state.meta.way[id]["@_localStates"]));
+    const featureState = useOSMMapStore(useShallow((state) => state.meta.way[id]?.["@_localStates"]));
     const [collapsed, setCollapsed] = useState(true);
-    if (!filter(way, "way")) {
+    if (!filter(way, "way") || !way || !featureState) {
         return null
     }
 
