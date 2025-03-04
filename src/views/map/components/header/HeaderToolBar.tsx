@@ -4,13 +4,13 @@ import { faDownLong } from "@fortawesome/free-solid-svg-icons/faDownLong";
 import { faFileExport } from "@fortawesome/free-solid-svg-icons/faFileExport";
 import { faGear } from "@fortawesome/free-solid-svg-icons/faGear";
 import { useCallback, useState } from "react";
-import { useMapViewStore } from "../../../store/mapview";
-import { useOSMMapStore } from "../../../store/osmmeta";
+import { useMapViewStore } from "../../../../store/mapview";
+import { useOSMMapStore } from "../../../../store/osmmeta";
 import { useShallow } from "zustand/shallow";
-import { useSettingsStore } from "../../../store/settings";
-import { cn } from "../../../utils/helper/object";
-import { exportJOSMXML } from "../../../api/osm/jsomExportV2";
-import { SettingsEditModal } from "./SettingsModal";
+import { useSettingsStore } from "../../../../store/settings";
+import { cn } from "../../../../utils/helper/object";
+import { exportJOSMXML } from "../../../../api/osm/jsomExportV2";
+import { SettingsEditModal } from "../SettingsModal";
 
 function AutoLoadLi() {
     const [autoload, setAutoload] = useOSMMapStore(useShallow(state => ([state.autoload, state.setAutoloadNC])));

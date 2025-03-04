@@ -1,10 +1,10 @@
 import { useShallow } from "zustand/react/shallow";
-import { deepCopy } from "../../../utils/helper/object";
-import { exportJOSMXML } from "../../../api/osm/jsomExportV2";
+import { deepCopy } from "../../../../utils/helper/object";
+import { exportJOSMXML } from "../../../../api/osm/jsomExportV2";
 import { useState } from "react";
-import { useOSMMapStore } from "../../../store/osmmeta";
-import { CommonEditStateMachine } from "../stateMachine/commonEdit";
-import { useSettingsStore } from "../../../store/settings";
+import { useOSMMapStore } from "../../../../store/osmmeta";
+import { CommonEditStateMachine } from "../../stateMachine/commonEdit";
+import { useSettingsStore } from "../../../../store/settings";
 
 export default function CommonEditToolbar({ stateMachine }: {
     stateMachine: CommonEditStateMachine
