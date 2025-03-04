@@ -5,7 +5,7 @@ import { useOSMMapStore } from "../../../../store/osmmeta";
 import { useSettingsStore } from "../../../../store/settings";
 import { BackgroundLayer } from "../../layer/BackgroundLayer";
 import EditableLayer from "../../layer/EditableLayer";
-import CommonEditToolbar from "../../components/CoomonEditToolbar";
+import CommonEditToolbar from "../../components/common/CoomonEditToolbar";
 import { ViewFCProps } from "../../../../type/view/props";
 import SplitterView from "../../../../components/layout/SplitView";
 import OutlineView from "../../../outline";

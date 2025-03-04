@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import CommonEditApp from "./mode/common";
-import { HeaderBar } from "./components/HeaderBar";
+import { HeaderBar } from "./components/header/HeaderBar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMap } from "@fortawesome/free-solid-svg-icons/faMap";
 import { cn } from "../../utils/helper/object";
-import PTEditApp from "./mode/ptedit";
+import PtEditView from "./mode/ptedit";
 import { faBus } from "@fortawesome/free-solid-svg-icons/faBus";
 export function MapView({ width, height }: { width: number; height: number }) {
   const HEADERBAR_HEIGHT = 42;
@@ -17,7 +17,7 @@ export function MapView({ width, height }: { width: number; height: number }) {
     {
       title: <FontAwesomeIcon icon={faBus} />,
       tooltip: "Public transport edit mode",
-      component: () => <PTEditApp width={width} height={height - HEADERBAR_HEIGHT} />,
+      component: () => <PtEditView width={width} height={height - HEADERBAR_HEIGHT} />,
     },
   ], [width, height]);
 

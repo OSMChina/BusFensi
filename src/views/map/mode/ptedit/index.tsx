@@ -19,12 +19,20 @@ import InfoLayer from "../../layer/InfoLayer";
 import CreateFeatureTags from "../../../../components/osm/CreateFeatureTags";
 import { busStopPresetCN, stopPositionPresetCN } from "../../../../utils/osm/presets/bus";
 import { Tag } from "../../../../type/osm/meta";
+import { getLocationByPixel } from "../../../../store/mapview/seletor";
+import { useShallow } from "zustand/shallow";
+import SplitterView from "../../../../components/layout/SplitView";
+import PropertyView from "../../../property";
+import { BusStopEditOutline } from "../../components/collection/busStop";
 
 function RightClickNewBusStop(props: RightClickMenuProps & { onClose: () => void }) {
     const [open, setOpen] = useState(false);
+    const newBusLocation = useMapViewStore(useShallow(getLocationByPixel(props)))
+    const createBusStop = useOSMMapStore(state => state.createBusStop)
     const onSubmit = useCallback((tags: Tag[]) => {
         console.debug("created bus stop", tags)
-    }, [])
+        createBusStop(newBusLocation, tags)
+    }, [createBusStop, newBusLocation])
     return <>
         <RightClickMenu {...props} >
             <a onClick={() => {
@@ -97,7 +105,7 @@ function PtEditTabs({ width, height, children }: { width: number, height: number
     </div>
 }
 
-function PTEditApp({ width, height }: ViewFCProps) {
+function PtEditView({ width, height }: ViewFCProps) {
     const TABS_WIDTH = 42;
     const [newBusMenu, setNewBusMenu] = useState<RightClickMenuProps>({ x: 0, y: 0, open: false })
     const [newStopPositionMenu, setStopPositionMenu] = useState<RightClickMenuProps>({ x: 0, y: 0, open: false })
@@ -140,4 +148,22 @@ function PTEditApp({ width, height }: ViewFCProps) {
     </div>
 }
 
-export default PTEditApp;
+function OutlineView({ width, height }: ViewFCProps) {
+    return <div className="outline-view flex flex-col bg-base-100 overflow-scroll"
+        style={{ width, height }}
+    >
+        <BusStopEditOutline />
+    </div>
+}
+
+function PtEditApp({ width, height }: ViewFCProps) {
+    return <SplitterView width={width} height={height} axis='x' initial={(width / 4) * 3} >
+        {(props) => <PtEditView {...props} />}
+        {(props) => <SplitterView {...props} axis='y'>
+            {(props) => <OutlineView {...props} />}
+            {(props) => <PropertyView {...props} />}
+        </SplitterView>}
+    </SplitterView>
+}
+
+export default PtEditApp;
