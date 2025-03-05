@@ -53,6 +53,7 @@ export const genTree = (
                 fathers: { node: [], way: [], relation: [] },
                 childs: { node: [], way: [], relation: [] }
             }
+            featureTree.roots[type][numericId] = true;
         })
     }
     initializeElements('node', node)
@@ -70,6 +71,8 @@ export const genTree = (
             if (child) {
                 child.fathers.way.push(cur.id)
                 cur.childs.node.push(child.id)
+
+                delete featureTree.roots.node[child.id];
             }
         });
     })
@@ -84,37 +87,27 @@ export const genTree = (
             if (child) {
                 child.fathers.relation.push(cur.id)
                 cur.childs[mem["@_type"]].push(child.id)
+
+                delete featureTree.roots[mem["@_type"]][child.id];
             }
         });
     })
-    // step 3 identify roots
-    const faEmpty = (n: FeatureTreeNode) => 0 === (n.fathers.node.length + n.fathers.way.length + n.fathers.relation.length)
-
-    Object.values(featureTree.elems.node).forEach(node => {
-        if (faEmpty(node)) {
-            featureTree.roots.node[node.id] = true
-        }
-    })
-    Object.values(featureTree.elems.way).forEach(way => {
-        if (faEmpty(way)) {
-            featureTree.roots.way[way.id] = true
-        }
-    })
-    Object.values(featureTree.elems.relation).forEach(relation => {
-        if (faEmpty(relation)) {
-            featureTree.roots.relation[relation.id] = true
-        }
-    })
-
+    
     return featureTree
 };
 
 export const genCollection = (osmFeatureMeta: FeatureMetaGroup): Collection => {
-    const unionCollection = (...iterable: CollectionItem[]): CollectionItem => ({
-        node: iterable.reduce((acc, col) => ({ ...acc, ...col.node }), {}),
-        way: iterable.reduce((acc, col) => ({ ...acc, ...col.way }), {}),
-        relation: iterable.reduce((acc, col) => ({ ...acc, ...col.relation }), {}),
-    })
+    const unionCollection = (...iterable: CollectionItem[]): CollectionItem => {
+        return iterable.reduce(
+          (acc, col) => {
+            Object.assign(acc.node, col.node);
+            Object.assign(acc.way, col.way);
+            Object.assign(acc.relation, col.relation);
+            return acc;
+          },
+          { node: {}, way: {}, relation: {} } as CollectionItem
+        );
+    };
 
     const { node, way, relation } = osmFeatureMeta
     const ptv2 = filterBusPTv2(node, way, relation)

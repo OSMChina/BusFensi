@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { memo, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMapViewStore } from "../../../../store/mapview";
 import { useOSMMapStore } from "../../../../store/osmmeta";
 import { useSettingsStore } from "../../../../store/settings";
@@ -25,7 +25,7 @@ import { BusStopEditOutline } from "../../components/collection/busStop";
 import { createConfirmation } from "react-confirm";
 import CreateFeatureTagConfirm from "../../../../components/modal/CreateFeatureTagConfirm";
 
-function RightClickNewBusStop(props: RightClickMenuProps & { onClose: () => void }) {
+const MemoRightClickNewBusStop = memo(function RightClickNewBusStop(props: RightClickMenuProps & { onClose: () => void }) {
     const newBusLocation = useMapViewStore(useShallow(getLocationByPixel(props)))
     const createBusStop = useOSMMapStore(state => state.createBusStop)
     const confirmModal = createConfirmation(CreateFeatureTagConfirm)
@@ -43,9 +43,9 @@ function RightClickNewBusStop(props: RightClickMenuProps & { onClose: () => void
             <a onClick={onClick}>New bus stop</a>
         </RightClickMenu>
     </>
-}
+})
 
-function RightClickNewStopPosition(props: RightClickMenuProps & { onClose: () => void }) {
+const MemoRightClickNewStopPosition = memo(function RightClickNewStopPosition(props: RightClickMenuProps & { onClose: () => void }) {
     const location = useMapViewStore(useShallow(getLocationByPixel(props)))
     const createStopPosition = useOSMMapStore(state => state.createStopPosition)
 
@@ -65,7 +65,7 @@ function RightClickNewStopPosition(props: RightClickMenuProps & { onClose: () =>
             <a onClick={onClick}>New stop position</a>
         </RightClickMenu>
     </>
-}
+})
 
 function PtEditStage({ width, height, stateMachine }: {
     width: number,
@@ -82,7 +82,6 @@ function PtEditStage({ width, height, stateMachine }: {
             width={width}
             height={height}
             options={{ background: '#1099bb' }}
-            onContextMenu={(e) => e.preventDefault()}
             onMouseDown={(event) => { stateMachine.transform(event) }}
             onPointerMove={(event) => { stateMachine.transform(event) }}
             onMouseUp={(event) => { stateMachine.transform(event) }}
@@ -115,11 +114,11 @@ function PtEditView({ width, height }: ViewFCProps) {
     const [newBusMenu, setNewBusMenu] = useState<RightClickMenuProps>({ x: 0, y: 0, open: false })
     const [newStopPositionMenu, setStopPositionMenu] = useState<RightClickMenuProps>({ x: 0, y: 0, open: false })
 
-    const [stateMachine] = useState(new PtEditStateMachine(
+    const stateMachine = useRef(new PtEditStateMachine(
         { meta: useOSMMapStore, view: useMapViewStore, settings: useSettingsStore },
-        { busStop: setNewBusMenu, stopPosition: setStopPositionMenu }))
+        { busStop: setNewBusMenu, stopPosition: setStopPositionMenu })).current
 
-    const tabs = [{
+    const tabs = useMemo(()=>[{
         tooltip: "Bus stop edit tab",
         icon: <FontAwesomeIcon icon={faBusSimple} />,
         stage: () => <PtEditStage
@@ -133,22 +132,23 @@ function PtEditView({ width, height }: ViewFCProps) {
         tooltip: "Edit bus relation",
         icon: <FontAwesomeIcon icon={faCodeCommit} />,
         stage: () => <div className="p-2">Bus Relation Edit Placeholder</div>
-    }]
+    }],[width,height])
 
     const [active, setActive] = useState(0);
 
     return <div
         className="flex flex-row"
-        style={{ height, width, maxHeight: height, maxWidth: width }}>
+        style={{ height, width, maxHeight: height, maxWidth: width }}
+        onContextMenu={(e) => e.preventDefault()}>
         <PtEditTabs width={TABS_WIDTH} height={height} >
             {tabs.map((tab, index) => <div className="tooltip tooltip-right mx-auto mt-1" data-tip={tab.tooltip}>
-                <button onClick={() => setActive(index)} className={cn("btn btn-ghost btn-square btn-sm", index === active)}>{tab.icon}</button>
+                <button onClick={() => setActive(index)} className={cn("btn btn-ghost btn-square btn-sm",active === index && "btn-active")}>{tab.icon}</button>
             </div>)}
         </PtEditTabs>
         <div className="relative" style={{ height, width: width - TABS_WIDTH }}>
             {tabs[active].stage()}
-            <RightClickNewBusStop {...newBusMenu} onClose={() => setNewBusMenu({ x: 0, y: 0, open: false })} />
-            <RightClickNewStopPosition {...newStopPositionMenu} onClose={() => setStopPositionMenu({ x: 0, y: 0, open: false })} />
+            <MemoRightClickNewBusStop {...newBusMenu} onClose={() => setNewBusMenu({ x: 0, y: 0, open: false })} />
+            <MemoRightClickNewStopPosition {...newStopPositionMenu} onClose={() => setStopPositionMenu({ x: 0, y: 0, open: false })} />
         </div>
     </div>
 }

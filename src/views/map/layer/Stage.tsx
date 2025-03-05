@@ -1,6 +1,5 @@
 import { Stage, useApp } from "@pixi/react";
 import { ReactNode, useEffect } from "react";
-import { useShallow } from "zustand/react/shallow";
 import { Application } from "pixi.js";
 import { useMapViewStore } from "../../../store/mapview";
 
@@ -32,7 +31,7 @@ type PIXIStageProps = React.ComponentProps<typeof Stage> & {
 }
 
 function PIXIStage({ width, height, children, ...props }: PIXIStageProps) {
-    const stageResizeNoTrack = useMapViewStore(useShallow(state => state.setStage))
+    const stageResizeNoTrack = useMapViewStore(state => state.setStage)
     useEffect(() => {
         stageResizeNoTrack(width, height)
     }, [width, height, stageResizeNoTrack])
