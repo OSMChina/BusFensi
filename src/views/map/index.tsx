@@ -10,14 +10,14 @@ export function MapView({ width, height }: { width: number; height: number }) {
   const HEADERBAR_HEIGHT = 42;
   const tabs = useMemo(() => [
     {
-      title: <FontAwesomeIcon icon={faMap} />,
-      tooltip: "Map edit mode",
-      component: () => <CommonEditApp width={width} height={height - HEADERBAR_HEIGHT} />,
-    },
-    {
       title: <FontAwesomeIcon icon={faBus} />,
       tooltip: "Public transport edit mode",
       component: () => <PtEditView width={width} height={height - HEADERBAR_HEIGHT} />,
+    },
+    {
+      title: <FontAwesomeIcon icon={faMap} />,
+      tooltip: "Map edit mode",
+      component: () => <CommonEditApp width={width} height={height - HEADERBAR_HEIGHT} />,
     },
   ], [width, height]);
 

@@ -16,49 +16,54 @@ import { RightClickMenuProps } from "../../../../type/view/map";
 import EditableLayer from "../../layer/EditableLayer";
 import { BaseStateMachine } from "../../stateMachine/state";
 import InfoLayer from "../../layer/InfoLayer";
-import CreateFeatureTags from "../../../../components/osm/CreateFeatureTags";
 import { busStopPresetCN, stopPositionPresetCN } from "../../../../utils/osm/presets/bus";
-import { Tag } from "../../../../type/osm/meta";
 import { getLocationByPixel } from "../../../../store/mapview/seletor";
 import { useShallow } from "zustand/shallow";
 import SplitterView from "../../../../components/layout/SplitView";
 import PropertyView from "../../../property";
 import { BusStopEditOutline } from "../../components/collection/busStop";
+import { createConfirmation } from "react-confirm";
+import CreateFeatureTagConfirm from "../../../../components/modal/CreateFeatureTagConfirm";
 
 function RightClickNewBusStop(props: RightClickMenuProps & { onClose: () => void }) {
-    const [open, setOpen] = useState(false);
     const newBusLocation = useMapViewStore(useShallow(getLocationByPixel(props)))
     const createBusStop = useOSMMapStore(state => state.createBusStop)
-    const onSubmit = useCallback((tags: Tag[]) => {
-        console.debug("created bus stop", tags)
-        createBusStop(newBusLocation, tags)
-    }, [createBusStop, newBusLocation])
+    const confirmModal = createConfirmation(CreateFeatureTagConfirm)
+
+    const onClick = useCallback(async () => {
+        props.onClose()
+        const tags = await confirmModal({ title: "Create Bus stop (Preset CN)", preset: busStopPresetCN })
+        if (tags) {
+            console.debug("created bus stop", tags)
+            if (newBusLocation) createBusStop(newBusLocation, tags)
+        }
+    }, [createBusStop, newBusLocation, confirmModal])
     return <>
         <RightClickMenu {...props} >
-            <a onClick={() => {
-                props.onClose()
-                setOpen(true)
-            }}>New bus stop</a>
+            <a onClick={onClick}>New bus stop</a>
         </RightClickMenu>
-        <CreateFeatureTags title="Create Bus stop (Preset CN)" open={open} onClose={() => setOpen(false)} preset={busStopPresetCN} onSubmit={onSubmit} />
     </>
 }
 
 function RightClickNewStopPosition(props: RightClickMenuProps & { onClose: () => void }) {
-    const [open, setOpen] = useState(false);
-    const onSubmit = useCallback((tags: Tag[]) => {
-        console.debug("created stop position on Way", props.feature, tags)
-    }, [props.feature])
+    const location = useMapViewStore(useShallow(getLocationByPixel(props)))
+    const createStopPosition = useOSMMapStore(state => state.createStopPosition)
+
+    const confirmModal = createConfirmation(CreateFeatureTagConfirm)
+    const onClick = useCallback(async () => {
+        props.onClose()
+        console.debug("clicked new stop position")
+        const tags = await confirmModal({ preset: stopPositionPresetCN, title: "Create Stop position (Preset CN)" })
+        if (tags) {
+            console.debug("created stop position", tags)
+            if (location) createStopPosition(location, tags, props.feature?.id!)
+        }
+    }, [location, createStopPosition, confirmModal])
 
     return <>
         <RightClickMenu {...props} >
-            <a onClick={() => {
-                props.onClose()
-                setOpen(true)
-            }}>New stop position</a>
+            <a onClick={onClick}>New stop position</a>
         </RightClickMenu>
-        <CreateFeatureTags title="Create Stop position (Preset CN)" open={open} onClose={() => setOpen(false)} preset={stopPositionPresetCN} onSubmit={onSubmit} />
-
     </>
 }
 

@@ -4,7 +4,7 @@ import { Tag } from "../../type/osm/meta";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
-interface CreateNodeProps {
+export interface CreateNodeProps {
     preset: NodePreset;
     onSubmit: (values: Tag[]) => void;
     open: boolean;
@@ -137,7 +137,7 @@ export default function CreateFeatureTags({ preset, title, onSubmit, open, onClo
                         </label>
 
                         <div className="modal-action">
-                            <button type="button" className="btn" onClick={onClose}>
+                            <button type="button" className="btn" onClick={() => onClose()}>
                                 Cancel
                             </button>
                             <button type="submit" className="btn btn-primary">
