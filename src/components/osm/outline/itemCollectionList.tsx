@@ -6,7 +6,7 @@ export function ItemCollection({
     children: ReactNode;
 }) {
     return (
-        <ul className="menu menu-xs bg-base-100">
+        <ul className="menu menu-xs">
             {children}
         </ul>
     );

@@ -13,7 +13,7 @@ export function BusStopEditOutline() {
         searchTerm === "" || `${type}-${JSON.stringify(meta)}`.includes(searchTerm)
 
     return <>
-        <label className="input input-xs input-bordered flex items-center gap-2 w-11/12 mt-1 mx-auto">
+        <label className="input input-xs input-bordered flex items-center gap-2 w-full mt-1 mx-auto">
             <FontAwesomeIcon icon={faSearch} />
             <input
                 type="text"
@@ -24,7 +24,7 @@ export function BusStopEditOutline() {
             />
         </label>
         <div className="outline-list flex-1 rounded">
-            <ul className="menu menu-xs bg-base-200">
+            <ul className="menu menu-xs">
                 <BusStopCollection filter={searchFilter} />
                 <StopPositionCollection filter={searchFilter} />
                 <StopAreaCollection filter={searchFilter} />

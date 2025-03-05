@@ -27,14 +27,14 @@ export function FeatureCollection({ name, children }: {
     name: string
 }) {
     const [collapsed, setCollapsed] = useState(true);
-    const toggleCollapse: React.MouseEventHandler<SVGSVGElement> = (e) => {
+    const toggleCollapse: React.MouseEventHandler = (e) => {
         e.stopPropagation(); // prevent selecting when collapsing
         setCollapsed(!collapsed);
     };
     return (
         <li className="outline-list-item">
-            <span className={`flex flex-row`} >
-                <FontAwesomeIcon icon={collapsed ? faChevronRight : faChevronDown} onClick={toggleCollapse} />
+            <span className={`flex flex-row`} onClick={toggleCollapse} >
+                <FontAwesomeIcon icon={collapsed ? faChevronRight : faChevronDown} />
                 <FontAwesomeIcon icon={faBars} className="ml-1" />
                 <span className="ml-0 mr-auto">{name}</span>
             </span>
