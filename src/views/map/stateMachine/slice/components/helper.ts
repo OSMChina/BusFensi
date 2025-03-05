@@ -9,6 +9,7 @@ export function getLocalPosistion(x: number, y: number, context: BaseContext): {
   const rect = stage!.view.getBoundingClientRect!();
   const canvasX = x - rect.x;
   const canvasY = y - rect.y;
+  console.debug("getLocalPosistion, x y", x, y, " convert to ", canvasX, canvasY)
   return {
     x: canvasX,
     y: canvasY

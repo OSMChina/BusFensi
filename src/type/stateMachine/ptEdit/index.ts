@@ -1,3 +1,5 @@
+import { ComponentStateContext } from "../../../views/map/stateMachine/slice/components/helper";
+import { FeatureRefObj } from "../../osm/refobj";
 import { RightClickMenuProps } from "../../view/map";
 import { BaseContext } from "../baseEvent";
 import { PointerWithOSMEvent } from "../commonEdit/componentEvent";
@@ -12,3 +14,4 @@ export interface PtEditRightClickMenus {
 export type PtEditContext = BaseContext & {
     rightClickMenus: PtEditRightClickMenus
 }
+export type FeatureClassifyFun = (target: FeatureRefObj, context: ComponentStateContext) => boolean
