@@ -203,11 +203,13 @@ src
 ### 2025 年 3 月 10 日之前
 
 - [] 完成公交站点编辑的所有内容
+    - [] 显示选择框，就用 dashed line 配一个棕色好了
     - [] 在 outline 中引入 selected
     - [] 完成抽象的 member picker, 允许内部成员单项拖拉拽，外部从选择的 feature 当中引入
     - [] 重构 CreateFeatureTag, 将其变为 CreateFeature, 允许在创建时引入 member
     - [] 写出 New Stop Area
     - [] PIXI Point 将会显示 Name
+    - [] Property member 中的列表元素现在会使用 outline 列表相同的渲染方式
     - [] （可选）让 Stop Area 在地图上显示出来
 
 ### 2025 年 3 月 22 日前
