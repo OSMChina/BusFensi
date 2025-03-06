@@ -49,7 +49,7 @@ function MemberListItem({ id, type, onDel, select, edit }: {
         setLoading(false)
     }
 
-    return <div className={`rounded-sm border text-xs flex flex-row pl-1 ${(select?.active?.id === id && select.active.type) ? "bg-neutral text-neutral-content" : "bg-base-200 text-base-content"}`}>
+    return <div className={`text-xs flex flex-row pl-1`}>
         <span>{`${type}-${id}`}</span>
         <span className="ml-auto"></span>
         {edit && (editing ?

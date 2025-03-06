@@ -240,6 +240,7 @@ src
 ## Known Issue
 
 - [X] <s>**(HIGH)** 拖动地图的时候很卡，具体表现为有时候拖不动，不管有没有元素显示都一样。需要搞清楚是 react 还是 pixi 事件问题。</s>确定了是 debounce 的问题了，先关掉 debounce。后续研究
+- [ ] **(HIGH)** Property 的 drag 实现是错的，如果有 way 和 node 撞 id 就会编辑出错。下面几个 commit 就修复。
 - [ ] **(MEDIUM)** computed 属性性能较差，需要优化。
 - [ ] **(MEDIUM)** OSM 数据会爆 localStorage 空间。
 - [ ] **(MEDIUM)** zundo 的全量状态历史记录非常耗内存，而且给的 diff 接口假设 delta state, 就是说只能拿单层 state, 对 nested state 并不能支持增量。并且没给 merge 接口，所以得手动 fork 并拓展 zundo ，或者要使用一个独立的中间件注入 set 函数来实现 deepMerge。
