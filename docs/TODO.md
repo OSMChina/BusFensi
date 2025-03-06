@@ -203,7 +203,7 @@ src
 ### 2025 年 3 月 10 日之前
 
 - [] 完成公交站点编辑的所有内容
-    - [] 显示选择框，就用 dashed line 配一个棕色好了
+    - [X] 显示选择框，就用 dashed line 配一个棕色好了(用半透明矩形了)
     - [] 在 outline 中引入 selected
     - [] 完成抽象的 member picker, 允许内部成员单项拖拉拽，外部从选择的 feature 当中引入
     - [] 重构 CreateFeatureTag, 将其变为 CreateFeature, 允许在创建时引入 member

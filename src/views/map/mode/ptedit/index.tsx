@@ -37,7 +37,7 @@ function RightClickNewBusStop(props: RightClickMenuProps & { onClose: () => void
             console.debug("created bus stop", tags)
             if (newBusLocation) createBusStop(newBusLocation, tags)
         }
-    }, [createBusStop, newBusLocation, confirmModal])
+    }, [props, confirmModal, newBusLocation, createBusStop])
     return <>
         <RightClickMenu {...props} >
             <a onClick={onClick}>New bus stop</a>
@@ -56,9 +56,9 @@ function RightClickNewStopPosition(props: RightClickMenuProps & { onClose: () =>
         const tags = await confirmModal({ preset: stopPositionPresetCN, title: "Create Stop position (Preset CN)" })
         if (tags) {
             console.debug("created stop position", tags)
-            if (location) createStopPosition(location, tags, props.feature?.id!)
+            if (location && props.feature?.id) createStopPosition(location, tags, props.feature?.id)
         }
-    }, [location, createStopPosition, confirmModal])
+    }, [props, confirmModal, location, createStopPosition])
 
     return <>
         <RightClickMenu {...props} >

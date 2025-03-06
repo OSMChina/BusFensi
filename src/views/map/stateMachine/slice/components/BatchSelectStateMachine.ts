@@ -97,8 +97,8 @@ export class BatchSelectStateMachine extends BaseStateMachine<AllStateMachineEve
         const context = this.context;
         if (event.type === 'pointermove') {
           console.debug("BatchSelectStateMachine: continue dragging");
-          const { x, y } = event as FederatedMouseEvent;
-          useMapViewStore.getState().setSelectionRect({ from: context.from!, to: getLocalPosistion(x, y, context) })
+          const { clientX, clientY } = event as FederatedMouseEvent;
+          useMapViewStore.getState().setSelectionRect({ from: context.from!, to: getLocalPosistion(clientX, clientY, context) })
           return true;
         }
         return false;
