@@ -1,6 +1,7 @@
 import { BoundsType } from "../../type/mapProjection";
 import { Node } from "../../type/osm/meta";
-import { FeatureMetaGroup, NumericString } from "../../type/osm/refobj";
+import { FeatureMetaGroup, FeatureTypes, NumericString } from "../../type/osm/refobj";
+import { FeatureTypeMap } from "./slice/meta/type";
 import { OSMMapStore } from "./store";
 
 const getFeatureInBound = ({ left, right, bottom, top }: BoundsType) => (store: OSMMapStore): FeatureMetaGroup => {
@@ -21,6 +22,30 @@ const getFeatureInBound = ({ left, right, bottom, top }: BoundsType) => (store: 
     }
 }
 
+function getActiveMeta<T extends FeatureTypes>(
+    store: OSMMapStore
+): { type: T, meta: FeatureTypeMap[T] } | null {
+    const ref = store.activeRef;
+    if (!ref) {
+        return null;
+    }
+    return {
+        type: ref.type as T,
+        meta: store.meta[ref.type][ref.id]
+    } as { type: T, meta: FeatureTypeMap[T] };
+}
+
+const getSelectedMeta = <T extends FeatureTypes>(type: T) => (store: OSMMapStore): FeatureTypeMap[T][] => {
+    const refs = store.selectedRef;
+    if (!refs.length) {
+        return [];
+    }
+    return refs.filter(ref => ref.type === type).map(ref => store.meta[type][ref.id] as FeatureTypeMap[T])
+}
+
+
 export {
-    getFeatureInBound
+    getFeatureInBound,
+    getActiveMeta,
+    getSelectedMeta,
 }

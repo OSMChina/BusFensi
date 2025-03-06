@@ -21,9 +21,10 @@ import { getLocationByPixel } from "../../../../store/mapview/seletor";
 import { useShallow } from "zustand/shallow";
 import SplitterView from "../../../../components/layout/SplitView";
 import PropertyView from "../../../property";
-import { BusStopEditOutline } from "../../components/collection/busStop";
+import { BusStopEditOutlineTab } from "../../components/collection/busStop";
 import { createConfirmation } from "react-confirm";
 import CreateFeatureTagConfirm from "../../../../components/modal/CreateFeatureTagConfirm";
+import SelectedOutlineTab from "../../components/collection/selected";
 
 function RightClickNewBusStop(props: RightClickMenuProps & { onClose: () => void }) {
     const newBusLocation = useMapViewStore(useShallow(getLocationByPixel(props)))
@@ -154,10 +155,23 @@ function PtEditView({ width, height }: ViewFCProps) {
 }
 
 function OutlineView({ width, height }: ViewFCProps) {
-    return <div className="outline-view flex flex-col bg-base-100 overflow-scroll"
-        style={{ width, height }}
-    >
-        <BusStopEditOutline />
+    const tabs = [{
+        title: "Bus stop",
+        tab: () => <BusStopEditOutlineTab />
+    }, {
+        title: "Selected",
+        tab: () => <SelectedOutlineTab />
+    },]
+
+    const [active, setActive] = useState(0);
+
+    return <div style={{ width, height }} className="flex flex-col">
+        <div role="tablist" className="tabs tabs-lifted tabs-xs">
+            {tabs.map((tab, index) => (<a key={index} onClick={() => setActive(index)} role="tab" className={cn("tab", index === active && "tab-active")}>{tab.title}</a>))}
+        </div>
+        <div className="outline-view flex flex-col bg-base-100 w-full px-1 flex-1 overflow-auto">
+            {tabs[active].tab()}
+        </div>
     </div>
 }
 

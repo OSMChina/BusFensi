@@ -51,16 +51,12 @@ export function ItemBaseDisplay({
     return (
         <>
             {/* Feature type icon */}
-            <FontAwesomeIcon icon={featureIcon} />
+            <span><FontAwesomeIcon icon={featureIcon} /></span>
 
             {/* Title and optional metatype */}
-            <span className="font-semibold">{fullname || '[untitled]'}</span>
-            <div className="badge badge-xs text-xs">{id}</div>
-            {metatype && (
-                <span className="ml-2 text-base-content">
-                    {metatype}
-                </span>
-            )}
+            <span className={"font-semibold"} >{fullname || '[untitled]'}</span>
+            {metatype && <span className="badge badge-xs h-fit badge-outline text-nowrap">{metatype}</span>}
+            <div className="badge badge-xs h-fit badge-outline">{id}</div>
 
             {/* Status badges */}
             <div className="flex space-x-1">

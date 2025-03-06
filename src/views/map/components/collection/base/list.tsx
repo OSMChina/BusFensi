@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react"
+import { ComponentProps, ReactNode, useState } from "react"
 import { ItemCollection } from "../../../../../components/osm/outline/itemCollectionList"
 import { FeatureItem } from "./item"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -7,38 +7,44 @@ import { faChevronDown } from "@fortawesome/free-solid-svg-icons/faChevronDown"
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons/faChevronRight"
 import { Node, Relation, Way } from "../../../../../type/osm/meta"
 import { FilterFunc } from "../../../../../type/view/outline/type"
+import { faX } from "@fortawesome/free-solid-svg-icons/faX"
+import { faCircle } from "@fortawesome/free-solid-svg-icons/faCircle"
 
-export function FeatureList({ node, way, relation, filter }: {
+export function FeatureList({ node, way, relation, filter, ...props }: {
     node?: Node[]
     way?: Way[]
     relation?: Relation[]
-    filter?: FilterFunc
-}) {
+    filter?: FilterFunc,
+} & Omit<ComponentProps<typeof FeatureItem>, "meta" | "type">) {
     filter = filter || (() => true);
     return <ItemCollection>
-        {(node || []).filter(f => filter(f, "node")).map(n => <FeatureItem key={n["@_id"]} meta={n} type="node" />)}
-        {(way || []).filter(f => filter(f, "way")).map(w => <FeatureItem key={w["@_id"]} meta={w} type="way" />)}
-        {(relation || []).filter(f => filter(f, "relation")).map(r => <FeatureItem key={r["@_id"]} meta={r} type="relation" />)}
+        {(node || []).filter(f => filter(f, "node")).map(n => <FeatureItem {...props} key={n["@_id"]} meta={n} type="node" />)}
+        {(way || []).filter(f => filter(f, "way")).map(w => <FeatureItem {...props} key={w["@_id"]} meta={w} type="way" />)}
+        {(relation || []).filter(f => filter(f, "relation")).map(r => <FeatureItem {...props} key={r["@_id"]} meta={r} type="relation" />)}
     </ItemCollection>
 }
 
-export function FeatureCollection({ name, children }: {
+export function FeatureCollection({ name, defaultOpen, forceOpen, forceClose, children }: {
     children: () => ReactNode,
+    defaultOpen?: boolean,
+    forceOpen?: boolean,
+    forceClose?: boolean,
     name: string
 }) {
-    const [collapsed, setCollapsed] = useState(true);
+    const [collapsed, setCollapsed] = useState(!defaultOpen);
     const toggleCollapse: React.MouseEventHandler = (e) => {
-        e.stopPropagation(); // prevent selecting when collapsing
-        setCollapsed(!collapsed);
+        e.stopPropagation(); // nonsence here currently
+        if (!(forceClose || forceOpen)) setCollapsed(!collapsed);
     };
+    const show = forceOpen ? true : (forceClose ? false : !collapsed)
     return (
         <li className="outline-list-item">
             <span className={`flex flex-row`} onClick={toggleCollapse} >
-                <FontAwesomeIcon icon={collapsed ? faChevronRight : faChevronDown} />
+                <FontAwesomeIcon icon={(forceOpen ? faCircle : (forceClose ? faX : (!show ? faChevronRight : faChevronDown)))} />
                 <FontAwesomeIcon icon={faBars} className="ml-1" />
                 <span className="ml-0 mr-auto">{name}</span>
             </span>
-            {!collapsed && children()}
+            {show && children()}
         </li>
     );
 }
