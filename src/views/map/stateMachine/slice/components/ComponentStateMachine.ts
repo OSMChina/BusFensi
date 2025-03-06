@@ -100,11 +100,15 @@ export class ComponentStateMachine extends BaseStateMachine<AllStateMachineEvent
         const context = this.context;
         if ((event.type === 'mouseup' || event.type === 'mouseupoutside') && context.componentTarget) {
           // mouse down and up, means select
-          const { selectFeature } = context.store.meta.getState()
+          const { selectFeature, unSelectFeature } = context.store.meta.getState()
           const { id, type } = context.componentTarget;
           if (typeof id === "string") {
-            selectFeature(type, id, !event.shiftKey);
-            console.log('selected id', id, context.store.meta.getState().selectFeature)
+            if (event.ctrlKey) {
+              unSelectFeature(type, id);
+            } else {
+              selectFeature(type, id, !event.shiftKey);
+              console.log('selected id', id, context.store.meta.getState().selectFeature)
+            }
             context.componentTarget = undefined;
           } else {
             throw new Error(`id ${id} is invalid for component`)

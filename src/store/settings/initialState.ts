@@ -9,7 +9,8 @@ export interface SettingsState {
     pixiRender: {
         zIndex: {
             LINE: number,
-            POINT: number
+            POINT: number,
+            MASK: number
         }
     }
 };
@@ -25,7 +26,8 @@ export const initialState: SettingsState = {
     pixiRender: {
         zIndex: {
             LINE: 10,
-            POINT: 20
+            POINT: 20,
+            MASK: 30
         }
     }
 };

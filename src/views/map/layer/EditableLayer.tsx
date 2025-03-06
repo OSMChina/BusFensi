@@ -10,6 +10,7 @@ import { PointerWithOSMEvent } from "../../../type/stateMachine/commonEdit/compo
 import HeadlessMetaRender from "../components/HeadlessOSMMetaRender"
 import { Node, Way } from "../../../type/osm/meta"
 import { BaseStateMachine } from "../stateMachine/state"
+import SelectionRect from "../../../components/pixi/SelectRect"
 
 type PointWarpProps = Pick<React.ComponentProps<typeof Point>, "mapViewStatus" | "layerRef"> & {
     node: Node,
@@ -57,30 +58,33 @@ function EditableLayer({ width, height, stateMachine }: {
     height: number,
     stateMachine: BaseStateMachine
 }) {
-    const [viewpoint, zoom] = useMapViewStore(useShallow(state => ([state.viewpoint, state.zoom])))
+    const [viewpoint, zoom, selectionRect] = useMapViewStore(useShallow(state => ([state.viewpoint, state.zoom, state.selectionRect])))
     const { node, way } = useOSMMapStore(state => state.meta)
     const containerRef = useRef<PIXIContainer>(null)
 
-    return <HeadlessMetaRender
-        view={{ viewpoint, zoom, width, height }}
-        meta={{ node, way }}
-        ref={containerRef}
-        wayRenderer={w => <LineWarp
-            way={w}
-            node={node}
-            key={w["@_id"]}
-            stateMachine={stateMachine}
-            mapViewStatus={{ width, height, viewpoint, zoom }}
-            layerRef={containerRef}
-        />}
-        pointRenderer={n => <PointWrap
-            node={n}
-            key={n["@_id"]}
-            stateMachine={stateMachine}
-            mapViewStatus={{ width, height, viewpoint, zoom }}
-            layerRef={containerRef}
-        />}
-    />
+    return <>
+        <HeadlessMetaRender
+            view={{ viewpoint, zoom, width, height }}
+            meta={{ node, way }}
+            ref={containerRef}
+            wayRenderer={w => <LineWarp
+                way={w}
+                node={node}
+                key={w["@_id"]}
+                stateMachine={stateMachine}
+                mapViewStatus={{ width, height, viewpoint, zoom }}
+                layerRef={containerRef}
+            />}
+            pointRenderer={n => <PointWrap
+                node={n}
+                key={n["@_id"]}
+                stateMachine={stateMachine}
+                mapViewStatus={{ width, height, viewpoint, zoom }}
+                layerRef={containerRef}
+            />}
+        />
+        <SelectionRect selectionRect={selectionRect} />
+    </>
 }
 
 export default EditableLayer

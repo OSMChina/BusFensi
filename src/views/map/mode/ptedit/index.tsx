@@ -37,7 +37,7 @@ const MemoRightClickNewBusStop = memo(function RightClickNewBusStop(props: Right
             console.debug("created bus stop", tags)
             if (newBusLocation) createBusStop(newBusLocation, tags)
         }
-    }, [createBusStop, newBusLocation, confirmModal])
+    }, [props, confirmModal, newBusLocation, createBusStop])
     return <>
         <RightClickMenu {...props} >
             <a onClick={onClick}>New bus stop</a>
@@ -56,9 +56,9 @@ const MemoRightClickNewStopPosition = memo(function RightClickNewStopPosition(pr
         const tags = await confirmModal({ preset: stopPositionPresetCN, title: "Create Stop position (Preset CN)" })
         if (tags) {
             console.debug("created stop position", tags)
-            if (location) createStopPosition(location, tags, props.feature?.id!)
+            if (location && props.feature?.id) createStopPosition(location, tags, props.feature?.id)
         }
-    }, [location, createStopPosition, confirmModal])
+    }, [props, confirmModal, location, createStopPosition])
 
     return <>
         <RightClickMenu {...props} >
@@ -142,7 +142,7 @@ function PtEditView({ width, height }: ViewFCProps) {
         onContextMenu={(e) => e.preventDefault()}>
         <PtEditTabs width={TABS_WIDTH} height={height} >
             {tabs.map((tab, index) => <div className="tooltip tooltip-right mx-auto mt-1" data-tip={tab.tooltip}>
-                <button onClick={() => setActive(index)} className={cn("btn btn-ghost btn-square btn-sm",active === index && "btn-active")}>{tab.icon}</button>
+                <button onClick={() => setActive(index)} className={cn("btn btn-ghost btn-square btn-sm", index === active && "active")}>{tab.icon}</button>
             </div>)}
         </PtEditTabs>
         <div className="relative" style={{ height, width: width - TABS_WIDTH }}>

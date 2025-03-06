@@ -1,5 +1,5 @@
 import { Application } from "pixi.js";
-import { PointWGS84 } from "../../utils/geo/types";
+import { PointPixel, PointWGS84 } from "../../utils/geo/types";
 
 /**
  * Set San Francisco as default
@@ -15,7 +15,11 @@ export interface MapState {
     zoom: number,
     width?: number,
     height?: number,
-    stage?: Application
+    stage?: Application,
+    selectionRect?: {
+        from: PointPixel,
+        to: PointPixel
+    }
 }
 
 export const initialMapState: MapState = {

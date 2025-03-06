@@ -1,5 +1,4 @@
-export interface BusEditSlice {
-}
+export type BusEditSlice = object
 
 export const busEditInitialState: BusEditSlice = {
 }

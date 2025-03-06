@@ -1,22 +1,26 @@
 import { FederatedMouseEvent } from "pixi.js";
-import { FeatureRefObj } from "../../../../../type/osm/refobj";
 import { StoreType } from "../../../../../type/stateMachine/baseEvent";
 import { PointerWithOSMEvent } from "../../../../../type/stateMachine/commonEdit/componentEvent";
-import { PtEditContext, PtEditEvents, PtEditRightClickMenus } from "../../../../../type/stateMachine/ptEdit";
+import { FeatureClassifyFun, PtEditContext, PtEditEvents, PtEditRightClickMenus } from "../../../../../type/stateMachine/ptEdit";
 import { isBusStop, isStopPosition } from "../../../../../utils/osm/nodeType";
 import { ComponentStateContext, doComponentDragging, getLocalPosistion } from "../../slice/components/helper";
 import { BaseStateMachine, StateItem } from "../../state"
 import { MOUSE } from "../../../../../utils/mouse/moueBtn";
 type ComponentStateItem = StateItem<PtEditEvents>;
-type FeatureClassifyFun = (target: FeatureRefObj, context: ComponentStateContext) => boolean
-
+interface ComponentStateMachineOptions {
+    menus: PtEditRightClickMenus,
+    hoverable: FeatureClassifyFun,
+    clickable: FeatureClassifyFun,
+    dragable: FeatureClassifyFun,
+    selectable: FeatureClassifyFun
+}
 // TODO:: right click modal support. expose some hooks to enable: onHover, onClick, onDrag?
 export class BusTabComponentStateMachine extends BaseStateMachine<PtEditEvents, ComponentStateContext & PtEditContext> {
     idle: ComponentStateItem
     componentHover: ComponentStateItem
     componentMousedown: ComponentStateItem
     pointDrag: ComponentStateItem
-    constructor(store: StoreType, menus: PtEditRightClickMenus) {
+    constructor(store: StoreType, {menus, }: ComponentStateMachineOptions) {
         super(store)
         this.context.rightClickMenus = menus
         // 新建子状态

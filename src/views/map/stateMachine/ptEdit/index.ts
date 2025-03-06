@@ -1,5 +1,9 @@
+import { getFeatureInBound } from "../../../../store/osmmeta/selector";
 import { BaseContext, StoreType } from "../../../../type/stateMachine/baseEvent";
-import { PtEditEvents, PtEditRightClickMenus } from "../../../../type/stateMachine/ptEdit";
+import { FeatureClassifyFun, PtEditEvents, PtEditRightClickMenus } from "../../../../type/stateMachine/ptEdit";
+import { getBoundsByRect } from "../../../../utils/geo/mapProjection";
+import { isBusStop, isStopPosition } from "../../../../utils/osm/nodeType";
+import { BatchSelectStateMachine } from "../slice/components/BatchSelectStateMachine";
 import { getLocalPosistion } from "../slice/components/helper";
 import { MapViewStateMachine } from "../slice/map/MapViewStateMachine";
 import { UndoRedoStateMachine } from "../slice/util/UndoRedoStateMachine";
@@ -12,11 +16,35 @@ export class PtEditStateMachine extends BaseStateMachine<PtEditEvents, BaseConte
     mapViewSubMachine: BaseMachine
     busStopEditSubMachine: BaseMachine
     undoRedo: BaseMachine
+    batchSelect: BaseMachine
     private menus: PtEditRightClickMenus
     constructor(store: StoreType, menus: PtEditRightClickMenus) {
         super(store)
 
         this.menus = menus
+
+        const hoverable: FeatureClassifyFun = (target, context) => {
+            const tags = context.store.meta.getState().meta[target.type][target.id].tag || []
+            return (target.type === "way"
+                || (target.type === "node" && (isBusStop(tags)
+                    || isStopPosition(tags))))
+        }
+
+        const clickable: FeatureClassifyFun = (target, context) => {
+            const tags = context.store.meta.getState().meta[target.type][target.id].tag || []
+            return (target.type === "way"
+                || (target.type === "node" && (isBusStop(tags)
+                    || isStopPosition(tags))))
+        }
+
+        const dragable: FeatureClassifyFun = (target, context) => {
+            const tags = context.store.meta.getState().meta[target.type][target.id].tag || []
+            return target.type === "node" && (isBusStop(tags)
+                || isStopPosition(tags))
+        }
+
+        const selectable = dragable;
+
 
         this.idle = new StateItem('pt-edit-idle')
         this.mapViewSubMachine = new MapViewStateMachine(store, {
@@ -25,8 +53,26 @@ export class PtEditStateMachine extends BaseStateMachine<PtEditEvents, BaseConte
                 menus.stopPosition({ x: 0, y: 0, open: false })
             }
         })
-        this.busStopEditSubMachine = new BusTabComponentStateMachine(store, menus)
+        this.busStopEditSubMachine = new BusTabComponentStateMachine(store, {
+            menus,
+            hoverable,
+            clickable,
+            dragable,
+            selectable
+        })
         this.undoRedo = new UndoRedoStateMachine(store)
+        this.batchSelect = new BatchSelectStateMachine(store, {
+            onSelectRect: (rect) => {
+                const { viewpoint, zoom, width, height } = this.context.store.view.getState()
+                const bounds = getBoundsByRect(viewpoint, zoom, width!, height!, rect);
+                const osmmeta = this.context.store.meta.getState()
+                const featuregroup = getFeatureInBound(bounds)(osmmeta)
+                console.debug("get feature group ", featuregroup)
+                Object.entries(featuregroup.node)
+                    .filter(([, n]) => selectable({ id: n["@_id"], type: "node" }, this.context))
+                    .forEach(([, n]) => osmmeta.selectFeature("node", n["@_id"], false))
+            }
+        })
 
         this.entry = this.idle
         this.current = this.idle
@@ -35,10 +81,12 @@ export class PtEditStateMachine extends BaseStateMachine<PtEditEvents, BaseConte
         this.idle.appendNext(this.mapViewSubMachine, { isEpsilon: true })
         this.idle.appendNext(this.busStopEditSubMachine, { isEpsilon: true })
         this.idle.appendNext(this.undoRedo, { isEpsilon: true })
+        this.idle.appendNext(this.batchSelect, { isEpsilon: true })
 
         this.mapViewSubMachine.appendNext(this.idle, { isEpsilon: true })
         this.busStopEditSubMachine.appendNext(this.idle, { isEpsilon: true })
         this.undoRedo.appendNext(this.idle, { isEpsilon: true })
+        this.batchSelect.appendNext(this.idle, { isEpsilon: true })
     }
 
     transform(event: PtEditEvents): void {
