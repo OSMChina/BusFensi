@@ -1,4 +1,4 @@
-import { CSSProperties, FC, ReactElement } from "react";
+import { CSSProperties, FC, ReactElement, useEffect, useRef } from "react";
 import { useResizable, UseResizableProps } from "react-resizable-layout";
 import Splitter from "./Splitter";
 import { ViewFCProps } from "../../type/view/props";
@@ -17,10 +17,12 @@ const SplitterView: FC<ViewProps> = ({ width, height, children, ...props }) => {
     const initialPosition = props.initial || (axis === "x" ? width / 2 : height / 2);
 
     // 调用 useResizable 获取当前分割位置和分隔条属性
-    const { position, separatorProps } = useResizable({
+    const { position, separatorProps, setPosition } = useResizable({
         ...props,
         initial: initialPosition,
     });
+
+    const preValRef = useRef(axis === "x" ? width : height)
 
     // 根据轴向计算两部分的尺寸
     let firstStyle: CSSProperties = {};
@@ -32,6 +34,16 @@ const SplitterView: FC<ViewProps> = ({ width, height, children, ...props }) => {
         firstStyle = { width, height: position };
         secondStyle = { width, height: height - position };
     }
+
+    useEffect(() => {
+        if (axis === "x" && width !== preValRef.current) {
+            setPosition(position * (width / preValRef.current))
+            preValRef.current = width;
+        } else if (axis === "y" && height !== preValRef.current) {
+            setPosition(position * (height / preValRef.current))
+            preValRef.current = height;
+        }
+    }, [width, height, preValRef, axis, setPosition, position])
 
     return (
         <div

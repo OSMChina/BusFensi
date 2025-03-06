@@ -143,7 +143,7 @@ function PtEditView({ width, height }: ViewFCProps) {
         style={{ height, width, maxHeight: height, maxWidth: width }}>
         <PtEditTabs width={TABS_WIDTH} height={height} >
             {tabs.map((tab, index) => <div className="tooltip tooltip-right mx-auto mt-1" data-tip={tab.tooltip}>
-                <button onClick={() => setActive(index)} className={cn("btn btn-ghost btn-square btn-sm", index === active && "active")}>{tab.icon}</button>
+                <button onClick={() => setActive(index)} className={cn("btn btn-ghost btn-square btn-sm", index === active && "btn-active")}>{tab.icon}</button>
             </div>)}
         </PtEditTabs>
         <div className="relative" style={{ height, width: width - TABS_WIDTH }}>
