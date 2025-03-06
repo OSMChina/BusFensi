@@ -1,5 +1,5 @@
 import { StateCreator } from "zustand";
-import { NumericString } from "../../../../type/osm/refobj";
+import { FeatureTypes, NumericString } from "../../../../type/osm/refobj";
 import { OSMMapStore } from "../../store";
 import { addFeatureMetaHelper, commitHelper } from "../../helper";
 import { MapViewStatus } from "../../../../utils/geo/types";
@@ -7,9 +7,11 @@ import { loadBBox } from "../../helper";
 import { deepCopy } from "../../../../utils/helper/object";
 import { genCollection } from "../../middleware/computed";
 import { Node, Relation, Way } from "../../../../type/osm/meta";
+import { fetchNode, fetchNodes, fetchRelation, fetchWay } from "../../../../api/osm/apiv0.6";
 
 export interface RemoteApiAction {
     loadbbox: (mapview: MapViewStatus, baseurl: string) => Promise<void>
+    loadFeature: (type: FeatureTypes, id: NumericString, baseurl: string) => Promise<void>
     setAutoloadNC: (enable: boolean | (() => boolean)) => void
 }
 
@@ -95,6 +97,21 @@ export const createRemoteApiActionSlice: StateCreator<
             })
         } catch (err) {
             console.log(err);
+        }
+    },
+    loadFeature: async (type, id, baseurl) => {
+        const { meta, addFeatureMetaBatch } = get();
+        if (type === "node") {
+            const node = await fetchNode(baseurl, id)
+            if (!meta.node[id]) addFeatureMetaBatch("node", node);
+        } else if (type === "way") {
+            const way = await fetchWay(baseurl, id)
+            const nodes = await fetchNodes(baseurl, way.nd.map(nd => nd["@_ref"]))
+            addFeatureMetaBatch("node", nodes.filter(n => !meta.node[n["@_id"]]));
+            if (!meta.way[id]) addFeatureMetaBatch("way", way);
+        } else if (type === "relation") {
+            const rl = await fetchRelation(baseurl, id)
+            if (!meta.relation[id]) addFeatureMetaBatch("relation", rl);
         }
     },
     setAutoloadNC: (enable) => set(state => { state.autoload = (typeof enable === "function" ? enable() : enable) }),

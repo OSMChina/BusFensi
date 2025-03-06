@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ItemBase from "../../../../../components/osm/outline/itemBase";
 import { useOSMMapStore } from "../../../../../store/osmmeta";
 import { FeatureTypes } from "../../../../../type/osm/refobj";
-import { getName, isBusStop, isStopPosition } from "../../../../../utils/osm/nodeType";
+import { getName, getNodeType } from "../../../../../utils/osm/nodeType";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons/faLocationDot";
 import { useMapViewStore } from "../../../../../store/mapview";
 import { faCheckCircle } from "@fortawesome/free-regular-svg-icons/faCheckCircle";
@@ -15,7 +15,7 @@ import { FeatureTypeMap } from "../../../../../store/osmmeta/slice/meta/type";
 import { faXmarkCircle } from "@fortawesome/free-regular-svg-icons/faXmarkCircle";
 import { createConfirmation } from "react-confirm";
 import { ReactNode, useMemo } from "react";
-import { isStopArea } from "../../../../../utils/osm/relationType";
+import { getRelationType } from "../../../../../utils/osm/relationType";
 
 export function FeatureItem<T extends FeatureTypes>({ type, meta, showMetaType, children }: {
     type: T, meta: FeatureTypeMap[T], showMetaType?: true,
@@ -29,15 +29,9 @@ export function FeatureItem<T extends FeatureTypes>({ type, meta, showMetaType, 
     const metatype = useMemo(() => {
         if (showMetaType && meta.tag?.length) {
             if (type === "node") {
-                if (isBusStop(meta.tag)) {
-                    return "Bus Stop"
-                } else if (isStopPosition(meta.tag)) {
-                    return "Stop Position"
-                }
+                return getNodeType(meta.tag)
             } else if (type === "relation") {
-                if (isStopArea(meta.tag)) {
-                    return "Stop Area"
-                }
+                return getRelationType(meta.tag)
             }
         }
         return undefined;

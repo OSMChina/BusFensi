@@ -38,3 +38,14 @@ export function getName(tags?: Tag[]): string | undefined {
     tags = tags || []
     return tags.find(t => t["@_k"] === "name")?.["@_v"]
 }
+
+export function getNodeType(tags?: Tag[]): string | undefined {
+    if (!tags) {
+        return undefined
+    }
+    if (isBusStop(tags)) {
+        return "Bus Stop"
+    } else if (isStopPosition(tags)) {
+        return "Stop Position"
+    }
+}
