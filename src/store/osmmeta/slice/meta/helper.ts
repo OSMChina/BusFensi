@@ -6,6 +6,7 @@ import { PointWGS84 } from "../../../../utils/geo/types";
 import { Member, Nd, Node, Relation, Way } from "../../../../type/osm/meta";
 import { FeatureTree } from "../../middleware/computed";
 import { createFeatureStateHelper } from "../../helper";
+import { T2Arr } from "../../../../utils/helper/object";
 
 let newIdCounterNode = -1;
 
@@ -51,10 +52,18 @@ export function addFeatureMetaHelper<T extends FeatureTypes>(
 ) {
     const key = feature["@_id"]
     if (state.meta[type][key]) {
-        throw new Error(`Can't add feature ${type} ${key}: already exsits!`);
+        console.debug(`Can't add feature ${type} ${key}: already exsits! Ignoring this attempt`);
     }
     state.meta[type][key] = feature;
     createFeatureStateHelper(state, type, key)
+}
+
+export function addFeatureMetaBatchHelper<T extends FeatureTypes>(
+    state: WritableDraft<OSMMapStore>,
+    type: T,
+    meta: FeatureTypeMap[T] | FeatureTypeMap[T][],
+) {
+    return T2Arr(meta).forEach(m => addFeatureMetaHelper(state, type, m))
 }
 
 export function createLocalNodeHelper(
