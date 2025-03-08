@@ -2,7 +2,7 @@ import { StateCreator } from "zustand";
 import { FeatureState, FeatureTypes, NumericString } from "../../../../type/osm/refobj";
 import { OSMMapStore } from "../../store";
 import { WritableDraft } from "immer";
-import { clearSelectHelper, modifyFeatureStateHelper, selectFeatureHelper } from "./helper";
+import { clearSelectHelper, modifyFeatureStateHelper, selectFeatureHelper, selectFeatureWithoutActiveHelper, unSelectFeatureHelper } from "./helper";
 import { commitHelper } from "../../helper";
 
 export interface FeatureStateAction {
@@ -11,7 +11,16 @@ export interface FeatureStateAction {
         id: NumericString,
         modify: (feature: WritableDraft<Omit<FeatureState, 'selected' | 'active'>>) => void
     ) => void,
+    unSelectFeature: (
+        type: FeatureTypes,
+        id: NumericString,
+    ) => void
     selectFeature: (
+        type: FeatureTypes,
+        id: NumericString,
+        clear: boolean // clear select or not
+    ) => void,
+    selectFeatureWithoutActive: (
         type: FeatureTypes,
         id: NumericString,
         clear: boolean // clear select or not
@@ -37,6 +46,15 @@ export const createFeatureStateActionSlice: StateCreator<
         commitHelper(state);
         if (clear) { clearSelectHelper(state) }
         selectFeatureHelper(state, type, id)
+    }),
+    selectFeatureWithoutActive: (type, id, clear) => set(state => {
+        commitHelper(state);
+        if (clear) { clearSelectHelper(state) }
+        selectFeatureWithoutActiveHelper(state, type, id)
+    }),
+    unSelectFeature: (type, id) => set(state => {
+        commitHelper(state)
+        unSelectFeatureHelper(state, type, id)
     }),
     clearSelect: () => set(state => {
         commitHelper(state);

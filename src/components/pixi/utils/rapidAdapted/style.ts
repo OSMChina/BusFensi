@@ -1,5 +1,6 @@
 // 导入必要的类型
-import { Tag } from "../../../api/osm/type";
+
+import { Tag } from "../../../../type/osm/meta";
 
 // 定义类型
 interface StyleGroup {

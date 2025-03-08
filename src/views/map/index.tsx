@@ -1,40 +1,41 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import CommonEditApp from "./mode/common";
-
+import { HeaderBar } from "./components/header/HeaderBar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMap } from "@fortawesome/free-solid-svg-icons/faMap";
+import { cn } from "../../utils/helper/object";
+import PtEditView from "./mode/ptedit";
+import { faBus } from "@fortawesome/free-solid-svg-icons/faBus";
 export function MapView({ width, height }: { width: number; height: number }) {
-  const tabs = [
+  const HEADERBAR_HEIGHT = 42;
+  const tabs = useMemo(() => [
     {
-      title: "普通编辑",
-      component: <CommonEditApp width={width} height={height} />,
+      title: <FontAwesomeIcon icon={faBus} />,
+      tooltip: "Public transport edit mode",
+      component: () => <PtEditView width={width} height={height - HEADERBAR_HEIGHT} />,
     },
     {
-      title: "其他编辑",
-      component: <div className="p-4">其他编辑内容</div>,
+      title: <FontAwesomeIcon icon={faMap} />,
+      tooltip: "Map edit mode",
+      component: () => <CommonEditApp width={width} height={height - HEADERBAR_HEIGHT} />,
     },
-  ];
+  ], [width, height]);
 
   const [active, setActive] = useState(0);
 
   return (
     <div style={{ width, height, position: "relative" }}>
-      {/* 主组件内容 */}
-      {tabs[active].component}
-
-      {/* 悬浮在左上角的导航区域 */}
-      <div
-        className="absolute top-0 left-0 flex flex-col items-start p-2 bg-gray-100 bg-opacity-70"
-      >
+      <HeaderBar height={HEADERBAR_HEIGHT} leftSlot={<>
         {tabs.map((tab, index) => (
-          <button
-            key={index}
-            onClick={() => setActive(index)}
-            className={`btn btn-ghost btn-sm w-full mb-1 ${
-              active === index ? "btn-active font-bold" : ""
-            }`}
-          >
-            {tab.title}
-          </button>
+          <div className="tooltip tooltip-right ml-1" data-tip={tab.tooltip} key={index}>
+            <button onClick={() => setActive(index)} className={cn("btn btn-ghost btn-square btn-sm", active === index && "btn-active")}>{tab.title}</button>
+          </div>
         ))}
+      </>}
+      />
+      {/* 主组件内容 */}
+      <div className="relative">
+        {tabs[active].component()}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { Layout } from "./layout";
-export function UI() {
+import Layout from "./layout";
+export default function UI() {
     return <Layout />
 }

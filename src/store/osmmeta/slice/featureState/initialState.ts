@@ -6,5 +6,6 @@ export interface FeatureStateSlice {
 }
 
 export const featureInitialState: FeatureStateSlice = {
-    selectedRef: []
+    selectedRef: [],
+    activeRef: undefined
 }

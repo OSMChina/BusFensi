@@ -5,6 +5,7 @@ import { BaseStateMachine, StateItem } from "../../state";
 import { getWGS84LocateByPixel } from "../../../../../utils/geo/mapProjection";
 import { PointerWithOSMEvent } from "../../../../../type/stateMachine/commonEdit/componentEvent";
 import { getNearestPointOnPolyline } from "../../../../../utils/osm/featureLineProjection";
+import { UndoRedoStateMachine } from "../../slice/util/UndoRedoStateMachine";
 
 type UtilStateContext = BaseContext
 
@@ -12,6 +13,7 @@ type UtilStateStateItem = StateItem<CommonStateEvent>;
 
 export class UtilStateMachine extends BaseStateMachine<CommonStateEvent, UtilStateContext> {
     idle: UtilStateStateItem
+    undoRedo: BaseStateMachine
     addNode: UtilStateStateItem
     addNodeOnWay: UtilStateStateItem
     splitWay: UtilStateStateItem
@@ -21,10 +23,14 @@ export class UtilStateMachine extends BaseStateMachine<CommonStateEvent, UtilSta
         this.addNode = new StateItem("add-node")
         this.addNodeOnWay = new StateItem("add-node-on-way")
         this.splitWay = new StateItem("split-way")
+        this.undoRedo = new UndoRedoStateMachine(store)
 
         this.entry = this.idle;
         this.current = this.idle;
         this.accept = [this.idle];
+
+        this.idle.appendNext(this.undoRedo, {isEpsilon: true})
+        this.undoRedo.appendNext(this.idle, {isEpsilon: true})
 
         this.idle.appendNext(this.idle, {
             transform: (event) => {
@@ -91,7 +97,7 @@ export class UtilStateMachine extends BaseStateMachine<CommonStateEvent, UtilSta
 
         this.addNode.appendNext(this.idle, {
             transform: (event) => {
-                if (event.type === 'pointerdown') {
+                if (event.type === 'mousedown') {
                     const ev = event as FederatedPointerEvent
                     if (ev.button === 0) {
                         const { viewpoint, zoom, width: _w, height: _h } = this.context.store.view.getState()
@@ -115,7 +121,7 @@ export class UtilStateMachine extends BaseStateMachine<CommonStateEvent, UtilSta
 
         this.addNodeOnWay.appendNext(this.idle, {
             transform: (event) => {
-                if (event.type === 'pointerdown') {
+                if (event.type === 'mousedown') {
                     const ev = event as PointerWithOSMEvent
                     if (ev.button === 0 && ev.componentTarget && ev.componentTarget.type === "way") {
                         const { viewpoint, zoom, width: _w, height: _h } = this.context.store.view.getState();
@@ -151,7 +157,7 @@ export class UtilStateMachine extends BaseStateMachine<CommonStateEvent, UtilSta
         })
         this.splitWay.appendNext(this.idle, {
             transform: (event) => {
-                if (event.type === 'pointerdown') {
+                if (event.type === 'mousedown') {
                     const ev = event as PointerWithOSMEvent
                     if (ev.button === 0 && ev.componentTarget && "node" === ev.componentTarget.type) {
                         const { meta, splitWay } = this.context.store.meta.getState()

@@ -1,7 +1,7 @@
 import { FeatureRefObj } from "../../osm/refobj";
 import { BaseEvent } from "../baseEvent";
-import { FederatedPointerEvent } from 'pixi.js';
+import { FederatedMouseEvent, FederatedPointerEvent } from 'pixi.js';
 
-export interface PointerWithOSMEvent extends BaseEvent, FederatedPointerEvent {
+export interface PointerWithOSMEvent extends BaseEvent, FederatedPointerEvent, FederatedMouseEvent {
     componentTarget: FeatureRefObj;
 }

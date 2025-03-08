@@ -75,7 +75,7 @@ export function clearSelectHelper(
     if (state.activeRef) {
         const { type: t, id: i } = state.activeRef;
         if (state.meta[t][i]['@_localStates']) state.meta[t][i]['@_localStates'].active = false;
-        delete state.activeRef;
+        state.activeRef = undefined;
     }
     // clear select
     state.selectedRef.forEach(({ id, type }) =>
@@ -91,4 +91,32 @@ export function selectFeatureHelper(
 ) {
     _selectFeature(state, type, id)
     _activeFeature(state, type, id);
+}
+
+export function selectFeatureWithoutActiveHelper(
+    state: WritableDraft<OSMMapStore>,
+    type: FeatureTypes,
+    id: NumericString,
+) {
+    _selectFeature(state, type, id)
+}
+
+export function unSelectFeatureHelper(
+    state: WritableDraft<OSMMapStore>,
+    type: FeatureTypes,
+    id: NumericString,
+) {
+    const feature = state.meta[type][id]["@_localStates"]
+    if (feature?.active) {
+        feature.active = false;
+        state.activeRef = undefined;
+    }
+    if (feature?.selected) {
+        feature.selected = false;
+        state.selectedRef = state.selectedRef.filter(f => !(f.id === id && f.type === type))
+    }
+    if (!state.activeRef && state.selectedRef.length > 0) {
+        const { type, id } = state.selectedRef[0];
+        _activeFeature(state, type, id)
+    }
 }

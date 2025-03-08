@@ -7,11 +7,12 @@ import proj4 from "proj4";
 
 import { DEFAULT_TILE_SIZE, WEB_MERCATOR_BOUNDS } from './constants';
 import { PointPixel, PointWebMercator, PointWGS84 } from "./types";
+import { BoundsType } from "../../type/mapProjection";
 
 /**
  * EPSG:3857 -> EPSG:4326
  */
-function convertWebMercatorToWGS84(point: PointWebMercator) : PointWGS84 {
+function convertWebMercatorToWGS84(point: PointWebMercator): PointWGS84 {
     const [lon, lat] = proj4('EPSG:3857', 'EPSG:4326', [point.x, point.y]);
     return {
         lon: lon,
@@ -22,7 +23,7 @@ function convertWebMercatorToWGS84(point: PointWebMercator) : PointWGS84 {
 /**
  * EPSG:4326 -> EPSG:3857
  */
-function convertWGS84ToWebMercator(point: PointWGS84) : PointWebMercator {
+function convertWGS84ToWebMercator(point: PointWGS84): PointWebMercator {
     const [x, y] = proj4('EPSG:4326', 'EPSG:3857', [point.lon, point.lat])
     return {
         x: x,
@@ -30,7 +31,7 @@ function convertWGS84ToWebMercator(point: PointWGS84) : PointWebMercator {
     }
 }
 
-function convertWebMercatorToAbsolutePixel(point: PointWebMercator, zoom: number) : PointPixel {
+function convertWebMercatorToAbsolutePixel(point: PointWebMercator, zoom: number): PointPixel {
     const totPix = Math.pow(2, zoom) * DEFAULT_TILE_SIZE;
     // totMeter / totPix = meterPerPix m/p
     const meterPerPix = WEB_MERCATOR_BOUNDS.EQUATOR / totPix;
@@ -41,13 +42,13 @@ function convertWebMercatorToAbsolutePixel(point: PointWebMercator, zoom: number
     return { x: x, y: y };
 }
 
-function convertWGS84ToAbsolutePixel(point:PointWGS84, zoom:number): PointPixel {
+function convertWGS84ToAbsolutePixel(point: PointWGS84, zoom: number): PointPixel {
     //console.log('conver wgs84 to abs pix', point, convertWebMercatorToAbsolutePixel(convertWGS84ToWebMercator(point), zoom), convertWGS84ToWebMercator(point))
     return convertWebMercatorToAbsolutePixel(convertWGS84ToWebMercator(point), zoom);
 }
 
 
-function adjustAbsolutePixelToLocal(pixpoint: PointPixel, reference: PointWGS84, zoom:number, width?:number, height?:number) : PointPixel{
+function adjustAbsolutePixelToLocal(pixpoint: PointPixel, reference: PointWGS84, zoom: number, width?: number, height?: number): PointPixel {
     const pixViewpoint = convertWebMercatorToAbsolutePixel(convertWGS84ToWebMercator(reference), zoom);
     // viewpoint is in mid of container.
     const xoffset = width ? width / 2 : 0, yoffset = height ? height / 2 : 0;
@@ -121,7 +122,7 @@ function getBoundsByScene(
     zoom: number,
     width: number,
     height: number
-): { left: number; bottom: number; right: number; top: number } {
+): BoundsType {
     const { lon: lon1, lat: lat1 } = getWGS84LocateByPixel({ x: 0, y: 0 }, viewpoint, zoom, width, height);
     const { lon: lon2, lat: lat2 } = getWGS84LocateByPixel({ x: width, y: height }, viewpoint, zoom, width, height);
 
@@ -133,6 +134,31 @@ function getBoundsByScene(
     };
 }
 
+function getBoundsByRect(
+    viewpoint: PointWGS84,
+    zoom: number,
+    width: number,
+    height: number,
+    { from, to }: {
+        from: PointPixel,
+        to: PointPixel
+    }
+): BoundsType {
+    const p1: PointPixel = { x: Math.min(from.x, to.x), y: Math.min(from.y, to.y) }
+    const p2: PointPixel = { x: Math.max(from.x, to.x), y: Math.max(from.y, to.y) }
+    console.debug("getBoundsByRect, p1 p2", p1, p2, "vp zoom w h", viewpoint, zoom, width, height, {from, to})
+    const { lon: lon1, lat: lat1 } = getWGS84LocateByPixel(p1, viewpoint, zoom, width, height);
+    const { lon: lon2, lat: lat2 } = getWGS84LocateByPixel(p2, viewpoint, zoom, width, height);
+
+    return {
+        left: lon1,
+        bottom: lat2,
+        right: lon2,
+        top: lat1
+    };
+}
+
+
 export {
     convertWebMercatorToWGS84,
     convertWGS84ToWebMercator,
@@ -141,5 +167,6 @@ export {
     adjustAbsolutePixelToLocal,
     getPixelByWGS84Locate,
     getWGS84LocateByPixel,
-    getBoundsByScene
+    getBoundsByScene,
+    getBoundsByRect
 }

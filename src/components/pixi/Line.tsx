@@ -12,8 +12,8 @@ import { arrorowRightLongTexture } from "./textures/index.ts";
 import { wayIsOneWay, wayIsSided } from "../../utils/osm/wayTypes.ts";
 import { styleMatch } from "./utils/rapidAdapted/style.ts";
 import { Node, Way } from '../../type/osm/meta';
-import { FeatureState } from '../../logic/model/type';
 import { MapViewStatus } from '../../utils/geo/types';
+import { FeatureState } from '../../type/osm/refobj';
 
 type LineProps = React.ComponentProps<typeof Container> & {
     line: Way,
@@ -192,6 +192,13 @@ function Line({
             updateHalo();
         }
     }, [highlighted, hovered, selected, visible, createHitArea, bufdata, layerRef]);
+    
+    useEffect(() => () => {
+        if (haloRef.current) {
+            haloRef.current.destroy({ children: true });
+            haloRef.current = null;
+        }
+    }, [])
 
     const oneway = wayIsOneWay(T2Arr(line.tag));
     const sided = wayIsSided(T2Arr(line.tag));

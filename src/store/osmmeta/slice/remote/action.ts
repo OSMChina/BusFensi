@@ -1,5 +1,5 @@
 import { StateCreator } from "zustand";
-import { NumericString } from "../../../../type/osm/refobj";
+import { FeatureTypes, NumericString } from "../../../../type/osm/refobj";
 import { OSMMapStore } from "../../store";
 import { addFeatureMetaHelper, commitHelper } from "../../helper";
 import { MapViewStatus } from "../../../../utils/geo/types";
@@ -7,9 +7,13 @@ import { loadBBox } from "../../helper";
 import { deepCopy } from "../../../../utils/helper/object";
 import { genCollection } from "../../middleware/computed";
 import { Node, Relation, Way } from "../../../../type/osm/meta";
+import { fetchNode, fetchNodes, fetchRelation, fetchRelations, fetchWay, fetchWays } from "../../../../api/osm/apiv0.6";
 
 export interface RemoteApiAction {
     loadbbox: (mapview: MapViewStatus, baseurl: string) => Promise<void>
+    loadFeature: (type: FeatureTypes, id: NumericString, baseurl: string) => Promise<void>
+    loadFeatureBatch: (features: { type: FeatureTypes, id: NumericString }[], baseurl: string) => Promise<void>
+    setAutoloadNC: (enable: boolean | (() => boolean)) => void
 }
 
 export const createRemoteApiActionSlice: StateCreator<
@@ -95,5 +99,41 @@ export const createRemoteApiActionSlice: StateCreator<
         } catch (err) {
             console.log(err);
         }
-    }
+    },
+    loadFeature: async (type, id, baseurl) => {
+        const { meta, addFeatureMetaBatch } = get();
+        if (type === "node") {
+            if (!meta.node[id]) addFeatureMetaBatch("node", await fetchNode(baseurl, id));
+        } else if (type === "way") {
+            const way = await fetchWay(baseurl, id)
+            const nodes = await fetchNodes(baseurl, way.nd.map(nd => nd["@_ref"]))
+            addFeatureMetaBatch("node", nodes.filter(n => !meta.node[n["@_id"]]));
+            if (!meta.way[id]) addFeatureMetaBatch("way", way);
+        } else if (type === "relation") {
+            if (!meta.relation[id]) addFeatureMetaBatch("relation", await fetchRelation(baseurl, id));
+        }
+    },
+    loadFeatureBatch: async (features, baseurl) => {
+        const { meta, addFeatureMetaBatch } = get();
+        const node = features.filter(f => f.type === "node" && !meta.node[f.id]).map(f => f.id)
+        const way = features.filter(f => f.type === "way" && !meta.way[f.id]).map(f => f.id)
+        const relation = features.filter(f => f.type === "relation" && !meta.relation[f.id]).map(f => f.id)
+        if (way.length > 0) {
+            const wmeta = await fetchWays(baseurl, way)
+            const wnds = wmeta.map(w => w.nd.map(nd => nd["@_ref"]).filter(n => !meta.node[n])).flat()
+            const wndmeta = await fetchNodes(baseurl, wnds)
+            addFeatureMetaBatch("node", wndmeta)
+            addFeatureMetaBatch("way", wmeta)
+        }
+        if (node.length > 0) {
+            const nmeta = await fetchNodes(baseurl, node)
+            addFeatureMetaBatch("node", nmeta)
+        }
+        if (relation.length > 0 ) {
+            const rmeta = await fetchRelations(baseurl, relation)
+            addFeatureMetaBatch("relation", rmeta)
+        }
+    },
+
+    setAutoloadNC: (enable) => set(state => { state.autoload = (typeof enable === "function" ? enable() : enable) }),
 })

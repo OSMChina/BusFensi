@@ -12,10 +12,10 @@ import { T2Arr } from "../../../utils/helper/object";
 function RelationItem({ id, filter }: { id: NumericString, filter: FilterFunc }) {
     const relations = useOSMMapStore(useShallow((state) => state.meta.relation[id]));
     const setSelectedComponent = useOSMMapStore((state) => state.selectFeature);
-    const featureState = useOSMMapStore(useShallow((state) => state.meta.relation[id]["@_localStates"]));
+    const featureState = useOSMMapStore(useShallow((state) => state.meta.relation[id]?.["@_localStates"]));
     const [collapsed, setCollapsed] = useState(true)
 
-    if (!filter(relations, "relation")) {
+    if (!filter(relations, "relation") || !relations || !featureState) {
         return null
     }
 

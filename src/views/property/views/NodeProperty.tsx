@@ -6,6 +6,7 @@ import { T2Arr } from "../../../utils/helper/object";
 import FeatureState from "../components/FeatureStates";
 import { useOSMMapStore } from "../../../store/osmmeta";
 import { NumericString } from "../../../type/osm/refobj";
+import { getName } from "../../../utils/osm/nodeType";
 
 function NodeProperty({ id }: { id: NumericString }) {
     const meta = useOSMMapStore(useShallow((state) => state.meta.node[id]));
@@ -16,7 +17,7 @@ function NodeProperty({ id }: { id: NumericString }) {
     }
     return (
         <div className="p-2 overflow-scroll">
-            <h3 className="text-base font-semibold mb-2">Node {meta["@_id"]}</h3>
+            <h3 className="text-base font-semibold mb-2">[Node] {getName(meta.tag) || meta["@_id"]}</h3>
             <FeatureState id={id} type="node" />
             <Attributes meta={meta} />
             <Tags tags={T2Arr(meta.tag)} setTags={(tags) => { modifyNodeNoCommit("node", id, f => f.tag = tags) }} commitChange={commitAction} />

@@ -1,7 +1,8 @@
-import { BaseContext, BaseEvent, StoreType } from "../../../type/stateMachine/baseEvent";
+import { AllStateMachineEvents } from "../../../type/stateMachine/allEvents";
+import { BaseContext, StoreType } from "../../../type/stateMachine/baseEvent";
 import { Debouncer } from "../../../utils/helper/object";
 
-export type StateTransformFun<EventType = BaseEvent> = (event: EventType) => boolean;
+export type StateTransformFun<EventType = AllStateMachineEvents> = (event: EventType) => boolean;
 
 interface EpsilonTransition<T> {
     isEpsilon: true;
@@ -24,7 +25,7 @@ interface NonEpsilonOptions<T> {
 }
 type AppendOptions<T> = EpsilonOptions | NonEpsilonOptions<T>;
 
-export class StateItem<T = BaseEvent> {
+export class StateItem<T = AllStateMachineEvents> {
     name: string;
     next: Transition<T>[] = [];
 
@@ -45,7 +46,7 @@ export class StateItem<T = BaseEvent> {
     }
 }
 
-export class BaseStateMachine<T = BaseEvent, U extends BaseContext = BaseContext> {
+export class BaseStateMachine<T = AllStateMachineEvents, U extends BaseContext = BaseContext> {
     name: string;
     entry?: StateItem<T>;
     current?: StateItem<T>;
@@ -95,6 +96,6 @@ export class BaseStateMachine<T = BaseEvent, U extends BaseContext = BaseContext
     }
 
     debouncedTransform(event: T): void {
-        this.debouncer.debounce(this.transform.bind(this), BaseStateMachine.DEBOUNCE_DELAY, (event as BaseEvent).type, true)(event);
+        this.debouncer.debounce(this.transform.bind(this), BaseStateMachine.DEBOUNCE_DELAY, (event as AllStateMachineEvents).type, true)(event);
     }
 }
