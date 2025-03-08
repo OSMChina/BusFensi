@@ -37,4 +37,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          publish_branch: pages  # default: gh-pages
+          cname: editor.osmchina.org
+          publish_branch: pages
