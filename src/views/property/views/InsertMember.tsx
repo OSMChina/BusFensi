@@ -1,8 +1,35 @@
 import { useShallow } from "zustand/react/shallow"
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { InsertHandeler } from "../../../type/view/property/type";
 import { FeatureRefObj } from "../../../type/osm/refobj";
 import { useOSMMapStore } from "../../../store/osmmeta";
+import { ItemBaseDisplay } from "../../../components/osm/outline/itemBase";
+import { getName, getNodeType } from "../../../utils/osm/nodeType";
+import { getRelationType } from "../../../utils/osm/relationType";
+
+function InsertMemberItem({ id, type }: FeatureRefObj) {
+    const meta = useOSMMapStore(state => state.meta[type][id])
+    const metatype = useMemo(() => {
+        if (meta?.tag?.length) {
+            if (type === "node") {
+                return getNodeType(meta.tag)
+            } else if (type === "relation") {
+                return getRelationType(meta.tag)
+            }
+        }
+        return undefined;
+    }, [meta?.tag, type])
+
+    return <ItemBaseDisplay
+        featuretype={type}
+        id={id}
+        metatype={metatype}
+        fullname={getName(meta.tag)}
+        created={Number(meta["@_id"]) < 0}
+        deleted={meta["@_action"] === "delete"}
+        modified={meta["@_action"] === "modify"}
+    />
+}
 
 function InsertMember({ handelInsertTop, handelIntertBottom, handelInsertAtActive }: {
     handelInsertTop: InsertHandeler,
@@ -46,19 +73,12 @@ function InsertMember({ handelInsertTop, handelIntertBottom, handelInsertAtActiv
 
         <ul className="menu bg-base-200 menu-xs max-h-full overflow-scroll">
             {selectedComponent.map((item) => {
-                let text = ""
-                if (item.type === "node") {
-                    text = `Node-${item.id}`
-                } else if (item.type === "way") {
-                    text = `Way-${item.id}`
-                } else {
-                    text = `Relation-${item.id}`
-                }
                 return (<li key={`${item.type}-${item.id}`}>
                     <span onClick={() => handelClick(item)} className={`${localSel.some(i => i.id === item.id && i.type === item.type) && 'active'}`}>
-                        {text}
+                        <InsertMemberItem {...item} />
                     </span>
-                </li>)
+                </li>
+                )
             })}
         </ul>
     </div>

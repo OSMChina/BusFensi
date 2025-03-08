@@ -1,103 +1,127 @@
 import { useShallow } from "zustand/react/shallow";
-import {
-    closestCenter,
-    DndContext,
-    DragEndEvent,
-    DragOverlay,
-    DragStartEvent,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-} from '@dnd-kit/core';
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-
 import Tags from "../components/Tags";
 import Attributes from "../components/Attributes";
-import { T2Arr, deepCopy } from "../../../utils/helper/object";
+import { T2Arr, cn, deepCopy } from "../../../utils/helper/object";
 import FeatureState from "../components/FeatureStates";
-import MemberListItem from "../components/MemberListItem";
-import { useRef, useState } from "react";
-import Draggable from "../components/Dragable";
+import MemberItem from "../../../components/osm/memberDrag/MemberItem";
+import { useCallback, useRef, useState } from "react";
 import InsertMember from "./InsertMember";
 import { FeatureRefObj as ItemRefObj } from "../../../type/osm/refobj"
 import { InsertHandeler } from "../../../type/view/property/type";
 import { useOSMMapStore } from "../../../store/osmmeta";
 import { NumericString } from "../../../type/osm/refobj";
+import MemberListSelectDel from "../components/MemberListSelWithDelDown";
+import { Member } from "../../../type/osm/meta";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle as faCircelSolid } from "@fortawesome/free-solid-svg-icons";
+import { faCircle } from "@fortawesome/free-regular-svg-icons/faCircle";
 
 function RelationProperty({ id }: { id: NumericString }) {
     const meta = useOSMMapStore(useShallow((state) => state.meta.relation[id]));
     const modifyFeatureMetaNC = useOSMMapStore((state) => state.modifyFeatureMetaNC)
     const commitAction = useOSMMapStore(state => state.commit)
-    const sensors = useSensors(
-        useSensor(PointerSensor),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    );
     const [localActiveMember, setlocalActiveMember] = useState<ItemRefObj | undefined>(undefined);
-    interface ActiveObj {
-        activeId?: NumericString,
-        activeType?: "node" | "way" | "relation"
+    const focusBeforeEdit = useRef(false)
+
+    const handelEditMember = useCallback((type: "node" | "way" | "relation", ref: string, text: string) => {
+        console.log('edit', type, ref, text)
+        if (focusBeforeEdit.current) {
+            focusBeforeEdit.current = false;
+            commitAction()
+        }
+        modifyFeatureMetaNC("relation", id, r => {
+            r.member = T2Arr(meta.member).map(m => {
+                if (m["@_type"] === type && m["@_ref"] === ref) {
+                    const mem = deepCopy(m)
+                    mem["@_role"] = text
+                    return mem
+                }
+                return m
+            })
+        })
+    }, [commitAction, id, meta.member, modifyFeatureMetaNC])
+
+    const handelEditMemberFocus = () => {
+        focusBeforeEdit.current = true
     }
 
-    const [{ activeId, activeType }, setActive] = useState<ActiveObj>({ activeId: undefined, activeType: undefined });
-    const focusBeforeEdit = useRef(false)
+    const handelEditMemberBlur = () => {
+        focusBeforeEdit.current = false
+    }
+
+    const memberToId = useCallback((m: Member) => `${m["@_type"]}-${m["@_ref"]}`, [])
+
+
+    const memberItemRender = useCallback(({ member, children }: { member: Member; children: React.ReactNode; overlay?: true; }) => <MemberItem
+        id={member["@_ref"]}
+        type={member["@_type"]}
+    >
+        {() => {
+            const localA = localActiveMember?.id === member["@_ref"] && localActiveMember.type === member["@_type"]
+            return <>
+                <button className={cn("btn btn-square btn-xs tooltip tooltip-bottom", localA && "btn-accent")}
+                    data-tip="Mark as local active place to insert"
+                    onMouseDown={(event) => {
+                        event.stopPropagation();
+                        if (localA) {
+                            setlocalActiveMember(undefined)
+                        } else {
+                            setlocalActiveMember({ id: member["@_ref"], type: member["@_type"] })
+                        }
+                    }}>
+                    <FontAwesomeIcon icon={localA ? faCircelSolid : faCircle} />
+                </button>
+
+                <label className="input input-xs input-bordered ml-1 flex items-center gap-1">
+                    Role:
+                    <input
+                        className="grow"
+                        type="text"
+                        placeholder="role of member"
+                        value={member["@_role"]}
+                        onMouseDown={e => e.stopPropagation()}
+                        onKeyDown={e => e.stopPropagation()}
+                        onChange={(e) => handelEditMember(member["@_type"], member["@_ref"], e.target.value)}
+                        onBlur={handelEditMemberBlur}
+                        onFocus={handelEditMemberFocus}
+                    />
+                </label>
+                {children}
+            </>
+        }}
+    </MemberItem>, [handelEditMember, localActiveMember])
+
     if (!meta) {
         return null
     }
-    const items = T2Arr(meta.member).map((member) => ({ id: `${member["@_type"]}-${member["@_ref"]}`, member: member }))
 
-    function handleDragStart(event: DragStartEvent) {
-        const { active } = event;
-        console.log("drag memeber start:", active)
-        const member = items.find((item) => item.id === active.id)?.member
-        setActive({ activeId: member?.["@_ref"], activeType: member?.["@_type"] });
+    function handleDragStart() {
         commitAction()
     }
 
-    function handleDragEnd(event: DragEndEvent) {
-        const { active, over } = event;
-        console.log("drag memeber end:", active, over)
-
-        if (over && active.id !== over.id) {
-            // id of drag list
-            const oldIndex = items.findIndex(item => item.id === active.id);
-            const newIndex = items.findIndex(item => item.id === over.id);
-            modifyFeatureMetaNC("relation", id, r => {
-                r.member = arrayMove(items, oldIndex, newIndex).map(item => item.member)
-            })
-        }
-
-        setActive({ activeId: undefined, activeType: undefined });
+    function handleDragEnd(member: Member[]) {
+        modifyFeatureMetaNC("relation", id, r => {
+            r.member = member
+        })
     }
 
-    function handleDelete(itemSub: ItemRefObj) {
+    function handleDelete(after: Member[]) {
         commitAction()
         modifyFeatureMetaNC("relation", id, r => {
-            r.member = items.filter((item) => item.id !== `${itemSub.type}-${itemSub.id}`).map(item => item.member)
+            r.member = after
         })
     }
 
     const itemsToMember = (items: {
         id: NumericString,
         type: "way" | "node" | "relation"
-    }[]) => items
-        .filter(item =>
-            !T2Arr(meta.member)
-                .some(m => item.id === m["@_ref"] && item.type === m["@_type"]))
-        .map(item => ({ '@_ref': item.id, '@_type': item.type }))
+    }[]) => items.map(item => ({ '@_ref': item.id, '@_type': item.type })) // sometimes repeated members are needed
 
     const handleInsertTop: InsertHandeler = (items) => {
         console.log("Insert at Top: ", items);
         commitAction()
         modifyFeatureMetaNC("relation", id, r => {
-            r.member = [...itemsToMember(items), ...T2Arr(meta.member)]
+            r.member = [...itemsToMember(items), ...T2Arr(r.member)]
         })
     };
 
@@ -105,7 +129,7 @@ function RelationProperty({ id }: { id: NumericString }) {
         console.log("Insert at Bottom: ", items);
         commitAction()
         modifyFeatureMetaNC("relation", id, r => {
-            r.member = [...T2Arr(meta.member), ...itemsToMember(items)]
+            r.member = [...T2Arr(r.member), ...itemsToMember(items)]
         })
     };
 
@@ -124,31 +148,6 @@ function RelationProperty({ id }: { id: NumericString }) {
         }
     };
 
-    const handelEditMember = (type: "node" | "way" | "relation", ref: string, text: string) => {
-        console.log('edit', type, ref, text)
-        if (focusBeforeEdit.current) {
-            focusBeforeEdit.current = false;
-            commitAction()
-        }
-        modifyFeatureMetaNC("relation", id, r => {
-            r.member = T2Arr(meta.member).map(m => {
-                if (m["@_type"] === type && m["@_ref"] === ref) {
-                    const mem = deepCopy(m)
-                    mem["@_role"] = text
-                    return mem
-                }
-                return m
-            })
-        })
-    }
-    const handelEditMemberFocus = () => {
-        focusBeforeEdit.current = true
-    }
-
-    const handelEditMemberBlur = () => {
-        focusBeforeEdit.current = false
-    }
-
     return (
         <div className="p-2 overflow-scroll">
             <h3 className="text-base font-semibold mb-2">Relation {meta["@_id"]}</h3>
@@ -160,41 +159,15 @@ function RelationProperty({ id }: { id: NumericString }) {
             />
             <div className="flex flex-row">
                 <div>
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
+                    <MemberListSelectDel
+                        member={meta.member}
+                        memberToId={memberToId}
                         onDragStart={handleDragStart}
                         onDragEnd={handleDragEnd}
+                        onDelete={(_, after) => handleDelete(after)}
                     >
-                        <SortableContext
-                            items={items}
-                            strategy={verticalListSortingStrategy}
-                        >
-                            {items.map(({ id, member }) => {
-                                return (
-                                    <Draggable id={id} key={id}>
-                                        <MemberListItem
-                                            id={member["@_ref"]}
-                                            onDel={handleDelete}
-                                            select={{
-                                                active: localActiveMember,
-                                                setter: (item) => (item === localActiveMember ? setlocalActiveMember(undefined) : setlocalActiveMember(item))
-                                            }}
-                                            edit={{
-                                                text: member["@_role"] || '',
-                                                setter: (text) => handelEditMember(member["@_type"], member["@_ref"], text),
-                                                onFocus: handelEditMemberFocus,
-                                                onBlur: handelEditMemberBlur
-                                            }}
-                                            type={member["@_type"]} />
-                                    </Draggable>
-                                );
-                            })}
-                        </SortableContext>
-                        <DragOverlay>
-                            {(activeId && activeType) ? <MemberListItem id={activeId} type={activeType} onDel={() => { }} /> : null}
-                        </DragOverlay>
-                    </DndContext>
+                        {memberItemRender}
+                    </MemberListSelectDel>
                 </div>
                 <div className="relative bottom-0 right-0">
                     <InsertMember

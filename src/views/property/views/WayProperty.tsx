@@ -1,92 +1,81 @@
 import { useShallow } from "zustand/react/shallow";
-import {
-    closestCenter,
-    DndContext,
-    DragEndEvent,
-    DragOverlay,
-    DragStartEvent,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-} from '@dnd-kit/core';
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
 
 import Tags from "../components/Tags";
 import Attributes from "../components/Attributes";
 import FeatureRelation from "../components/FeatureRelaion";
-import { T2Arr } from "../../../utils/helper/object";
+import { cn, T2Arr } from "../../../utils/helper/object";
 import FeatureState from "../components/FeatureStates";
-import MemberListItem from "../components/MemberListItem";
-import { useState } from "react";
-import Draggable from "../components/Dragable";
+import { useCallback, useState } from "react";
 import { FeatureRefObj as ItemRefObj } from "../../../type/osm/refobj"
 import InsertMember from "./InsertMember";
 import { useOSMMapStore } from "../../../store/osmmeta";
 import { NumericString } from "../../../type/osm/refobj";
 import { InsertHandeler } from "../../../type/view/property/type";
+import MemberListSelectDelDown from "../components/MemberListSelWithDelDown";
+import { Nd } from "../../../type/osm/meta";
+import MemberItem from "../../../components/osm/memberDrag/MemberItem";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle } from "@fortawesome/free-regular-svg-icons/faCircle";
+import { faCircle as faCircleSolid } from "@fortawesome/free-solid-svg-icons/faCircle";
+
 
 function WayProperty({ id }: { id: NumericString }) {
     const meta = useOSMMapStore(useShallow((state) => state.meta.way[id]));
     const modifyFeatureMetaNC = useOSMMapStore((state) => state.modifyFeatureMetaNC);
     const commitAction = useOSMMapStore(state => state.commit);
-    const sensors = useSensors(
-        useSensor(PointerSensor),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    );
 
-    interface ActiveObj {
-        activeId?: NumericString,
-        activeType?: "node" | "way" | "relation"
-    }
-
-    const [{ activeId, activeType }, setActive] = useState<ActiveObj>({ activeId: undefined, activeType: undefined });
     const [localActiveNd, setLocalActive] = useState<ItemRefObj | undefined>(undefined)
+
+    const memberItemRender = useCallback(({ member, children }: { member: Nd; children: React.ReactNode; overlay?: true; }) => <MemberItem
+        id={member["@_ref"]}
+        type={"node"}
+    >
+        {() => {
+            const localA = localActiveNd?.id === member["@_ref"]
+            return <>
+                <button className={cn("btn btn-square btn-xs tooltip tooltip-bottom", localA && "btn-accent")}
+                    data-tip="Mark as local active place to insert"
+                    onMouseDown={(event) => {
+                        event.stopPropagation();
+                        if (localA) {
+                            setLocalActive(undefined)
+                        } else {
+                            setLocalActive({ id: member["@_ref"], type: "node" })
+                        }
+                    }}>
+                    <FontAwesomeIcon icon={localA ? faCircleSolid : faCircle} />
+                </button>
+                {children}
+            </>
+        }}
+    </MemberItem>, [localActiveNd?.id])
+
+    const memberToId = useCallback((m:Nd) => `nd-${m["@_ref"]}`,[])
+
     if (!meta) {
         return null
     }
-    const items = T2Arr(meta.nd).map((nd) => ({ id: nd["@_ref"], nd: nd })); // only have node type so id is always unique
 
-    function handleDragStart(event: DragStartEvent) {
-        const { active } = event;
-        setActive({ activeId: active.id as NumericString, activeType: "node" });
+    function handleDragStart() {
         commitAction();
     }
 
-    function handleDragEnd(event: DragEndEvent) {
-        const { active, over } = event;
-
-        if (over && active.id !== over.id) {
-            const oldIndex = items.findIndex(item => item.id === active.id);
-            const newIndex = items.findIndex(item => item.id === over.id);
-            modifyFeatureMetaNC("way", id, w => {
-                w.nd = arrayMove(items, oldIndex, newIndex).map(item => item.nd)
-            });
-        }
-
-        setActive({ activeId: undefined, activeType: undefined });
+    function handleDragEnd(nd: Nd[]) {
+        modifyFeatureMetaNC("way", id, w => {
+            w.nd = nd
+        });
     }
 
-    function handleDelete(itemSub: ItemRefObj) {
-        if (itemSub.type !== "node") {
-            throw new Error(`non node child in way ${JSON.stringify(meta)}`)
-        }
+    function handleDelete(nd: Nd[]) {
         modifyFeatureMetaNC("way", id, w => {
-            w.nd = items.filter((item) => item.id !== itemSub.id).map(item => item.nd)
+            w.nd = nd
         })
     }
 
     const itemsToNd = (items: {
         id: NumericString,
         type: "way" | "node" | "relation"
-    }[]) => items.filter(item => !T2Arr(meta.nd).some(m => item.id === m["@_ref"])).map(item => ({ '@_ref': item.id }))
+    }[]) => items.filter(i => i.type === "node").map(item => ({ '@_ref': item.id }))
 
     const handleInsertTop: InsertHandeler = (items) => {
         console.log("Insert at Top: ", items);
@@ -127,26 +116,16 @@ function WayProperty({ id }: { id: NumericString }) {
             <Tags tags={T2Arr(meta.tag)} setTags={(tags) => { modifyFeatureMetaNC("way", id, w => w.tag = tags) }} commitChange={commitAction} />
             <div className="flex flex-row">
                 <div>
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
+                    <MemberListSelectDelDown
+                        member={meta.nd}
+                        memberToId={memberToId}
                         onDragStart={handleDragStart}
                         onDragEnd={handleDragEnd}
+                        onDelete={(_, after) => handleDelete(after)}
                     >
-                        <SortableContext
-                            items={items}
-                            strategy={verticalListSortingStrategy}
-                        >
-                            {items.map(({ id }) => (
-                                <Draggable id={id} key={id}>
-                                    <MemberListItem id={id} onDel={handleDelete} type="node" select={{ active: localActiveNd, setter: setLocalActive }} />
-                                </Draggable>
-                            ))}
-                        </SortableContext>
-                        <DragOverlay>
-                            {(activeId && activeType) ? <MemberListItem id={activeId} type={activeType} onDel={() => { }} /> : null}
-                        </DragOverlay>
-                    </DndContext>
+                        {memberItemRender}
+                    </MemberListSelectDelDown>
+
                 </div>
                 <div className="relative bottom-0 right-0">
                     <InsertMember
