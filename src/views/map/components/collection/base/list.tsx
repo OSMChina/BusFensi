@@ -25,7 +25,7 @@ export function FeatureList({ node, way, relation, filter, ...props }: {
 }
 
 export function FeatureCollection({ name, defaultOpen, forceOpen, forceClose, children }: {
-    children: () => ReactNode,
+    children: ReactNode,
     defaultOpen?: boolean,
     forceOpen?: boolean,
     forceClose?: boolean,
@@ -44,7 +44,7 @@ export function FeatureCollection({ name, defaultOpen, forceOpen, forceClose, ch
                 <FontAwesomeIcon icon={faBars} className="ml-1" />
                 <span className="ml-0 mr-auto">{name}</span>
             </span>
-            {show && children()}
+            {show && children}
         </li>
     );
 }

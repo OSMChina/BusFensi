@@ -133,7 +133,7 @@ function PtEditView({ width, height }: ViewFCProps) {
         tooltip: "Edit bus relation",
         icon: <FontAwesomeIcon icon={faCodeCommit} />,
         stage: () => <div className="p-2">Bus Relation Edit Placeholder</div>
-    }],[width,height])
+    }],[width, height, stateMachine])
 
     const [active, setActive] = useState(0);
 

@@ -8,12 +8,12 @@ import { Node, Relation, Way } from "../../../../../type/osm/meta";
 export function ActiveCollection(props: OutlineCollectionProps) {
     const active = useOSMMapStore(useShallow(getActiveMeta))
     return <FeatureCollection name="active" forceOpen>
-        {() => <FeatureList
+        <FeatureList
             {...props}
             node={active?.type === "node" ? [active.meta as Node] : undefined}
             way={active?.type === "way" ? [active.meta as Way] : undefined}
             relation={active?.type === "relation" ? [active.meta as Relation] : undefined}
             showMetaType
-        />}
+        />
     </FeatureCollection>
 }
