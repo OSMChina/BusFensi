@@ -3,9 +3,10 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGripVertical } from "@fortawesome/free-solid-svg-icons/faGripVertical";
+import { UniqueIdentifier } from "@dnd-kit/core";
 
-export interface DraggableProps extends HTMLAttributes<HTMLElement> {
-  id: string;
+export interface DraggableProps extends Omit<HTMLAttributes<HTMLElement>, "id"> {
+  id: UniqueIdentifier;
   /**
    * 自定义组件标签，默认为 'div'
    */
@@ -35,8 +36,8 @@ function Draggable({
   };
 
   return (
-    <Element ref={setNodeRef} className="flex bg-base-200 rounded-sm border pl-1" style={style} {...rest}>
-      <button {...listeners} {...attributes}><FontAwesomeIcon icon={faGripVertical} /></button>
+    <Element ref={setNodeRef} className="flex flex-row bg-base-200 rounded border pl-1" style={style} {...rest}>
+      <button {...listeners} {...attributes} className="btn btn-ghost btn-xs my-auto inline-block"><FontAwesomeIcon icon={faGripVertical} /></button>
       {children}
     </Element>
   );
