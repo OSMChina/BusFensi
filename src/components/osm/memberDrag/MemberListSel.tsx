@@ -24,7 +24,7 @@ function DragListChild<T>({ member: m, isDragOverlay: overlay, slot, children }:
 export default function MemberListSelect<T>({ member, memberToId, children, slotSelection, ...rest }
     : Omit<ComponentProps<typeof DragList<T>>, "children"> & {
         children: (props: { member: T, children: ReactNode, overlay?: true }) => ReactNode
-        slotSelection: (props: { selected: Set<UniqueIdentifier> }) => ReactNode
+        slotSelection: (props: { selected: Set<UniqueIdentifier>, children: ReactNode }) => ReactNode
     }) {
     // Use a Set to track selected member IDs for constant-time operations
 

@@ -28,8 +28,8 @@ export default function MemberListSelectDelDown<T extends Nd | Member>({ onDelet
     const member = useMemo<MemberWarp[]>(() => memberOriginal.map(m => ({ ...m, uniqueIdentifier: getUid() })), [getUid, memberOriginal])
     const memberToId = useCallback((m: MemberWarp) => `${memberToIdOriginal(m)}_AT_LIST_${m.uniqueIdentifier}`, [memberToIdOriginal])
 
-    const renderSelection = useCallback(({ selected }: { selected: Set<UniqueIdentifier> }) => {
-        return (<>
+    const renderSelection = useCallback(({ selected , children}: { selected: Set<UniqueIdentifier>, children: ReactNode }) => {
+        return (<div className="flex flex-row p-1 rounded">
             <div className="mr-auto">Members</div>
             <button className="btn btn-square btn-xs btn-error tooltip tooltip-bottom"
                 data-tip="Remove Selected member from list"
@@ -56,7 +56,8 @@ export default function MemberListSelectDelDown<T extends Nd | Member>({ onDelet
                 }} >
                 {loading ? <span className="loading loading-spinner loading-xs"></span> : <FontAwesomeIcon icon={faDownload} />}
             </button>
-        </>)
+            {children}
+        </div>)
     }, [baseurl, loadFeatureBatch, member, memberToId, onDelete, loading, setLoading])
 
     return (<MemberListSelect

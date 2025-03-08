@@ -7,7 +7,7 @@ export default function BaseListSelect<T>({ member, memberToId, children, slotSe
         member: T[],
         memberToId: (member: T) => UniqueIdentifier,
         children: (props: { member: T[], memberToId: (member: T) => UniqueIdentifier, slot: (props: { m: T }) => ReactNode }) => ReactNode
-        slotSelection: (props: { selected: Set<UniqueIdentifier> }) => ReactNode
+        slotSelection: (props: { selected: Set<UniqueIdentifier>, children: ReactNode }) => ReactNode
     }) {
     // Use a Set to track selected member IDs for constant-time operations
     const [selected, setSelected] = useState<Set<UniqueIdentifier>>(new Set());
@@ -57,16 +57,15 @@ export default function BaseListSelect<T>({ member, memberToId, children, slotSe
     }, [selected, memberToId])
 
     return (
-        <div>
-            <div className="w-full flex flex-row p-1 rounded border bg-base-200">
-                {slotSelection({ selected })}
-                <input type="checkbox"
+        <>
+            {slotSelection({
+                selected, children: <input type="checkbox"
                     checked={selected.size === member.length}
                     onChange={selectAll}
                     className="checkbox ml-2" />
-            </div>
+            })}
             {/* Example rendering of a member list */}
             {children({ member, memberToId, slot: itemSelectionSlot })}
-        </div>
+        </>
     );
 }
