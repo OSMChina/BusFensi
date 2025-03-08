@@ -54,14 +54,15 @@
 
 - [X] 能够完整得到当前获取的数据，包括 Relation, Way, Node
 - [X] 能够得到我们关心的某一类数据，比如公共交通数据
-- [ ] 能够得到我们编辑中的数据，比如 Selected
+- [X] 能够得到我们编辑中的数据，比如 Selected
 
 这里我们可以用 Tabs 来实现。然后在对应的 Click Button （比如 Select ）里面去做。
 
 ##### Property 视图
 
-- [ ] 显示当前的 Active 元素。Select 元素可以有多个， Active 属于 Select 且唯一。
-- [ ] 最好根据类型做判断。已知类型专门显示，最后来个 fallback 纯手工视图。
+- [X] 显示当前的 Active 元素。Select 元素可以有多个， Active 属于 Select 且唯一。
+- [ ] 拆出三个 tab 一个 info 一个 tags 和一个 members
+- [ ] style of title, insert member batch selection.
 
 #### 重构 Zustand 状态管理
 
@@ -202,27 +203,27 @@ src
 
 ### 2025 年 3 月 10 日之前
 
-- [] 完成公交站点编辑的所有内容
+- [ ] 完成公交站点编辑的所有内容
     - [X] 显示选择框，就用 dashed line 配一个棕色好了(用半透明矩形了)
     - [X] 在 outline 中引入 selected
-    - [] 完成抽象的 member picker, 允许内部成员单项拖拉拽，外部从选择的 feature 当中引入。允许批量操作
-    - [] 重构 CreateFeatureTag, 将其变为 CreateFeature, 允许在创建时引入 member
-    - [] 写出 New Stop Area
-    - [] PIXI Point 将会显示 Name
-    - [] Property member 中的列表元素现在会使用 outline 列表相同的渲染方式
-    - [] （可选）让 Stop Area 在地图上显示出来
+    - [X] 完成抽象的 member picker, 允许内部成员单项拖拉拽，外部从选择的 feature 当中引入。允许批量操作
+    - [ ] 重构 CreateFeatureTag, 将其变为 CreateFeature, 允许在创建时引入 member
+    - [ ] 写出 New Stop Area
+    - [ ] PIXI Point 将会显示 Name
+    - [X] Property member 中的列表元素现在会使用 outline 列表相同的渲染方式
+    - [ ] （可选）让 Stop Area 在地图上显示出来
 
 ### 2025 年 3 月 22 日前
 
-- [] 完成公交线路引入公交站点的内容
-    - [] 选择或新建线路
-    - [] 第一步：公交站点
-        - [] 显示线路公交站点关系，将当前所有公交站点用 highlight 属性标出，然后在对应位置显示当前站点排序
-        - [] 插入公交站点，允许右键添加到当前线路中
-        - [] 删除公交站点，允许右键，也可以手动
-    - [] 第二步：线路
-        - [] 点击路径上的点，用 highlight 属性标出。将这个点顺序和 way 顺序存在 bus slice 里面。
-        - [] 待定
+- [ ] 完成公交线路引入公交站点的内容
+    - [ ] 选择或新建线路
+    - []  第一步：公交站点
+        - [ ] 显示线路公交站点关系，将当前所有公交站点用 highlight 属性标出，然后在对应位置显示当前站点排序
+        - [ ] 插入公交站点，允许右键添加到当前线路中
+        - [ ] 删除公交站点，允许右键，也可以手动
+    - [ ] 第二步：线路
+        - [ ] 点击路径上的点，用 highlight 属性标出。将这个点顺序和 way 顺序存在 bus slice 里面。
+        - [ ] 待定
 
 ## 其他优化
 
@@ -240,7 +241,7 @@ src
 ## Known Issue
 
 - [X] <s>**(HIGH)** 拖动地图的时候很卡，具体表现为有时候拖不动，不管有没有元素显示都一样。需要搞清楚是 react 还是 pixi 事件问题。</s>确定了是 debounce 的问题了，先关掉 debounce。后续研究
-- [ ] **(HIGH)** Property 的 drag 实现是错的，如果有 way 和 node 撞 id 就会编辑出错。下面几个 commit 就修复。
+- [X] <s>**(HIGH)** Property 的 drag 实现是错的，如果有 way 和 node 撞 id 就会编辑出错。下面几个 commit 就修复</s>fixed
 - [ ] **(MEDIUM)** computed 属性性能较差，需要优化。
 - [ ] **(MEDIUM)** OSM 数据会爆 localStorage 空间。
 - [ ] **(MEDIUM)** zundo 的全量状态历史记录非常耗内存，而且给的 diff 接口假设 delta state, 就是说只能拿单层 state, 对 nested state 并不能支持增量。并且没给 merge 接口，所以得手动 fork 并拓展 zundo ，或者要使用一个独立的中间件注入 set 函数来实现 deepMerge。
