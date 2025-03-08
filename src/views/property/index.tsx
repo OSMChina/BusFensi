@@ -9,7 +9,7 @@ function PropertyView({ width, height }: {
 }) {
   const activeItem = useOSMMapStore(state => state.activeRef)
 
-  return <div style={{ width, height, maxWidth: width, maxHeight: height }} className="property-view flex flex-col p-1 rounded bg-base-100">
+  return <div style={{ width, height, maxWidth: width, maxHeight: height }} className="property-view flex flex-col rounded bg-base-100">
 
     {activeItem ?
       (activeItem.type === "node" ?

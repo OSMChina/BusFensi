@@ -17,6 +17,7 @@ import MemberItem from "../../../components/osm/memberDrag/MemberItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle } from "@fortawesome/free-regular-svg-icons/faCircle";
 import { faCircle as faCircleSolid } from "@fortawesome/free-solid-svg-icons/faCircle";
+import { getName } from "../../../utils/osm/nodeType";
 
 
 function WayProperty({ id }: { id: NumericString }) {
@@ -110,12 +111,12 @@ function WayProperty({ id }: { id: NumericString }) {
 
     return (
         <div className="p-2 overflow-scroll">
-            <h3 className="text-base font-semibold mb-2">Way {meta["@_id"]}</h3>
+            <h3 className="text-base font-semibold mb-2">[Way] {getName(meta.tag) ||  meta["@_id"]}</h3>
             <FeatureState id={id} type="way" />
             <Attributes meta={meta} />
             <Tags tags={T2Arr(meta.tag)} setTags={(tags) => { modifyFeatureMetaNC("way", id, w => w.tag = tags) }} commitChange={commitAction} />
             <div className="flex flex-row">
-                <div>
+                <div className="bg-base-200">
                     <MemberListSelectDelDown
                         member={meta.nd}
                         memberToId={memberToId}
@@ -127,7 +128,7 @@ function WayProperty({ id }: { id: NumericString }) {
                     </MemberListSelectDelDown>
 
                 </div>
-                <div className="relative bottom-0 right-0">
+                <div className="">
                     <InsertMember
                         handelInsertTop={handleInsertTop}
                         handelIntertBottom={handleInsertBottom}

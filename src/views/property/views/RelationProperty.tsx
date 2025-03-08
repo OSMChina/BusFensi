@@ -15,6 +15,7 @@ import { Member } from "../../../type/osm/meta";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle as faCircelSolid } from "@fortawesome/free-solid-svg-icons";
 import { faCircle } from "@fortawesome/free-regular-svg-icons/faCircle";
+import { getName } from "../../../utils/osm/nodeType";
 
 function RelationProperty({ id }: { id: NumericString }) {
     const meta = useOSMMapStore(useShallow((state) => state.meta.relation[id]));
@@ -150,15 +151,15 @@ function RelationProperty({ id }: { id: NumericString }) {
 
     return (
         <div className="p-2 overflow-scroll">
-            <h3 className="text-base font-semibold mb-2">Relation {meta["@_id"]}</h3>
+            <h3 className="text-base font-semibold mb-2">[Relation] {getName(meta.tag) || meta["@_id"]}</h3>
             <FeatureState id={id} type="relation" />
             <Attributes meta={meta} />
             <Tags tags={T2Arr(meta.tag)}
                 setTags={(tags) => { modifyFeatureMetaNC("relation", id, r => r.tag = tags) }}
                 commitChange={commitAction}
             />
-            <div className="flex flex-row">
-                <div>
+            <div className="flex flex-row relative">
+                <div className="bg-base-200">
                     <MemberListSelectDel
                         member={meta.member}
                         memberToId={memberToId}
@@ -169,7 +170,7 @@ function RelationProperty({ id }: { id: NumericString }) {
                         {memberItemRender}
                     </MemberListSelectDel>
                 </div>
-                <div className="relative bottom-0 right-0">
+                <div className="">
                     <InsertMember
                         handelInsertTop={handleInsertTop}
                         handelIntertBottom={handleInsertBottom}
