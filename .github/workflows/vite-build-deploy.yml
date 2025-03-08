@@ -39,5 +39,3 @@ jobs:
           publish_dir: ./dist
           cname: editor.osmchina.org
           publish_branch: pages
-          
-          
