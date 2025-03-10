@@ -4,7 +4,7 @@ import Attributes from "../components/Attributes";
 import { T2Arr, cn, deepCopy } from "../../../utils/helper/object";
 import FeatureState from "../components/FeatureStates";
 import MemberItem from "../../../components/osm/memberDrag/MemberItem";
-import { useCallback, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import InsertMember from "./InsertMember";
 import { FeatureRefObj as ItemRefObj } from "../../../type/osm/refobj"
 import { InsertHandeler } from "../../../type/view/property/type";
@@ -17,19 +17,46 @@ import { faCircle as faCircelSolid } from "@fortawesome/free-solid-svg-icons";
 import { faCircle } from "@fortawesome/free-regular-svg-icons/faCircle";
 import { getName } from "../../../utils/osm/nodeType";
 
+const RoleInput = memo(({ initialValue, onCommit }: {
+    initialValue?: string,
+    onCommit: (value: string) => void
+}) => {
+    const [value, setValue] = useState<string>(initialValue || "");
+
+    // 当初始值变化时同步更新本地状态
+    useEffect(() => {
+        setValue(initialValue || "");
+    }, [initialValue]);
+
+    return (
+        <input
+            className="grow"
+            type="text"
+            placeholder="role of member"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={e => {
+                if (e.key === "Enter") {
+                    e.currentTarget.blur();
+                }
+                e.stopPropagation()
+            }}
+            onBlur={() => {
+                onCommit(value); // 提交最终输入值
+            }}
+        />
+    );
+});
+
 function RelationProperty({ id }: { id: NumericString }) {
     const meta = useOSMMapStore(useShallow((state) => state.meta.relation[id]));
     const modifyFeatureMetaNC = useOSMMapStore((state) => state.modifyFeatureMetaNC)
     const commitAction = useOSMMapStore(state => state.commit)
     const [localActiveMember, setlocalActiveMember] = useState<ItemRefObj | undefined>(undefined);
-    const focusBeforeEdit = useRef(false)
 
     const handelEditMember = useCallback((type: "node" | "way" | "relation", ref: string, text: string) => {
-        console.log('edit', type, ref, text)
-        if (focusBeforeEdit.current) {
-            focusBeforeEdit.current = false;
-            commitAction()
-        }
+        console.debug('edit', type, ref, text)
+        commitAction()
         modifyFeatureMetaNC("relation", id, r => {
             r.member = T2Arr(meta.member).map(m => {
                 if (m["@_type"] === type && m["@_ref"] === ref) {
@@ -41,14 +68,6 @@ function RelationProperty({ id }: { id: NumericString }) {
             })
         })
     }, [commitAction, id, meta.member, modifyFeatureMetaNC])
-
-    const handelEditMemberFocus = () => {
-        focusBeforeEdit.current = true
-    }
-
-    const handelEditMemberBlur = () => {
-        focusBeforeEdit.current = false
-    }
 
     const memberToId = useCallback((m: Member) => `${m["@_type"]}-${m["@_ref"]}`, [])
 
@@ -75,16 +94,9 @@ function RelationProperty({ id }: { id: NumericString }) {
 
                 <label className="input input-xs input-bordered ml-1 flex items-center gap-1">
                     Role:
-                    <input
-                        className="grow"
-                        type="text"
-                        placeholder="role of member"
-                        value={member["@_role"]}
-                        onMouseDown={e => e.stopPropagation()}
-                        onKeyDown={e => e.stopPropagation()}
-                        onChange={(e) => handelEditMember(member["@_type"], member["@_ref"], e.target.value)}
-                        onBlur={handelEditMemberBlur}
-                        onFocus={handelEditMemberFocus}
+                    <RoleInput
+                        initialValue={member["@_role"]}
+                        onCommit={(value) => handelEditMember(member["@_type"], member["@_ref"], value)}
                     />
                 </label>
                 {children}
