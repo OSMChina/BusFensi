@@ -23,18 +23,12 @@ export class PtEditStateMachine extends BaseStateMachine<PtEditEvents, BaseConte
 
         this.menus = menus
 
-        const hoverable: FeatureClassifyFun = (target, context) => {
-            const tags = context.store.meta.getState().meta[target.type][target.id].tag || []
-            return (target.type === "way"
-                || (target.type === "node" && (isBusStop(tags)
-                    || isStopPosition(tags))))
+        const hoverable: FeatureClassifyFun = (target) => {
+            return target.type === "way" || target.type === "node"
         }
 
-        const clickable: FeatureClassifyFun = (target, context) => {
-            const tags = context.store.meta.getState().meta[target.type][target.id].tag || []
-            return (target.type === "way"
-                || (target.type === "node" && (isBusStop(tags)
-                    || isStopPosition(tags))))
+        const clickable: FeatureClassifyFun = (target) => {
+            return target.type === "way" || target.type === "node"
         }
 
         const dragable: FeatureClassifyFun = (target, context) => {
@@ -43,7 +37,9 @@ export class PtEditStateMachine extends BaseStateMachine<PtEditEvents, BaseConte
                 || isStopPosition(tags))
         }
 
-        const selectable = dragable;
+        const selectable: FeatureClassifyFun = (target) => {
+            return target.type === "node"
+        }
 
 
         this.idle = new StateItem('pt-edit-idle')

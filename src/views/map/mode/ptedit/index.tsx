@@ -23,10 +23,10 @@ import SplitterView from "../../../../components/layout/SplitView";
 import PropertyView from "../../../property";
 import { BusStopEditOutlineTab } from "../../components/collection/busStop";
 import { createConfirmation } from "react-confirm";
-import CreateFeatureTagConfirm from "../../../../components/modal/CreateFeatureTagConfirm";
+import CreateFeatureTagConfirm from "../../../../components/modal/CreateFeatureTagConfirmHook";
 import SelectedOutlineTab from "../../components/collection/selected";
 
-const MemoRightClickNewBusStop = memo(function RightClickNewBusStop(props: RightClickMenuProps & { onClose: () => void }) {
+const MemoRightClickOnMap = memo(function (props: RightClickMenuProps & { onClose: () => void }) {
     const newBusLocation = useMapViewStore(useShallow(getLocationByPixel(props)))
     const createBusStop = useOSMMapStore(state => state.createBusStop)
     const confirmModal = createConfirmation(CreateFeatureTagConfirm)
@@ -46,12 +46,13 @@ const MemoRightClickNewBusStop = memo(function RightClickNewBusStop(props: Right
     </>
 })
 
-const MemoRightClickNewStopPosition = memo(function RightClickNewStopPosition(props: RightClickMenuProps & { onClose: () => void }) {
+const MemoRightClickOnFeature = memo(function (props: RightClickMenuProps & { onClose: () => void }) {
     const location = useMapViewStore(useShallow(getLocationByPixel(props)))
     const createStopPosition = useOSMMapStore(state => state.createStopPosition)
+    const modifyFeature = useOSMMapStore(state => state.modifyFeatureMetaNC)
 
     const confirmModal = createConfirmation(CreateFeatureTagConfirm)
-    const onClick = useCallback(async () => {
+    const createPoint = useCallback(async () => {
         props.onClose()
         console.debug("clicked new stop position")
         const tags = await confirmModal({ preset: stopPositionPresetCN, title: "Create Stop position (Preset CN)" })
@@ -61,9 +62,30 @@ const MemoRightClickNewStopPosition = memo(function RightClickNewStopPosition(pr
         }
     }, [props, confirmModal, location, createStopPosition])
 
+    const addTagToPoint = useCallback(async () => {
+        props.onClose()
+        console.debug("clicked new stop position")
+        if (!props.feature?.id) {
+            return
+        }
+        const tags = await confirmModal({
+            preset: stopPositionPresetCN,
+            existing: useOSMMapStore.getState().meta.node[props.feature.id].tag,
+            title: "Add tags to existing point (Stop position preset CN)"
+        })
+        if (tags) {
+            console.debug("created stop position", tags)
+            modifyFeature("node", props.feature.id, f => {
+                f.tag = tags
+            })
+        }
+    }, [props, confirmModal, modifyFeature])
+
     return <>
         <RightClickMenu {...props} >
-            <a onClick={onClick}>New stop position</a>
+            {(props.feature?.type === "way") ?
+                <a onClick={createPoint}>New stop position</a>
+                : ((props.feature?.type === "node") ? <a onClick={addTagToPoint}>Set point as stop position</a> : <a>relation is not allowed here</a>)}
         </RightClickMenu>
     </>
 })
@@ -119,7 +141,7 @@ function PtEditView({ width, height }: ViewFCProps) {
         { meta: useOSMMapStore, view: useMapViewStore, settings: useSettingsStore },
         { busStop: setNewBusMenu, stopPosition: setStopPositionMenu })).current
 
-    const tabs = useMemo(()=>[{
+    const tabs = useMemo(() => [{
         tooltip: "Bus stop edit tab",
         icon: <FontAwesomeIcon icon={faBusSimple} />,
         stage: () => <PtEditStage
@@ -133,7 +155,7 @@ function PtEditView({ width, height }: ViewFCProps) {
         tooltip: "Edit bus relation",
         icon: <FontAwesomeIcon icon={faCodeCommit} />,
         stage: () => <div className="p-2">Bus Relation Edit Placeholder</div>
-    }],[width, height, stateMachine])
+    }], [width, height, stateMachine])
 
     const [active, setActive] = useState(0);
 
@@ -148,8 +170,8 @@ function PtEditView({ width, height }: ViewFCProps) {
         </PtEditTabs>
         <div className="relative" style={{ height, width: width - TABS_WIDTH }}>
             {tabs[active].stage()}
-            <MemoRightClickNewBusStop {...newBusMenu} onClose={() => setNewBusMenu({ x: 0, y: 0, open: false })} />
-            <MemoRightClickNewStopPosition {...newStopPositionMenu} onClose={() => setStopPositionMenu({ x: 0, y: 0, open: false })} />
+            <MemoRightClickOnMap {...newBusMenu} onClose={() => setNewBusMenu({ x: 0, y: 0, open: false })} />
+            <MemoRightClickOnFeature {...newStopPositionMenu} onClose={() => setStopPositionMenu({ x: 0, y: 0, open: false })} />
         </div>
     </div>
 }

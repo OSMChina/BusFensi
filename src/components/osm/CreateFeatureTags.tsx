@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NodePreset } from "../../type/osm/presets";
 import { Tag } from "../../type/osm/meta";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -6,25 +6,29 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 export interface CreateNodeProps {
     preset: NodePreset;
+    existing?: Tag[];
     onSubmit: (values: Tag[]) => void;
     open: boolean;
     title: string;
     onClose: () => void;
 }
 
-export default function CreateFeatureTags({ preset, title, onSubmit, open, onClose }: CreateNodeProps) {
+export default function CreateFeatureTags({ preset, existing, title, onSubmit, open, onClose }: CreateNodeProps) {
     const [values, setValues] = useState<Record<string, string>>({});
 
     useEffect(() => {
         setValues(() => {
             return preset.tag.reduce((acc, item) => {
-                acc[item["@_k"]] = item["@_v"] || "";
+                if (!existing?.some(t => item["@_k"] === t["@_k"])) acc[item["@_k"]] = item["@_v"] || "";
                 return acc;
             }, {} as Record<string, string>);
         })
-    }, [preset])
+    }, [existing, preset])
 
-    const [newTags, setNewTags] = useState<{ key: string; value: string }[]>([]);
+    const filterdPresetTags = useMemo(() =>
+        preset.tag.filter(item => !existing?.some(t => item["@_k"] === t["@_k"])), [preset, existing])
+
+    const [newTags, setNewTags] = useState<{ key: string; value: string }[]>(existing?.map(t => ({ key: t["@_k"], value: t["@_v"] })) || []);
     const [newTagKey, setNewTagKey] = useState("");
 
     useEffect(() => {
@@ -71,7 +75,9 @@ export default function CreateFeatureTags({ preset, title, onSubmit, open, onClo
                 <div className="modal-box w-11/12 max-w-5xl">
                     <h3 className="font-bold text-lg mb-2">{title}</h3>
                     <form onSubmit={handleSubmit} className="space-y-2">
-                        {preset.tag.map((item) => (
+                        {existing && <div className="divider">Needed preset tags</div>}
+
+                        {filterdPresetTags.map((item) => (
                             <label
                                 key={item["@_k"]}
                                 className="input input-bordered input-sm flex items-center gap-x-1 tooltip tooltip-top"
@@ -92,6 +98,8 @@ export default function CreateFeatureTags({ preset, title, onSubmit, open, onClo
                                 <span className="badge">{item.importance}</span>
                             </label>
                         ))}
+                        <div className="divider">{existing ? "Exsisting or created tags" : "Created tags"}</div>
+                        {/* New Tag Input Row */}
 
                         {newTags.map((item, index) => <label
                             key={item.key}
@@ -108,14 +116,12 @@ export default function CreateFeatureTags({ preset, title, onSubmit, open, onClo
                                 required
                                 className="grow"
                             />
-                            <span className="badge">created</span>
+                            {!existing && <span className="badge">created</span>}
                             <button type="button" className="btn btn-xs btn-error" onClick={() => removeNewTag(index)} >
                                 <FontAwesomeIcon icon={faTrash} />
                             </button>
                         </label>
                         )}
-
-                        {/* New Tag Input Row */}
                         <label className="input input-sm input-bordered flex items-center gap-2">
 
                             <input

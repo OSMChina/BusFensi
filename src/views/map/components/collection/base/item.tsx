@@ -9,7 +9,7 @@ import { faCheckCircle } from "@fortawesome/free-regular-svg-icons/faCheckCircle
 import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash";
 import { cn } from "../../../../../utils/helper/object";
 import { useShallow } from "zustand/shallow";
-import SimpleConfirm from "../../../../../components/modal/SimpleConfirm";
+import SimpleConfirm from "../../../../../components/modal/SimpleConfirmHook";
 import { Node } from "../../../../../type/osm/meta";
 import { FeatureTypeMap } from "../../../../../store/osmmeta/slice/meta/type";
 import { faXmarkCircle } from "@fortawesome/free-regular-svg-icons/faXmarkCircle";
