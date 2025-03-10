@@ -8,10 +8,8 @@ import { FeatureTree } from "../../middleware/computed";
 import { createFeatureStateHelper } from "../../helper";
 import { T2Arr } from "../../../../utils/helper/object";
 
-let newIdCounterNode = -1;
-
-const _createNodeMeta = (location: PointWGS84) => {
-    const id = `${newIdCounterNode--}` as NumericString;
+const _createNodeMeta = (state: WritableDraft<OSMMapStore>, location: PointWGS84) => {
+    const id = `${state._create_feature_counter--}` as NumericString;
     const newNode: Node = {
         "@_id": id,
         "@_lat": location.lat,
@@ -21,10 +19,8 @@ const _createNodeMeta = (location: PointWGS84) => {
     return newNode;
 }
 
-let newIdCounterWay = -1;
-
-const _createLocalWayMeta = (nodes: Nd[]) => {
-    const id = `${newIdCounterWay--}` as NumericString;
+const _createLocalWayMeta = (state: WritableDraft<OSMMapStore>, nodes: Nd[]) => {
+    const id = `${state._create_feature_counter--}` as NumericString;
     const newWay: Way = {
         "@_id": id,
         nd: [...nodes],
@@ -33,10 +29,8 @@ const _createLocalWayMeta = (nodes: Nd[]) => {
     return newWay;
 }
 
-let newIdCounterRelation = -1;
-
-const _createLocalRelationMeta = (members: Member[]) => {
-    const id = `${newIdCounterRelation--}` as NumericString;
+const _createLocalRelationMeta = (state: WritableDraft<OSMMapStore>, members: Member[]) => {
+    const id = `${state._create_feature_counter--}` as NumericString;
     const newRelation: Relation = {
         "@_id": id,
         member: [...members],
@@ -70,7 +64,7 @@ export function createLocalNodeHelper(
     state: WritableDraft<OSMMapStore>,
     location: PointWGS84,
 ): NumericString {
-    const node = _createNodeMeta(location);
+    const node = _createNodeMeta(state, location);
     state.meta.node[node["@_id"]] = node;
     createFeatureStateHelper(state, "node", node["@_id"])
     return node["@_id"];
@@ -80,7 +74,7 @@ export function createLocalWayHelper(
     state: WritableDraft<OSMMapStore>,
     nd: Nd[],
 ): NumericString {
-    const way = _createLocalWayMeta(nd);
+    const way = _createLocalWayMeta(state, nd);
     state.meta.way[way["@_id"]] = way;
     createFeatureStateHelper(state, "way", way["@_id"])
     return way["@_id"];
@@ -90,7 +84,7 @@ export function createLocalRelationHelper(
     state: WritableDraft<OSMMapStore>,
     members: Member[],
 ): NumericString {
-    const relation = _createLocalRelationMeta(members);
+    const relation = _createLocalRelationMeta(state, members);
     state.meta.relation[relation["@_id"]] = relation;
     createFeatureStateHelper(state, "relation", relation["@_id"])
     return relation["@_id"];
@@ -121,7 +115,7 @@ export function splitWayHelper(
             way.nd = nds.slice(0, idx + 1) // modify old
             way["@_action"] = 'modify'
 
-            const newWay = _createLocalWayMeta(newNds) // create new
+            const newWay = _createLocalWayMeta(state, newNds) // create new
             newWay.tag = way.tag && [...way.tag]
             state.meta.way[newWay["@_id"]] = newWay
             createFeatureStateHelper(state, "way", newWay["@_id"]);
