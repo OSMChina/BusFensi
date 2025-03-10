@@ -16,7 +16,7 @@ import { RightClickMenuProps } from "../../../../type/view/map";
 import EditableLayer from "../../layer/EditableLayer";
 import { BaseStateMachine } from "../../stateMachine/state";
 import InfoLayer from "../../layer/InfoLayer";
-import { busStopPresetCN, stopPositionPresetCN } from "../../../../utils/osm/presets/bus";
+import { busStopPresetCN, stopAreaPresetCN, stopPositionPresetCN } from "../../../../utils/osm/presets/bus";
 import { getLocationByPixel } from "../../../../store/mapview/seletor";
 import { useShallow } from "zustand/shallow";
 import SplitterView from "../../../../components/layout/SplitView";
@@ -28,37 +28,47 @@ import SelectedOutlineTab from "../../components/collection/selected";
 
 const MemoRightClickOnMap = memo(function (props: RightClickMenuProps & { onClose: () => void }) {
     const newBusLocation = useMapViewStore(useShallow(getLocationByPixel(props)))
-    const createBusStop = useOSMMapStore(state => state.createBusStop)
+    const createBusStop = useOSMMapStore(state => state.createBusStopSel)
+    const createStopArea = useOSMMapStore(state => state.createStopAreaSel)
     const confirmModal = createConfirmation(CreateFeatureTagConfirm)
 
     const onClick = useCallback(async () => {
         props.onClose()
-        const tags = await confirmModal({ title: "Create Bus stop (Preset CN)", preset: busStopPresetCN })
-        if (tags) {
-            console.debug("created bus stop", tags)
-            if (newBusLocation) createBusStop(newBusLocation, tags)
+        const ret = await confirmModal({ title: "Create Bus stop (Preset CN)", preset: busStopPresetCN })
+        if (ret?.tag) {
+            console.debug("created bus stop", ret)
+            if (newBusLocation) createBusStop(newBusLocation, ret.tag)
         }
     }, [props, confirmModal, newBusLocation, createBusStop])
+
+    const createNewRelation = useCallback(async () => {
+        props.onClose()
+        const ret = await confirmModal({ title: "Create Stop Area (Preset CN)", preset: stopAreaPresetCN, createMembers: true })
+        if (ret?.tag) {
+            createStopArea(ret.tag, ret.member);
+        }
+    }, [confirmModal, createStopArea, props])
     return <>
         <RightClickMenu {...props} >
             <a onClick={onClick}>New bus stop</a>
+            <a onClick={createNewRelation}>New stop area relation</a>
         </RightClickMenu>
     </>
 })
 
 const MemoRightClickOnFeature = memo(function (props: RightClickMenuProps & { onClose: () => void }) {
     const location = useMapViewStore(useShallow(getLocationByPixel(props)))
-    const createStopPosition = useOSMMapStore(state => state.createStopPosition)
+    const createStopPosition = useOSMMapStore(state => state.createStopPositionSel)
     const modifyFeature = useOSMMapStore(state => state.modifyFeatureMetaNC)
 
     const confirmModal = createConfirmation(CreateFeatureTagConfirm)
     const createPoint = useCallback(async () => {
         props.onClose()
         console.debug("clicked new stop position")
-        const tags = await confirmModal({ preset: stopPositionPresetCN, title: "Create Stop position (Preset CN)" })
-        if (tags) {
-            console.debug("created stop position", tags)
-            if (location && props.feature?.id) createStopPosition(location, tags, props.feature?.id)
+        const ret = await confirmModal({ preset: stopPositionPresetCN, title: "Create Stop position (Preset CN)" })
+        if (ret?.tag) {
+            console.debug("created stop position", ret)
+            if (location && props.feature?.id) createStopPosition(location, ret.tag, props.feature?.id)
         }
     }, [props, confirmModal, location, createStopPosition])
 
@@ -68,15 +78,15 @@ const MemoRightClickOnFeature = memo(function (props: RightClickMenuProps & { on
         if (!props.feature?.id) {
             return
         }
-        const tags = await confirmModal({
+        const ret = await confirmModal({
             preset: stopPositionPresetCN,
             existing: useOSMMapStore.getState().meta.node[props.feature.id].tag,
             title: "Add tags to existing point (Stop position preset CN)"
         })
-        if (tags) {
-            console.debug("created stop position", tags)
+        if (ret?.tag) {
+            console.debug("created stop position", ret)
             modifyFeature("node", props.feature.id, f => {
-                f.tag = tags
+                f.tag = ret.tag
             })
         }
     }, [props, confirmModal, modifyFeature])

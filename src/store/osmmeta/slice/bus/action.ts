@@ -1,12 +1,13 @@
 import { StateCreator } from "zustand"
 import { OSMMapStore } from "../../store"
-import { commitHelper, createLocalNodeOnWayWithModifierHelper, createLocalNodeWithModifierHelper } from "../../helper"
+import { commitHelper, createLocalNodeOnWayWithModifierHelper, createLocalNodeWithModifierHelper, createLocalRelationHelper, modifyFeatureHelper, selectFeatureHelper } from "../../helper"
 import { PointWGS84 } from "../../../../utils/geo/types"
-import { Tag } from "../../../../type/osm/meta"
+import { Member, Tag } from "../../../../type/osm/meta"
 import { NumericString } from "../../../../type/osm/refobj"
 export interface BusEditAction {
-    createBusStop: (location: PointWGS84, tags: Tag[]) => void;
-    createStopPosition: (location: PointWGS84, tags: Tag[], targetway: NumericString) => void
+    createBusStopSel: (location: PointWGS84, tags: Tag[]) => void;
+    createStopPositionSel: (location: PointWGS84, tags: Tag[], targetway: NumericString) => void,
+    createStopAreaSel: (tag: Tag[], member?: Member[]) => void
 }
 
 export const createBusEditActionSlice: StateCreator<
@@ -20,12 +21,24 @@ export const createBusEditActionSlice: StateCreator<
     [],
     BusEditAction
 > = (set) => ({
-    createBusStop: (location, tags) => set(state => {
+    createBusStopSel: (location, tags) => set(state => {
         commitHelper(state)
-        createLocalNodeWithModifierHelper(state, location, f => { f.tag = tags })
+        const id = createLocalNodeWithModifierHelper(state, location, f => { f.tag = tags })
+        selectFeatureHelper(state, "node", id)
     }),
-    createStopPosition: (location, tags, target) => set(state => {
+    createStopPositionSel: (location, tags, target) => set(state => {
         commitHelper(state)
-        createLocalNodeOnWayWithModifierHelper(state, location, f => { f.tag = tags }, target)
-    })
+        const id = createLocalNodeOnWayWithModifierHelper(state, location, f => { f.tag = tags }, target)
+        selectFeatureHelper(state, "node", id)
+    }),
+    createStopAreaSel: (tag, member) => {
+        set(state => {
+            commitHelper(state)
+            const id = createLocalRelationHelper(state, member || [])
+            modifyFeatureHelper(state, "relation", id, r => {
+                r.tag = tag
+            })
+            selectFeatureHelper(state, "relation", id)
+        })
+    }
 })
