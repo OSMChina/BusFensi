@@ -2,7 +2,6 @@ import { FederatedMouseEvent } from "pixi.js";
 import { StoreType } from "../../../../../type/stateMachine/baseEvent";
 import { PointerWithOSMEvent } from "../../../../../type/stateMachine/commonEdit/componentEvent";
 import { FeatureClassifyFun, PtEditContext, PtEditEvents, PtEditRightClickMenus } from "../../../../../type/stateMachine/ptEdit";
-import { isBusStop, isStopPosition } from "../../../../../utils/osm/nodeType";
 import { ComponentStateContext, doComponentDragging, getLocalPosistion } from "../../slice/components/helper";
 import { BaseStateMachine, StateItem } from "../../state"
 import { MOUSE } from "../../../../../utils/mouse/moueBtn";
@@ -20,7 +19,7 @@ export class BusTabComponentStateMachine extends BaseStateMachine<PtEditEvents, 
     componentHover: ComponentStateItem
     componentMousedown: ComponentStateItem
     pointDrag: ComponentStateItem
-    constructor(store: StoreType, {menus, }: ComponentStateMachineOptions) {
+    constructor(store: StoreType, {menus, hoverable, clickable, dragable, selectable}: ComponentStateMachineOptions) {
         super(store)
         this.context.rightClickMenus = menus
         // 新建子状态
@@ -33,28 +32,6 @@ export class BusTabComponentStateMachine extends BaseStateMachine<PtEditEvents, 
         this.entry = this.idle
         this.current = this.idle
         this.accept = [this.idle]
-
-        const hoverable: FeatureClassifyFun = (target, context) => {
-            const tags = context.store.meta.getState().meta[target.type][target.id].tag || []
-            return (target.type === "way"
-                || (target.type === "node" && (isBusStop(tags)
-                    || isStopPosition(tags))))
-        }
-
-        const clickable: FeatureClassifyFun = (target, context) => {
-            const tags = context.store.meta.getState().meta[target.type][target.id].tag || []
-            return (target.type === "way"
-                || (target.type === "node" && (isBusStop(tags)
-                    || isStopPosition(tags))))
-        }
-
-        const dragable: FeatureClassifyFun = (target, context) => {
-            const tags = context.store.meta.getState().meta[target.type][target.id].tag || []
-            return target.type === "node" && (isBusStop(tags)
-                || isStopPosition(tags))
-        }
-
-        const selectable = dragable;
 
         // 状态转换：从 idle 到 componentHover
         this.idle.appendNext(this.componentHover, {

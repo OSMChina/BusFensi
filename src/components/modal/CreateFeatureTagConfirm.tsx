@@ -1,21 +1,17 @@
-import { confirmable, ConfirmDialog, ConfirmDialogProps } from 'react-confirm';
-import CreateFeatureTags, { CreateNodeProps } from '../osm/CreateFeatureTags';
-import { Tag } from '../../type/osm/meta';
+import { ConfirmDialog, ConfirmDialogProps } from 'react-confirm';
+import CreateFeatureTags, { CreateNodeProps, ResultValue } from '../osm/CreateFeatureTags';
 
 type BaseProps = Omit<CreateNodeProps, "onClose" | "onSubmit" | "open">
 
-type Props = ConfirmDialogProps<BaseProps, Tag[] | null>;
+type Props = ConfirmDialogProps<BaseProps, ResultValue | null>;
 
-function DialogContent({ show, proceed, preset, title }: Props) {
+function DialogContent({ show, proceed, ...rest }: Props) {
     return <CreateFeatureTags
-        preset={preset}
-        title={title}
         open={show}
+        {...rest}
         onClose={() => proceed(null)}
         onSubmit={proceed}
     />
 }
 
-const CreateTagsConfirmation: ConfirmDialog<BaseProps, Tag[] | null> = (props) => (<DialogContent {...props} />);
-
-export default confirmable(CreateTagsConfirmation);
+export const CreateTagsConfirmation: ConfirmDialog<BaseProps, ResultValue | null> = (props) => (<DialogContent {...props} />);

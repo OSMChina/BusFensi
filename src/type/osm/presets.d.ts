@@ -6,6 +6,6 @@ interface PresetTagItem {
     example?: string
 }
 
-export interface NodePreset {
+export interface FeaturePreset {
     tag: PresetTagItemp[]
 }

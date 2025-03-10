@@ -1,8 +1,8 @@
 // see https://wiki.openstreetmap.org/wiki/Zh-hans:%E5%85%AC%E4%BA%A4
 // note currently only OSM CN page's preset
-import { NodePreset } from "../../../type/osm/presets";
+import { FeaturePreset } from "../../../type/osm/presets";
 
-export const busStopPresetCN: NodePreset = {
+export const busStopPresetCN: FeaturePreset = {
     tag: [
         {
             '@_k': 'highway',
@@ -105,7 +105,7 @@ export const busStopPresetCN: NodePreset = {
     ]
 }
 
-export const stopPositionPresetCN: NodePreset = {
+export const stopPositionPresetCN: FeaturePreset = {
     tag: [
         {
             '@_k': 'public_transport',
@@ -125,6 +125,30 @@ export const stopPositionPresetCN: NodePreset = {
             importance: "required",
             description: "在ptv2中注明这个站点为公交站点",
             example: "yes"
+        }
+    ]
+}
+
+export const stopAreaPresetCN: FeaturePreset = {
+    tag: [
+        {
+            '@_k': 'public_transport',
+            '@_v': 'stop_area',
+            importance: "required",
+            description: "用于描述该功能是一个停车区关系。本标签是用于符合ptv2的标签。",
+            example: "stop_position"
+        },
+        {
+            '@_k': 'name',
+            importance: "required",
+            description: "该站组的名称，使用主名称或推广名称，即指向同一位置的同名分站台合并于此关系中",
+            example: "经十路舜耕路"
+        },
+        {
+            '@_k': 'type',
+            importance: "required",
+            description: "",
+            '@_v': "public_transport"
         }
     ]
 }
