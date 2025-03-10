@@ -1,15 +1,15 @@
 
 import { useEffect, useRef } from 'react';
-import { confirmable, ConfirmDialog, ConfirmDialogProps } from 'react-confirm';
+import { ConfirmDialog, ConfirmDialogProps } from 'react-confirm';
 
-interface BaseProps {
+export interface BaseProps {
   title?: string;
   message?: string;
 };
 
 type Props = ConfirmDialogProps<BaseProps, boolean>;
 
-function DialogContent({ show, proceed, title, message }: Props) {
+function SimpleConfirmDialogContent({ show, proceed, title, message }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -64,7 +64,6 @@ function DialogContent({ show, proceed, title, message }: Props) {
     </dialog>
   );
 }
+const SimpleConfirmation: ConfirmDialog<BaseProps, boolean> = (props) => (<SimpleConfirmDialogContent {...props} />);
 
-const SimpleConfirmation: ConfirmDialog<BaseProps, boolean> = (props) => (<DialogContent {...props} />);
-
-export default confirmable(SimpleConfirmation);
+export default SimpleConfirmation
