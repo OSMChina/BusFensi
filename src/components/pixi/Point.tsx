@@ -1,13 +1,13 @@
 // @ts-expect-error wait rapid to implement type
 import { DashLine } from '@rapideditor/pixi-dashed-line';
 
-import { Container, Sprite } from "@pixi/react";
+import { Container, Sprite, Text } from "@pixi/react";
 import { busStopTexture, circleTexture, locationPinTexture } from "./textures";
 import { getPixelByWGS84Locate } from "../../utils/geo/mapProjection";
 import { GlowFilter } from "pixi-filters";
-import React, { useEffect, useRef } from "react";
-import { Container as PIXIContainer, Circle as PIXICircle, Graphics as PIXIGraphics, Rectangle as PIXIRectangle, DisplayObject } from "pixi.js";
-import { isBusStop } from "../../utils/osm/nodeType";
+import React, { useEffect, useMemo, useRef } from "react";
+import { Container as PIXIContainer, Circle as PIXICircle, Graphics as PIXIGraphics, Rectangle as PIXIRectangle, DisplayObject, TextStyle } from "pixi.js";
+import { getName, isBusStop } from "../../utils/osm/nodeType";
 import { T2Arr } from "../../utils/helper/object";
 import { MapViewStatus } from '../../utils/geo/types';
 import { Node } from '../../type/osm/meta';
@@ -41,6 +41,10 @@ function Point({
         height
     )
 
+    const name = useMemo(() => getName(node.tag), [node.tag])
+    const dotsize = useMemo(() => busStop ? 16 : 8, [busStop])
+    const iconsize = 11;
+
     useEffect(() => {
         const container = containerRef.current;
         if (container) {
@@ -48,28 +52,31 @@ function Point({
                 if (!visible) return;
 
                 const MINSIZE = 20;
-                const rect = container.getLocalBounds().clone();
+                // const rect = container.getLocalBounds().clone();
 
-                if (display === "dot") {
-                    let radius = rect.width / 2;
-                    if (radius < MINSIZE / 2) {
-                        radius = MINSIZE / 2;
-                    }
-                    radius = radius + 2;  // pad a bit more
+                // if (display === "dot") {
+                //     let radius = rect.width / 2;
+                //     if (radius < MINSIZE / 2) {
+                //         radius = MINSIZE / 2;
+                //     }
+                //     radius = radius + 2;  // pad a bit more
 
-                    const circle = new PIXICircle(0, 0, radius);
-                    container.hitArea = circle;
-                } else {
-                    if (rect.width < MINSIZE) {
-                        rect.pad((MINSIZE - rect.width) / 2, 0);
-                    }
-                    if (rect.height < MINSIZE) {
-                        rect.pad(0, (MINSIZE - rect.height) / 2);
-                    }
-                    rect.pad(4); // pad a bit more
+                //     const circle = new PIXICircle(0, 0, radius);
+                //     container.hitArea = circle;
+                // } else {
+                //     if (rect.width < MINSIZE) {
+                //         rect.pad((MINSIZE - rect.width) / 2, 0);
+                //     }
+                //     if (rect.height < MINSIZE) {
+                //         rect.pad(0, (MINSIZE - rect.height) / 2);
+                //     }
+                //     rect.pad(4); // pad a bit more
 
-                    container.hitArea = rect;
-                }
+                //     container.hitArea = rect;
+                // }
+
+                const circle = new PIXICircle(0, 0, Math.max(MINSIZE / 2, (dotsize / 2) + 5));
+                container.hitArea = circle
             };
 
             const updateHalo = () => {
@@ -172,17 +179,40 @@ function Point({
             visible={true}
             texture={display === "dot" ? circleTexture : locationPinTexture}
             anchor={display === "dot" ? { x: 0.5, y: 0.5 } : { x: 0.5, y: 1 }}
-            width={busStop ? 16 : 8}
-            height={busStop ? 16 : 8}
+            width={dotsize}
+            height={dotsize}
         />
         {busStop && <Sprite
             eventMode="none"
             texture={busStopTexture}
             anchor={display === "dot" ? { x: 0.5, y: 0.5 } : { x: 0.5, y: 1 }}
-            width={11}
-            height={11}
+            width={iconsize}
+            height={iconsize}
         />}
-
+        {name && zoom > 16 && <Text
+            text={name}
+            anchor={0.5}
+            x={0}
+            y={busStop ? 24 : 16}
+            style={
+                new TextStyle({
+                    align: 'center',
+                    fontFamily: '"Source Sans Pro", Helvetica, sans-serif',
+                    fontSize: 12,
+                    fontWeight: '400',
+                    fill: '#ffffff',
+                    stroke: '#000000',
+                    strokeThickness: 2,
+                    dropShadow: true,
+                    dropShadowColor: '#ccced2',
+                    dropShadowBlur: 3,
+                    dropShadowAngle: Math.PI / 6,
+                    dropShadowDistance: 2,
+                    wordWrap: true,
+                    wordWrapWidth: 440,
+                })
+            }
+        />}
     </Container>)
 }
 
