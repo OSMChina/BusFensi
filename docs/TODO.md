@@ -207,9 +207,9 @@ src
     - [X] 显示选择框，就用 dashed line 配一个棕色好了(用半透明矩形了)
     - [X] 在 outline 中引入 selected
     - [X] 完成抽象的 member picker, 允许内部成员单项拖拉拽，外部从选择的 feature 当中引入。允许批量操作
-    - [ ] 重构 CreateFeatureTag, 将其变为 CreateFeature, 允许在创建时引入 member
-    - [ ] 写出 New Stop Area
-    - [ ] PIXI Point 将会显示 Name
+    - [X] 重构 CreateFeatureTag, 将其变为 CreateFeature, 允许在创建时引入 member
+    - [X] 写出 New Stop Area
+    - [X] PIXI Point 将会显示 Name
     - [X] Property member 中的列表元素现在会使用 outline 列表相同的渲染方式
     - [ ] （可选）让 Stop Area 在地图上显示出来
 
@@ -237,6 +237,10 @@ src
 - [ ] 清除本地所有数据的按钮
 - [ ] 批量操作 outline 的元素，比如选择，删除
 - [ ] 重构 view/map 将其业务逻辑转到 app/map，现在的实现杂糅严重
+- [ ] 导入 JOSM 的 Preset：https://wiki.openstreetmap.org/wiki/Preset
+    - [ ] TS Type
+    - [ ] fast XML
+    - [ ] 导入
 
 ## Known Issue
 
