@@ -25,6 +25,12 @@ export const busStopPresetCN: FeaturePreset = {
             example: "海口路海游路"
         },
         {
+            '@_k': 'name:zh',
+            importance: "recommened",
+            description: "公交站点的名称。(中文)",
+            example: "海口路海游路"
+        },
+        {
             '@_k': 'bus',
             importance: "required",
             description: "在ptv2中注明这个站点为公交站点。",
@@ -121,6 +127,12 @@ export const stopPositionPresetCN: FeaturePreset = {
             example: "食用菌市场"
         },
         {
+            '@_k': 'name:zh',
+            importance: "recommened",
+            description: "公交站点的名称(中文)。具体描述见下文补充说明。",
+            example: "食用菌市场"
+        },
+        {
             '@_k': 'bus',
             importance: "required",
             description: "在ptv2中注明这个站点为公交站点",
@@ -142,6 +154,12 @@ export const stopAreaPresetCN: FeaturePreset = {
             '@_k': 'name',
             importance: "required",
             description: "该站组的名称，使用主名称或推广名称，即指向同一位置的同名分站台合并于此关系中",
+            example: "经十路舜耕路"
+        },
+        {
+            '@_k': 'name:zh',
+            importance: "recommened",
+            description: "该站组的名称(中文)，使用主名称或推广名称，即指向同一位置的同名分站台合并于此关系中",
             example: "经十路舜耕路"
         },
         {

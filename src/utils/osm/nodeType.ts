@@ -1,3 +1,4 @@
+// TODO:: consider replace these logic with JOSM Preset XML format so that we can reuse logic
 import { Tag } from "../../type/osm/meta";
 
 /**
@@ -30,8 +31,6 @@ export function isBusStop(tags?: Tag[]): boolean {
 export function isStopPosition(tags?: Tag[]): boolean {
     tags = tags || []
     return tags.some(t => t["@_k"] === "public_transport" && t["@_v"] === "stop_position")
-        && tags.some(t => t["@_k"] === "name")
-        && tags.some(t => t["@_k"] === "bus")
 }
 
 export function getName(tags?: Tag[]): string | undefined {
