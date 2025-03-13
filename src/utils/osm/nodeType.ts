@@ -1,5 +1,6 @@
 // TODO:: consider replace these logic with JOSM Preset XML format so that we can reuse logic
 import { Tag } from "../../type/osm/meta";
+import { NODE_TYPES } from "./featureTypeEnum";
 
 /**
  * If there is no real platform and you will only find a simple sign for the passengers … 
@@ -43,8 +44,8 @@ export function getNodeType(tags?: Tag[]): string | undefined {
         return undefined
     }
     if (isBusStop(tags)) {
-        return "Bus Stop"
+        return NODE_TYPES.BUS_STOP
     } else if (isStopPosition(tags)) {
-        return "Stop Position"
+        return NODE_TYPES.STOP_POSITION
     }
 }
