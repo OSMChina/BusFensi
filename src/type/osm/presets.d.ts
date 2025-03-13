@@ -1,7 +1,7 @@
 interface PresetTagItem {
     '@_k': string,
     '@_v'?: string,
-    importance: "required" | "recommened" | "optional" | "not-recommened"
+    importance: "required" | "important" | "recommened" | "optional" | "not-recommened"
     description?: string,
     example?: string
 }
