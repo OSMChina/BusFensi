@@ -11,7 +11,5 @@ export interface PtEditRightClickMenus {
     busStop: (props: RightClickMenuProps) => void,
     stopPosition: (props: RightClickMenuProps) => void
 }
-export type PtEditContext = BaseContext & {
-    rightClickMenus: PtEditRightClickMenus
-}
+export type PtEditContext = BaseContext
 export type FeatureClassifyFun = (target: FeatureRefObj, context: ComponentStateContext) => boolean

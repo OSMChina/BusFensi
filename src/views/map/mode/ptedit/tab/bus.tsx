@@ -6,7 +6,7 @@ import PIXIStage from "../../../layer/Stage";
 import { BackgroundLayer } from "../../../layer/BackgroundLayer";
 import EditableLayer from "../../../layer/EditableLayer";
 import InfoLayer from "../../../layer/InfoLayer";
-import { PtEditStateMachine } from "../../../stateMachine/ptEdit";
+import { PtEditStateMachine } from "../../../stateMachine/ptEdit/busStop";
 import { BaseStateMachine } from "../../../stateMachine/state";
 import { RightClickMenuProps } from "../../../../../type/view/map";
 import { getLocationByPixel } from "../../../../../store/mapview/seletor";

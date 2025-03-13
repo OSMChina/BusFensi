@@ -14,7 +14,7 @@ interface BatchSelectHandlers {
   onSelectRect?: (rect: {
     from: PointPixel,
     to: PointPixel
-  }) => void
+  }, event: FederatedMouseEvent | MouseEvent) => void
 }
 
 export class BatchSelectStateMachine extends BaseStateMachine<AllStateMachineEvents, BatchSelectContext> {
@@ -82,7 +82,7 @@ export class BatchSelectStateMachine extends BaseStateMachine<AllStateMachineEve
           useMapViewStore.getState().setSelectionRect()
           if (handlers?.onSelectRect) {
             const { clientX, clientY } = event as FederatedMouseEvent;
-            handlers.onSelectRect({ from: this.context.from!, to: getLocalPosistion(clientX, clientY, this.context) })
+            handlers.onSelectRect({ from: this.context.from!, to: getLocalPosistion(clientX, clientY, this.context) }, event as MouseEvent)
           }
           this.context.from = undefined;
           return true;
