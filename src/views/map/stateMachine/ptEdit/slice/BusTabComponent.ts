@@ -2,15 +2,17 @@ import { FederatedMouseEvent } from "pixi.js";
 import { StoreType } from "../../../../../type/stateMachine/baseEvent";
 import { PointerWithOSMEvent } from "../../../../../type/stateMachine/commonEdit/componentEvent";
 import { FeatureClassifyFun, PtEditContext, PtEditEvents } from "../../../../../type/stateMachine/ptEdit";
-import { ComponentStateContext, doComponentDragging, getLocalPosistion } from "../../slice/components/helper";
+import { ComponentStateContext, doComponentDragging } from "../../slice/components/helper";
 import { BaseStateMachine, StateItem } from "../../state"
 import { MOUSE } from "../../../../../utils/mouse/moueBtn";
-import { PointPixel } from "../../../../../utils/geo/types";
 import { FeatureRefObj } from "../../../../../type/osm/refobj";
 type ComponentStateItem = StateItem<PtEditEvents>;
 interface ComponentStateMachineOptions {
     // menus: PtEditRightClickMenus,
-    onRightClick: (pos: PointPixel, target: FeatureRefObj, event: PointerWithOSMEvent) => void,
+    onRightClick?: (target: FeatureRefObj, event: FederatedMouseEvent) => void,
+    onLeftClick?: (target: FeatureRefObj, event: FederatedMouseEvent) => void,
+    onHoverStart?: (target: FeatureRefObj, event: FederatedMouseEvent) => void,
+    onHoverExit?: (target: FeatureRefObj, event: FederatedMouseEvent) => void
     hoverable: FeatureClassifyFun,
     clickable: FeatureClassifyFun,
     dragable: FeatureClassifyFun,
@@ -22,7 +24,7 @@ export class BusTabComponentStateMachine extends BaseStateMachine<PtEditEvents, 
     componentHover: ComponentStateItem
     componentMousedown: ComponentStateItem
     pointDrag: ComponentStateItem
-    constructor(store: StoreType, { onRightClick, hoverable, clickable, dragable, selectable }: ComponentStateMachineOptions) {
+    constructor(store: StoreType, { onRightClick, onLeftClick, onHoverExit, onHoverStart, hoverable, clickable, dragable, selectable }: ComponentStateMachineOptions) {
         super(store)
         // 新建子状态
         this.idle = new StateItem("pt-bus-component-idle")
@@ -50,6 +52,7 @@ export class BusTabComponentStateMachine extends BaseStateMachine<PtEditEvents, 
 
                     const { modifyFeatureStateNC } = context.store.meta.getState();
                     modifyFeatureStateNC(type, id, feature => feature.hovered = true);
+                    if (onHoverStart) onHoverStart(context.componentTarget, event as FederatedMouseEvent)
                     return true;
                 }
                 return false;
@@ -67,6 +70,7 @@ export class BusTabComponentStateMachine extends BaseStateMachine<PtEditEvents, 
                     const { id, type } = context.componentTarget;
                     const { modifyFeatureStateNC } = context.store.meta.getState();
                     modifyFeatureStateNC(type, id, feature => feature.hovered = false);
+                    if (onHoverExit) onHoverExit(context.componentTarget, event as FederatedMouseEvent)
                     return true;
                 }
                 return false;
@@ -83,6 +87,7 @@ export class BusTabComponentStateMachine extends BaseStateMachine<PtEditEvents, 
                     const { id, type } = context.componentTarget;
                     const { modifyFeatureStateNC } = context.store.meta.getState();
                     modifyFeatureStateNC(type, id, feature => feature.hovered = false);
+                    if (onHoverExit) onHoverExit(context.componentTarget, event as FederatedMouseEvent)
                     context.componentTarget = undefined;
                     return true;
                 }
@@ -113,10 +118,11 @@ export class BusTabComponentStateMachine extends BaseStateMachine<PtEditEvents, 
             transform: (event) => {
                 const context = this.context;
                 if ((event.type === 'mouseup' || event.type === 'mouseupoutside') && context.componentTarget) {
-                    if ((event as FederatedMouseEvent).button === MOUSE.RIGHT) {
-                        const ev = (event as FederatedMouseEvent)
-                        onRightClick(getLocalPosistion(ev.clientX, ev.clientY, this.context), context.componentTarget, ev);
+                    if ((event as FederatedMouseEvent).button === MOUSE.RIGHT && onRightClick) {
+                        onRightClick(context.componentTarget, event as FederatedMouseEvent);
                         // this.context.rightClickMenus.stopPosition({ ...getLocalPosistion(ev.clientX, ev.clientY, this.context), feature: context.componentTarget, open: true })
+                    } else if ((event as FederatedMouseEvent).button === MOUSE.LEFT && onLeftClick) {
+                        onLeftClick(context.componentTarget, event as FederatedMouseEvent)
                     }
                     if (selectable(context.componentTarget, context)) {
                         // mouse down and up, means select

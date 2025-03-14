@@ -50,8 +50,8 @@ export class PtEditStateMachine extends BaseStateMachine<PtEditEvents, BaseConte
             }
         })
         this.busStopEditSubMachine = new BusTabComponentStateMachine(store, {
-            onRightClick: (pos, target) => {
-                this.menus.stopPosition({ ...pos, feature: target, open: true })
+            onRightClick: (target, event) => {
+                this.menus.stopPosition({ ...getLocalPosistion(event.clientX, event.clientY, this.context), feature: target, open: true })
             },
             hoverable,
             clickable,
