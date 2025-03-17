@@ -1,4 +1,4 @@
-import { ReactNode, useMemo,  useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { ViewFCProps } from "../../../../type/view/props";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBusSimple } from "@fortawesome/free-solid-svg-icons/faBusSimple";
@@ -10,6 +10,7 @@ import PropertyView from "../../../property";
 import { BusStopEditOutlineTab } from "../../components/collection/busStop";
 import SelectedOutlineTab from "../../components/collection/selected";
 import BusEditTab from "./tab/bus"
+import RouteEditTab from "./tab/route";
 
 function PtEditTabs({ width, height, children }: { width: number, height: number, children: ReactNode }) {
     return <div className="bg-base-100 border-r-2 border-r-base-300 flex flex-col"
@@ -31,7 +32,7 @@ function PtEditView({ width, height }: ViewFCProps) {
     }, {
         tooltip: "Route edit tab",
         icon: <FontAwesomeIcon icon={faRoute} />,
-        stage: () => <div className="p-2">Route Edit Placeholder</div>
+        stage: () => <RouteEditTab width={width - TABS_WIDTH} height={height} />
     }, {
         tooltip: "Edit bus relation",
         icon: <FontAwesomeIcon icon={faCodeCommit} />,
