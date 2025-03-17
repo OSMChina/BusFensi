@@ -20,6 +20,16 @@ export interface FeatureStateAction {
         id: NumericString,
         clear: boolean // clear select or not
     ) => void,
+    toggleFeature: (
+        type: FeatureTypes,
+        id: NumericString,
+        clear: boolean // clear select or not
+    ) => void,
+    toggleFeatureWithoutActive: (
+        type: FeatureTypes,
+        id: NumericString,
+        clear: boolean // clear select or not
+    ) => void,
     selectFeatureWithoutActive: (
         type: FeatureTypes,
         id: NumericString,
@@ -55,6 +65,24 @@ export const createFeatureStateActionSlice: StateCreator<
     unSelectFeature: (type, id) => set(state => {
         commitHelper(state)
         unSelectFeatureHelper(state, type, id)
+    }),
+    toggleFeature: (type, id, clear) => set(state => {
+        commitHelper(state)
+        if (state.meta[type][id]["@_localStates"]?.selected){
+            unSelectFeatureHelper(state, type,id)
+        } else {
+            if (clear) { clearSelectHelper(state) }
+            selectFeatureHelper(state, type,id)
+        }
+    }),
+    toggleFeatureWithoutActive: (type, id, clear) => set(state => {
+        commitHelper(state)
+        if (state.meta[type][id]["@_localStates"]?.selected){
+            unSelectFeatureHelper(state, type,id)
+        } else {
+            if (clear) { clearSelectHelper(state) }
+            selectFeatureWithoutActiveHelper(state, type,id)
+        }
     }),
     clearSelect: () => set(state => {
         commitHelper(state);

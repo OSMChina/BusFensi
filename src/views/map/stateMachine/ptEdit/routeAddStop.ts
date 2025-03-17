@@ -1,6 +1,7 @@
+import { useOSMMapStore } from "../../../../store/osmmeta";
+import { Member } from "../../../../type/osm/meta";
 import { BaseContext, StoreType } from "../../../../type/stateMachine/baseEvent";
-import { FeatureClassifyFun, PtEditEvents, PtEditRightClickMenus } from "../../../../type/stateMachine/ptEdit";
-import { getLocalPosistion } from "../slice/components/helper";
+import { FeatureClassifyFun, PtEditEvents } from "../../../../type/stateMachine/ptEdit";
 import { MapViewStateMachine } from "../slice/map/MapViewStateMachine";
 import { UndoRedoStateMachine } from "../slice/util/UndoRedoStateMachine";
 import { BaseStateMachine, StateItem } from "../state";
@@ -35,7 +36,18 @@ export class RouteAddStopStateMachine extends BaseStateMachine<PtEditEvents, Bas
         this.idle = new StateItem('pt-edit-idle')
         this.mapViewSubMachine = new MapViewStateMachine(store)
         this.busStopEditSubMachine = new BusTabComponentStateMachine(store, {
-            onRightClick: (target, event) => {
+            onRightClick: (target) => {
+                const { routeEdit, setRouteStop } = useOSMMapStore.getState()
+                const match = (member: Member) => member["@_ref"] === target.id && member["@_type"] === target.type
+                if (routeEdit.stops.some(match)) {
+                    setRouteStop(routeEdit.stops.filter(m => !match(m)))
+                } else {
+                    setRouteStop([...routeEdit.stops, { '@_ref': target.id, "@_type": target.type }])
+                }
+            },
+            onLeftClick: (target) => {
+                const { toggleFeature } = useOSMMapStore.getState()
+                toggleFeature(target.type, target.id, true);
             },
             hoverable,
             clickable,
@@ -58,6 +70,6 @@ export class RouteAddStopStateMachine extends BaseStateMachine<PtEditEvents, Bas
     }
 
     transform(event: PtEditEvents): void {
-                super.transform(event)
+        super.transform(event)
     }
 }
