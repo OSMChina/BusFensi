@@ -11,6 +11,7 @@ export interface BusEditAction {
     createEditRoute: (tag: Tag[], member?: Member[]) => void
     setEditRoute: (id: NumericString) => void,
     setRouteStop: (stops: Member[]) => void,
+    cancelEditRoute: () => void,
     setEditStepNC: (step: number) => void,
 }
 
@@ -62,6 +63,14 @@ export const createBusEditActionSlice: StateCreator<
             editing: id,
             step: 0,
             stops: state.meta.relation?.[id].member.filter(m => m["@_type"] === "node") || []
+        }
+    }),
+    cancelEditRoute: () => set(state => {
+        commitHelper(state)
+        state.routeEdit = {
+            editing: undefined,
+            step: 0,
+            stops: []
         }
     }),
     setRouteStop: (stops) => set(state => {
