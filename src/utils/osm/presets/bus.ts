@@ -172,7 +172,7 @@ export const stopAreaPresetCN: FeaturePreset = {
 }
 
 
-const featurePreset: FeaturePreset = {
+export const routePresetCN: FeaturePreset = {
     tag: [
         // Row 1: type=route
         {
@@ -349,5 +349,3 @@ const featurePreset: FeaturePreset = {
         }
     ]
 };
-
-export default featurePreset;
