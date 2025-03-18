@@ -5,7 +5,7 @@ import { FeatureTypeMap, ModifyFeatureMetaHelper, WritableFeatureTypeMap } from 
 import { PointWGS84 } from "../../../../utils/geo/types";
 import { Member, Nd, Node, Relation, Way } from "../../../../type/osm/meta";
 import { FeatureTree } from "../../middleware/computed";
-import { createFeatureStateHelper } from "../../helper";
+import { createFeatureStateHelper, deleteFeatureStateHelper } from "../../helper";
 import { T2Arr } from "../../../../utils/helper/object";
 
 const _createNodeMeta = (state: WritableDraft<OSMMapStore>, location: PointWGS84) => {
@@ -48,7 +48,16 @@ export function addFeatureMetaHelper<T extends FeatureTypes>(
     if (state.meta[type][key]) {
         console.debug(`Can't add feature ${type} ${key}: already exsits! Ignoring this attempt`);
     }
-    state.meta[type][key] = feature;
+    if (type === "node") { // fix: Node lon/lat is string in osm meta, dont known where the problem is from
+        // TODO: fix this problem, try find who cause this
+        const node= feature as Node;
+        node["@_lon"] = Number(node["@_lon"]);
+        node["@_lat"] = Number(node["@_lat"]);
+        state.meta[type][key] = node;
+    } else {
+        state.meta[type][key] = feature;
+    }
+    
     createFeatureStateHelper(state, type, key)
 }
 
@@ -146,6 +155,7 @@ export function deleteFeatureSelfHelper(
     }
     state.deletedMeta[type][id] = state.meta[type][id];
     state.deletedMeta[type][id]["@_action"] = "delete";
+    deleteFeatureStateHelper(state, type,id)
     delete state.meta[type][id];
 }
 
