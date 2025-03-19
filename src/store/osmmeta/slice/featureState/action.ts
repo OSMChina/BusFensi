@@ -11,6 +11,13 @@ export interface FeatureStateAction {
         id: NumericString,
         modify: (feature: WritableDraft<Omit<FeatureState, 'selected' | 'active'>>) => void
     ) => void,
+    modifyFeatureStateBatchNC: (
+        modifications: Array<{
+            type: FeatureTypes,
+            id: NumericString,
+            modify: (feature: WritableDraft<Omit<FeatureState, 'selected' | 'active'>>) => void
+        }>
+    ) => void,
     unSelectFeature: (
         type: FeatureTypes,
         id: NumericString,
@@ -51,6 +58,11 @@ export const createFeatureStateActionSlice: StateCreator<
 > = (set) => ({
     modifyFeatureStateNC: (type, id, modify) => set(state => {
         modifyFeatureStateHelper(state, type, id, modify)
+    }),
+    modifyFeatureStateBatchNC: (modifications) => set(state => {
+        modifications.forEach(({ type, id, modify }) => {
+            modifyFeatureStateHelper(state, type, id, modify);
+        });
     }),
     selectFeature: (type, id, clear) => set(state => {
         commitHelper(state);

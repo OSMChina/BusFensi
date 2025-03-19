@@ -11,7 +11,7 @@ import { RouteAddStopStateMachine } from "../../../stateMachine/ptEdit/routeAddS
 import MemberItem from "../../../../../components/osm/memberDrag/MemberItem";
 import { Member } from "../../../../../type/osm/meta";
 import { cn, deepCopy } from "../../../../../utils/helper/object";
-import { NumericString } from "../../../../../type/osm/refobj";
+import { FeatureState, FeatureTypes, NumericString } from "../../../../../type/osm/refobj";
 import { isRoute } from "../../../../../utils/osm/relationType";
 import { getName } from "../../../../../utils/osm/nodeType";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,6 +24,7 @@ import MemberListSelectDelDown from "../../../../property/components/MemberListS
 import RoleInput from "../../../../../components/osm/member/RoleInput";
 import { faChevronUp } from "@fortawesome/free-solid-svg-icons/faChevronUp";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons/faChevronDown";
+import { WritableDraft } from "immer";
 
 const STEPS_HEIGHT = 72
 
@@ -132,6 +133,42 @@ const CreateOrSelectRoute = () => {
     </div>
   </div>
 };
+
+const BusStopUpdateActive = () => {
+  const { stops } = useOSMMapStore(state => state.routeEdit);
+  const modifyFeatureStateBatchNC = useOSMMapStore(state => state.modifyFeatureStateBatchNC);
+
+  useEffect(() => {
+    // Create a batch of modifications to set highlighted to true
+    const highlightModifications = stops.map(stop => ({
+      type: stop["@_type"] as FeatureTypes,
+      id: stop["@_ref"],
+      modify: (feature: WritableDraft<Omit<FeatureState, 'selected' | 'active'>>) => {
+        feature.highlighted = true;
+      },
+    }));
+
+    // Apply the batch modifications
+    modifyFeatureStateBatchNC(highlightModifications);
+
+    // Cleanup function to reset the highlighted state
+    return () => {
+      const resetModifications = stops.map(stop => ({
+        type: stop["@_type"] as FeatureTypes,
+        id: stop["@_ref"],
+        modify: (feature: WritableDraft<Omit<FeatureState, 'selected' | 'active'>>) => {
+          feature.highlighted = false;
+        },
+      }));
+
+      // Apply the batch modifications to reset
+      modifyFeatureStateBatchNC(resetModifications);
+    };
+  }, [modifyFeatureStateBatchNC, stops]);
+
+  return null;
+};
+
 const BusStopPanel = () => {
 
   const [showMembers, setShowMembers] = useState(true);  // Toggle state
@@ -170,31 +207,32 @@ const BusStopPanel = () => {
 
 
   return <div className="absolute top-0 right-0 card min-h-16 max-h-full overflow-auto p-2 bg-base-100 min-w-96">
-  <div className="flex justify-between items-center">
-    <h3>Bus stops members (click to show/hide)</h3>
-    <button 
-      onClick={() => setShowMembers(!showMembers)}
-      className="btn btn-sm btn-ghost btn-circle"
-      aria-label={showMembers ? "Collapse" : "Expand"}
-    >
-      <FontAwesomeIcon 
-        icon={showMembers ? faChevronUp : faChevronDown} 
-        className="w-4 h-4"
-      />
-    </button>
+    <div className="flex justify-between items-center">
+      <h3>Bus stops members (click to show/hide)</h3>
+      <button
+        onClick={() => setShowMembers(!showMembers)}
+        className="btn btn-sm btn-ghost btn-circle"
+        aria-label={showMembers ? "Collapse" : "Expand"}
+      >
+        <FontAwesomeIcon
+          icon={showMembers ? faChevronUp : faChevronDown}
+          className="w-4 h-4"
+        />
+      </button>
+    </div>
+    {showMembers && (
+      <MemberListSelectDelDown
+        member={stops}
+        memberToId={(m) => `${m["@_type"]}-${m["@_ref"]}`}
+        onDelete={(_, after) => setStops(after)}
+        onDragStart={() => { }}
+        onDragEnd={(m) => setStops(m)}
+      >
+        {memberItemRender}
+      </MemberListSelectDelDown>
+    )}
+    <BusStopUpdateActive />
   </div>
-  {showMembers && (
-    <MemberListSelectDelDown
-      member={stops}
-      memberToId={(m) => `${m["@_type"]}-${m["@_ref"]}`}
-      onDelete={(_, after) => setStops(after)}
-      onDragStart={() => { }}
-      onDragEnd={(m) => setStops(m)}
-    >
-      {memberItemRender}
-    </MemberListSelectDelDown>
-  )}
-</div>
 }
 
 const RouteEditTab = ({ width, height }: BusEditTabProps) => {
