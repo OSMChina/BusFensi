@@ -9,9 +9,8 @@ import { useSettingsStore } from "../../../store/settings";
 import { faDownload } from "@fortawesome/free-solid-svg-icons/faDownload";
 
 export default function MemberListSelectDelDown<T extends Nd | Member>({ onDelete, member: memberOriginal, memberToId: memberToIdOriginal, ...rest }
-    : Omit<ComponentProps<typeof MemberListSelect<T>>, "slotSelection" | "children"> & {
+    : Omit<ComponentProps<typeof MemberListSelect<T>>, "slotSelection"> & {
         onDelete: (prev: T[], after: T[]) => void,
-        children: (props: { member: T; children: React.ReactNode; overlay?: true; }) => ReactNode
     }) {
 
     const loadFeatureBatch = useOSMMapStore(state => state.loadFeatureBatch)

@@ -27,7 +27,7 @@ function DragList<T>({ memberToId, member, onDragEnd, onDragStart, children }: {
     member: T[],
     onDragStart: (member: T) => void,
     onDragEnd: (member: T[]) => void,
-    children: (props: { member: T, isDragOverlay?: true }) => ReactNode;
+    children: (props: { member: T, isDragOverlay?: true; index: number }) => ReactNode;
 }) {
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -66,10 +66,10 @@ function DragList<T>({ memberToId, member, onDragEnd, onDragStart, children }: {
         setActiveMember(undefined);
     }
 
-    const renderItems = useCallback(({ id, member }: { id: UniqueIdentifier; member: T; }) => {
+    const renderItems = useCallback(({ id, member, index }: { id: UniqueIdentifier; member: T; index: number }) => {
         return (
             <Draggable id={id} key={id}>
-                {children({ member })}
+                {children({ member, index })}
             </Draggable>
         );
     }, [children])
@@ -85,12 +85,12 @@ function DragList<T>({ memberToId, member, onDragEnd, onDragStart, children }: {
                 items={items}
                 strategy={verticalListSortingStrategy}
             >
-                {items.map(renderItems)}
+                {items.map((m, i) => renderItems({ id: m.id, member: m.member, index: i }))}
             </SortableContext>
             <DragOverlay>
                 {activeMember ? <div className="flex bg-base-200 rounded-sm pl-1">
                     <button className="btn btn-ghost btn-xs my-auto"><FontAwesomeIcon icon={faGripVertical} /></button>
-                    {children({ member: activeMember, isDragOverlay: true })}
+                    {children({ member: activeMember, isDragOverlay: true, index: -1 })}
                 </div> : null}
             </DragOverlay>
         </DndContext>

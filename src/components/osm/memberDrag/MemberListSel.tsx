@@ -3,27 +3,30 @@ import { ComponentProps, ReactNode, useCallback } from "react"
 import DragList from "../../dnd/DragList";
 import BaseListSelect from "../../dnd/BaseSelect";
 
-function DragListChild<T>({ member: m, isDragOverlay: overlay, slot, children }: {
+function DragListChild<T>({ member: m, isDragOverlay: overlay, slot, index, children }: {
     member: T;
     isDragOverlay?: true;
+    index: number;
     slot: (props: { m: T }) => ReactNode, children: (props: {
         member: T;
         children: ReactNode;
         overlay?: true;
+        index: number;
     }) => ReactNode
 }) {
     return <>
         {children({
             member: m,
             children: slot({ m }),
-            overlay
+            overlay,
+            index
         })}
     </>
 }
 
 export default function MemberListSelect<T>({ member, memberToId, children, slotSelection, ...rest }
     : Omit<ComponentProps<typeof DragList<T>>, "children"> & {
-        children: (props: { member: T, children: ReactNode, overlay?: true }) => ReactNode
+        children: (props: { member: T, children: ReactNode, overlay?: true; index: number }) => ReactNode
         slotSelection: (props: { selected: Set<UniqueIdentifier>, children: ReactNode }) => ReactNode
     }) {
     // Use a Set to track selected member IDs for constant-time operations
