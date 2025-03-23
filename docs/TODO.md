@@ -207,23 +207,23 @@ src
     - [X] 显示选择框，就用 dashed line 配一个棕色好了(用半透明矩形了)
     - [X] 在 outline 中引入 selected
     - [X] 完成抽象的 member picker, 允许内部成员单项拖拉拽，外部从选择的 feature 当中引入。允许批量操作
-    - [ ] 重构 CreateFeatureTag, 将其变为 CreateFeature, 允许在创建时引入 member
-    - [ ] 写出 New Stop Area
-    - [ ] PIXI Point 将会显示 Name
+    - [X] 重构 CreateFeatureTag, 将其变为 CreateFeature, 允许在创建时引入 member
+    - [X] 写出 New Stop Area
+    - [X] PIXI Point 将会显示 Name
     - [X] Property member 中的列表元素现在会使用 outline 列表相同的渲染方式
     - [ ] （可选）让 Stop Area 在地图上显示出来
 
 ### 2025 年 3 月 22 日前
 
 - [ ] 完成公交线路引入公交站点的内容
-    - [ ] 选择或新建线路
-    - []  第一步：公交站点
-        - [ ] 显示线路公交站点关系，将当前所有公交站点用 highlight 属性标出，然后在对应位置显示当前站点排序
-        - [ ] 插入公交站点，允许右键添加到当前线路中
-        - [ ] 删除公交站点，允许右键，也可以手动
+    - [X] 选择或新建线路
+    - [X]  第一步：公交站点
+        - [X] <s>显示线路公交站点关系，将当前所有公交站点用 highlight 属性标出，</s>然后在对应位置显示当前站点排序
+        - [X] 插入公交站点，允许右键添加到当前线路中
+        - [X] 删除公交站点，<s>允许右键，</s>也可以手动
     - [ ] 第二步：线路
         - [ ] 点击路径上的点，用 highlight 属性标出。将这个点顺序和 way 顺序存在 bus slice 里面。
-        - [ ] 待定
+        - [X] 上述需求暂时冻结，目前实现参考公交站点
 
 ## 其他优化
 
@@ -232,11 +232,16 @@ src
 - [ ] 加入 JOSM 导入数据功能
 - [X] 添加一个开启/关闭滑动加载的按钮
 - [ ] 分数 zoom 缩放
+- [ ] **（重要）**超出 19 的 zoom 缩放，参考分数缩放实现
 - [ ] zoom 和 lon lat 的数值修改
 - [ ] console log level
 - [ ] 清除本地所有数据的按钮
 - [ ] 批量操作 outline 的元素，比如选择，删除
 - [ ] 重构 view/map 将其业务逻辑转到 app/map，现在的实现杂糅严重
+- [ ] 导入 JOSM 的 Preset：https://wiki.openstreetmap.org/wiki/Preset
+    - [ ] TS Type
+    - [ ] fast XML
+    - [ ] 导入
 
 ## Known Issue
 
@@ -246,3 +251,4 @@ src
 - [ ] **(MEDIUM)** OSM 数据会爆 localStorage 空间。
 - [ ] **(MEDIUM)** zundo 的全量状态历史记录非常耗内存，而且给的 diff 接口假设 delta state, 就是说只能拿单层 state, 对 nested state 并不能支持增量。并且没给 merge 接口，所以得手动 fork 并拓展 zundo ，或者要使用一个独立的中间件注入 set 函数来实现 deepMerge。
 - [ ] **(MEDIUM)** <s>拖动后 select dash line 并不会消失。哪天顺手修一个</s>现在修好了但是销毁对象的时候有 error，暂时不影响功能
+- [ ] **(HIGH)** 出现过一次只进 hover 不退出 hover，弄得全屏都是 hover, 但是没有复现出来过。(更新)已知是 localStorage 爆了的原因，这边需要把逻辑改改了，把 @_localState 重新拆出来

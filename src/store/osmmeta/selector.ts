@@ -4,6 +4,8 @@ import { FeatureMetaGroup, FeatureTypes, NumericString } from "../../type/osm/re
 import { FeatureTypeMap } from "./slice/meta/type";
 import { OSMMapStore } from "./store";
 
+export * from "./slice/bus/selector"
+
 const getFeatureInBound = ({ left, right, bottom, top }: BoundsType) => (store: OSMMapStore): FeatureMetaGroup => {
     const inBound = ({ '@_lon': lon, '@_lat': lat }: Node) => {
         return left <= lon && lon <= right && bottom <= lat && lat <= top;

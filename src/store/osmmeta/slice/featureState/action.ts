@@ -11,11 +11,28 @@ export interface FeatureStateAction {
         id: NumericString,
         modify: (feature: WritableDraft<Omit<FeatureState, 'selected' | 'active'>>) => void
     ) => void,
+    modifyFeatureStateBatchNC: (
+        modifications: Array<{
+            type: FeatureTypes,
+            id: NumericString,
+            modify: (feature: WritableDraft<Omit<FeatureState, 'selected' | 'active'>>) => void
+        }>
+    ) => void,
     unSelectFeature: (
         type: FeatureTypes,
         id: NumericString,
     ) => void
     selectFeature: (
+        type: FeatureTypes,
+        id: NumericString,
+        clear: boolean // clear select or not
+    ) => void,
+    toggleFeature: (
+        type: FeatureTypes,
+        id: NumericString,
+        clear: boolean // clear select or not
+    ) => void,
+    toggleFeatureWithoutActive: (
         type: FeatureTypes,
         id: NumericString,
         clear: boolean // clear select or not
@@ -42,6 +59,11 @@ export const createFeatureStateActionSlice: StateCreator<
     modifyFeatureStateNC: (type, id, modify) => set(state => {
         modifyFeatureStateHelper(state, type, id, modify)
     }),
+    modifyFeatureStateBatchNC: (modifications) => set(state => {
+        modifications.forEach(({ type, id, modify }) => {
+            modifyFeatureStateHelper(state, type, id, modify);
+        });
+    }),
     selectFeature: (type, id, clear) => set(state => {
         commitHelper(state);
         if (clear) { clearSelectHelper(state) }
@@ -55,6 +77,24 @@ export const createFeatureStateActionSlice: StateCreator<
     unSelectFeature: (type, id) => set(state => {
         commitHelper(state)
         unSelectFeatureHelper(state, type, id)
+    }),
+    toggleFeature: (type, id, clear) => set(state => {
+        commitHelper(state)
+        if (state.meta[type][id]["@_localStates"]?.selected){
+            unSelectFeatureHelper(state, type,id)
+        } else {
+            if (clear) { clearSelectHelper(state) }
+            selectFeatureHelper(state, type,id)
+        }
+    }),
+    toggleFeatureWithoutActive: (type, id, clear) => set(state => {
+        commitHelper(state)
+        if (state.meta[type][id]["@_localStates"]?.selected){
+            unSelectFeatureHelper(state, type,id)
+        } else {
+            if (clear) { clearSelectHelper(state) }
+            selectFeatureWithoutActiveHelper(state, type,id)
+        }
     }),
     clearSelect: () => set(state => {
         commitHelper(state);

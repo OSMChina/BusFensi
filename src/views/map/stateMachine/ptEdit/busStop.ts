@@ -45,12 +45,14 @@ export class PtEditStateMachine extends BaseStateMachine<PtEditEvents, BaseConte
         this.idle = new StateItem('pt-edit-idle')
         this.mapViewSubMachine = new MapViewStateMachine(store, {
             rightClickHandeler: (event) => {
-                menus.busStop({ ...getLocalPosistion(event.clientX, event.clientY, this.context), open: true })
-                menus.stopPosition({ x: 0, y: 0, open: false })
+                this.menus.busStop({ ...getLocalPosistion(event.clientX, event.clientY, this.context), open: true })
+                this.menus.stopPosition({ x: 0, y: 0, open: false })
             }
         })
         this.busStopEditSubMachine = new BusTabComponentStateMachine(store, {
-            menus,
+            onRightClick: (target, event) => {
+                this.menus.stopPosition({ ...getLocalPosistion(event.clientX, event.clientY, this.context), feature: target, open: true })
+            },
             hoverable,
             clickable,
             dragable,
@@ -58,12 +60,15 @@ export class PtEditStateMachine extends BaseStateMachine<PtEditEvents, BaseConte
         })
         this.undoRedo = new UndoRedoStateMachine(store)
         this.batchSelect = new BatchSelectStateMachine(store, {
-            onSelectRect: (rect) => {
+            onSelectRect: (rect, event) => {
                 const { viewpoint, zoom, width, height } = this.context.store.view.getState()
                 const bounds = getBoundsByRect(viewpoint, zoom, width!, height!, rect);
                 const osmmeta = this.context.store.meta.getState()
                 const featuregroup = getFeatureInBound(bounds)(osmmeta)
                 console.debug("get feature group ", featuregroup)
+                if (!event.ctrlKey) {
+                    osmmeta.clearSelect()
+                }
                 Object.entries(featuregroup.node)
                     .filter(([, n]) => selectable({ id: n["@_id"], type: "node" }, this.context))
                     .forEach(([, n]) => osmmeta.selectFeature("node", n["@_id"], false))
