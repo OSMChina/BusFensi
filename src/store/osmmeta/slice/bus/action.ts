@@ -14,6 +14,7 @@ export interface BusEditAction {
     setRoutePath: (path: Member[]) => void,
     cancelEditRoute: () => void,
     setEditStepNC: (step: number) => void,
+    saveEditRoute: () => void,
 }
 
 const inBusStop = (m: Member) => m["@_type"] === "node" || m["@_role"]?.startsWith("stop") || m["@_role"]?.startsWith("platform");
@@ -96,5 +97,20 @@ export const createBusEditActionSlice: StateCreator<
     }),
     setEditStepNC: (step) => set(state => {
         state.routeEdit.step = step
-    })
+    }),
+    saveEditRoute: () => set(state => {
+        const { editing: routeId, stops, path } = state.routeEdit;
+        if (!routeId) return;
+
+        commitHelper(state);
+
+        modifyFeatureHelper(state, "relation", routeId, relation => {
+            relation.tag = [...relation.tag || []];
+            relation.member = [...stops, ...path];
+        });
+
+        state.routeEdit.editing = undefined;
+        state.routeEdit.stops = [];
+        state.routeEdit.path = [];
+    }),
 })

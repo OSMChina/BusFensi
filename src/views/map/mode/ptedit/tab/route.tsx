@@ -9,7 +9,7 @@ import InfoLayer from "../../../layer/InfoLayer";
 import { BaseStateMachine } from "../../../stateMachine/state";
 import { RouteAddStopStateMachine } from "../../../stateMachine/ptEdit/routeAddStop";
 import MemberItem from "../../../../../components/osm/memberDrag/MemberItem";
-import { Member } from "../../../../../type/osm/meta";
+import { Member, Tag } from "../../../../../type/osm/meta";
 import { cn, deepCopy } from "../../../../../utils/helper/object";
 import { FeatureState, FeatureTypes, NumericString } from "../../../../../type/osm/refobj";
 import { isRoute } from "../../../../../utils/osm/relationType";
@@ -27,6 +27,7 @@ import { faChevronDown } from "@fortawesome/free-solid-svg-icons/faChevronDown";
 import { WritableDraft } from "immer";
 import DisplayWayConnectivity from "../../../../property/components/DisplayWayConnectivity";
 import { RouteAddPathStateMachine } from "../../../stateMachine/ptEdit/routeAddPath";
+import Tags from "../../../../property/components/Tags";
 
 const STEPS_HEIGHT = 72
 
@@ -417,9 +418,104 @@ const EditRoutePathStage = ({ width, height }: BusEditTabProps) => {
   );
 };
 
+const SaveRouteStage = () => {
+  const { editing: routeId, stops, path } = useOSMMapStore(state => state.routeEdit);
+  const saveEditRoute = useOSMMapStore(state => state.saveEditRoute);
+  const modifyFeatureMetaNC = useOSMMapStore(state => state.modifyFeatureMetaNC);
+  const setStep = useOSMMapStore(state => state.setEditStepNC);
+  const meta = useOSMMapStore(state => routeId && state.meta.relation[routeId]);
+  const [editedTags, setEditedTags] = useState<Tag[]>(meta?.tag || []);
+
+  const { undo } = useOSMMapStore.temporal.getState();
+
+  const handleSave = () => {
+    saveEditRoute();
+  };
+
+  if (!routeId) return <div className="p-4 bg-base-100 max-w-xl mx-auto max-h-full overflow-scroll w-full">
+    <div className="alert alert-success mb-4 mx-auto">
+      <span>✓ Changes have been saved</span>
+    </div>
+
+    <div className="flex gap-2 justify-end">
+      <button onClick={() => undo()} className="btn btn-primary">
+        Undo
+      </button>
+      <button onClick={() => setStep(0)} className="btn btn-primary">
+        Proceed
+      </button>
+    </div>
+  </div>
+    ;
+
+  return (
+    <div className="p-4 bg-base-100 max-w-xl mx-auto max-h-full overflow-scroll w-full">
+      <h2 className="text-lg font-bold mb-4">Finalize Route Edits</h2>
+
+      <div className="mb-6">
+        <h3 className="font-medium mb-2">Route Tags</h3>
+        <Tags
+          tags={editedTags}
+          setTags={setEditedTags}
+          commitChange={() => modifyFeatureMetaNC("relation", routeId!, r => r.tag = editedTags)}
+        />
+      </div>
+
+      <div className="mb-6">
+        <h3 className="font-medium mb-2">Route Members</h3>
+        <div className="bg-base-200 p-2 rounded text-xs">
+          {/* 分开显示 stops 和 path */}
+          <div className="mb-4">
+            <h4 className="text-sm font-medium mb-2">Stops</h4>
+            {stops.map((member, index) => (
+              <MemberItem
+                key={`${member["@_type"]}-${member["@_ref"]}-${index}`}
+                id={member["@_ref"]}
+                type={member["@_type"]}
+                showMetaType
+              />
+            ))}
+          </div>
+
+          <div className="">
+            <h4 className="text-sm font-medium mb-2">Path</h4>
+            {path.map((member, index) => (
+              <MemberItem
+                key={`${member["@_type"]}-${member["@_ref"]}-${index}`}
+                id={member["@_ref"]}
+                type={member["@_type"]}
+                showMetaType
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={handleSave}
+          className="btn btn-primary"
+        >
+          Save Changes
+        </button>
+      </div>
+    </div>
+  );
+};
+
+
+
 const RouteEditTab = ({ width, height }: BusEditTabProps) => {
   const { step, editing } = useOSMMapStore(state => state.routeEdit);
   const setCurrentStep = useOSMMapStore(state => state.setEditStepNC);
+
+  const handelSetStep = (nxt: number) => {
+    if (editing) {
+      setCurrentStep(nxt);
+    } else {
+      setCurrentStep(0);
+    }
+  }
 
   const stepTabs = useMemo(() => [
     {
@@ -436,7 +532,7 @@ const RouteEditTab = ({ width, height }: BusEditTabProps) => {
     },
     {
       label: "Save changes",
-      component: <div>save</div>
+      component: <SaveRouteStage />
     }
   ], [width, height]);
 
@@ -451,7 +547,7 @@ const RouteEditTab = ({ width, height }: BusEditTabProps) => {
             {stepTabs.map(({ label }, index) => (
               <li
                 key={index}
-                onClick={() => setCurrentStep(index)}
+                onClick={() => handelSetStep(index)}
                 className={cn("step cursor-pointer", index <= step ? 'step-primary' : '', !editing && "disabled")}
               >
                 {label}
