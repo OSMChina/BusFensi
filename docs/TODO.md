@@ -223,7 +223,7 @@ src
         - [X] 删除公交站点，<s>允许右键，</s>也可以手动
     - [ ] 第二步：线路
         - [ ] 点击路径上的点，用 highlight 属性标出。将这个点顺序和 way 顺序存在 bus slice 里面。
-        - [ ] 待定
+        - [X] 上述需求暂时冻结，目前实现参考公交站点
 
 ## 其他优化
 
@@ -251,4 +251,4 @@ src
 - [ ] **(MEDIUM)** OSM 数据会爆 localStorage 空间。
 - [ ] **(MEDIUM)** zundo 的全量状态历史记录非常耗内存，而且给的 diff 接口假设 delta state, 就是说只能拿单层 state, 对 nested state 并不能支持增量。并且没给 merge 接口，所以得手动 fork 并拓展 zundo ，或者要使用一个独立的中间件注入 set 函数来实现 deepMerge。
 - [ ] **(MEDIUM)** <s>拖动后 select dash line 并不会消失。哪天顺手修一个</s>现在修好了但是销毁对象的时候有 error，暂时不影响功能
-- [ ] **(LOW)** 出现过一次只进 hover 不退出 hover，弄得全屏都是 hover, 但是没有复现出来过。
+- [ ] **(HIGH)** 出现过一次只进 hover 不退出 hover，弄得全屏都是 hover, 但是没有复现出来过。(更新)已知是 localStorage 爆了的原因，这边需要把逻辑改改了，把 @_localState 重新拆出来
