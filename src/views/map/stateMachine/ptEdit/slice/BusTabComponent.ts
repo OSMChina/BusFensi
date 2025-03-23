@@ -1,12 +1,13 @@
 import { FederatedMouseEvent } from "pixi.js";
 import { StoreType } from "../../../../../type/stateMachine/baseEvent";
 import { PointerWithOSMEvent } from "../../../../../type/stateMachine/commonEdit/componentEvent";
-import { FeatureClassifyFun, PtEditContext, PtEditEvents } from "../../../../../type/stateMachine/ptEdit";
+import { FeatureClassifyFun, PtEditContext } from "../../../../../type/stateMachine/ptEdit";
 import { ComponentStateContext, doComponentDragging } from "../../slice/components/helper";
 import { BaseStateMachine, StateItem } from "../../state"
 import { MOUSE } from "../../../../../utils/mouse/moueBtn";
 import { FeatureRefObj } from "../../../../../type/osm/refobj";
-type ComponentStateItem = StateItem<PtEditEvents>;
+import { AllStateMachineEvents } from "../../../../../type/stateMachine/allEvents";
+type ComponentStateItem = StateItem<AllStateMachineEvents>;
 interface ComponentStateMachineOptions {
     // menus: PtEditRightClickMenus,
     onRightClick?: (target: FeatureRefObj, event: FederatedMouseEvent) => void,
@@ -19,7 +20,7 @@ interface ComponentStateMachineOptions {
     selectable: FeatureClassifyFun
 }
 // TODO:: right click modal support. expose some hooks to enable: onHover, onClick, onDrag?
-export class BusTabComponentStateMachine extends BaseStateMachine<PtEditEvents, ComponentStateContext & PtEditContext> {
+export class BusTabComponentStateMachine extends BaseStateMachine<AllStateMachineEvents, ComponentStateContext & PtEditContext> {
     idle: ComponentStateItem
     componentHover: ComponentStateItem
     componentMousedown: ComponentStateItem

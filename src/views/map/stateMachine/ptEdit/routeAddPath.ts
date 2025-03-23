@@ -9,20 +9,25 @@ import { BaseStateMachine, StateItem } from "../state";
 import { BusTabComponentStateMachine } from "./slice/BusTabComponent";
 
 type BaseMachine = BaseStateMachine<AllStateMachineEvents, BaseContext>
-export class RouteAddStopStateMachine extends BaseStateMachine<AllStateMachineEvents, BaseContext> {
-    idle: StateItem<AllStateMachineEvents>
-    mapViewSubMachine: BaseMachine
-    busStopEditSubMachine: BaseMachine
-    undoRedo: BaseMachine
+export class RouteAddPathStateMachine extends BaseStateMachine<AllStateMachineEvents, BaseContext> {
+    manualAddPathMode: StateItem<AllStateMachineEvents>
+    mpView: BaseMachine
+    mpComponent: BaseMachine
+    mpUndoRedo: BaseMachine
     constructor(store: StoreType) {
         super(store)
+        this.manualAddPathMode = new StateItem('path-add-manual-mode')
+        this.entry = this.manualAddPathMode
+        this.current = this.manualAddPathMode
+        this.accept = [this.manualAddPathMode]
+
 
         const hoverable: FeatureClassifyFun = (target) => {
-            return target.type === "node"
+            return target.type === "way"
         }
 
         const clickable: FeatureClassifyFun = (target) => {
-            return target.type === "node"
+            return target.type === "way"
         }
 
         const dragable: FeatureClassifyFun = () => {
@@ -33,17 +38,16 @@ export class RouteAddStopStateMachine extends BaseStateMachine<AllStateMachineEv
             return false
         }
 
-
-        this.idle = new StateItem('pt-edit-idle')
-        this.mapViewSubMachine = new MapViewStateMachine(store)
-        this.busStopEditSubMachine = new BusTabComponentStateMachine(store, {
+        this.mpView = new MapViewStateMachine(store)
+        this.mpComponent = new BusTabComponentStateMachine(store, {
             onRightClick: (target) => {
-                const { routeEdit, setRouteStop } = useOSMMapStore.getState()
+                console.debug(`Add path: right click at ${target}`);
+                const { routeEdit, setRoutePath } = useOSMMapStore.getState()
                 const match = (member: Member) => member["@_ref"] === target.id && member["@_type"] === target.type
-                if (routeEdit.stops.some(match)) {
-                    setRouteStop(routeEdit.stops.filter(m => !match(m)))
+                if (routeEdit.path.some(match)) {
+                    setRoutePath(routeEdit.path.filter(m => !match(m)))
                 } else {
-                    setRouteStop([...routeEdit.stops, { '@_ref': target.id, "@_type": target.type }])
+                    setRoutePath([...routeEdit.path, { '@_ref': target.id, "@_type": target.type }])
                 }
             },
             onLeftClick: (target) => {
@@ -52,22 +56,19 @@ export class RouteAddStopStateMachine extends BaseStateMachine<AllStateMachineEv
             },
             hoverable,
             clickable,
+            
             dragable,
             selectable
         })
-        this.undoRedo = new UndoRedoStateMachine(store)
+        this.mpUndoRedo = new UndoRedoStateMachine(store)
+        this.manualAddPathMode.appendNext(this.mpComponent, { isEpsilon: true })
 
-        this.entry = this.idle
-        this.current = this.idle
-        this.accept = [this.idle]
+        this.manualAddPathMode.appendNext(this.mpView, { isEpsilon: true })
+        this.manualAddPathMode.appendNext(this.mpUndoRedo, { isEpsilon: true })
 
-        this.idle.appendNext(this.mapViewSubMachine, { isEpsilon: true })
-        this.idle.appendNext(this.busStopEditSubMachine, { isEpsilon: true })
-        this.idle.appendNext(this.undoRedo, { isEpsilon: true })
-
-        this.mapViewSubMachine.appendNext(this.idle, { isEpsilon: true })
-        this.busStopEditSubMachine.appendNext(this.idle, { isEpsilon: true })
-        this.undoRedo.appendNext(this.idle, { isEpsilon: true })
+        this.mpView.appendNext(this.manualAddPathMode, { isEpsilon: true })
+        this.mpComponent.appendNext(this.manualAddPathMode, { isEpsilon: true })
+        this.mpUndoRedo.appendNext(this.manualAddPathMode, { isEpsilon: true })
     }
 
     transform(event: AllStateMachineEvents): void {

@@ -25,6 +25,8 @@ import RoleInput from "../../../../../components/osm/member/RoleInput";
 import { faChevronUp } from "@fortawesome/free-solid-svg-icons/faChevronUp";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons/faChevronDown";
 import { WritableDraft } from "immer";
+import DisplayWayConnectivity from "../../../../property/components/DisplayWayConnectivity";
+import { RouteAddPathStateMachine } from "../../../stateMachine/ptEdit/routeAddPath";
 
 const STEPS_HEIGHT = 72
 
@@ -139,8 +141,11 @@ const BusStopUpdateActive = () => {
   const modifyFeatureStateBatchNC = useOSMMapStore(state => state.modifyFeatureStateBatchNC);
 
   useEffect(() => {
+    const meta = useOSMMapStore.getState().meta;
+    const validStop = stops.filter(p => meta[p["@_type"]][p["@_ref"]]);
+
     // Create a batch of modifications to set highlighted to true
-    const highlightModifications = stops.map(stop => ({
+    const highlightModifications = validStop.map(stop => ({
       type: stop["@_type"] as FeatureTypes,
       id: stop["@_ref"],
       modify: (feature: WritableDraft<Omit<FeatureState, 'selected' | 'active'>>) => {
@@ -153,7 +158,7 @@ const BusStopUpdateActive = () => {
 
     // Cleanup function to reset the highlighted state
     return () => {
-      const resetModifications = stops.map(stop => ({
+      const resetModifications = validStop.map(stop => ({
         type: stop["@_type"] as FeatureTypes,
         id: stop["@_ref"],
         modify: (feature: WritableDraft<Omit<FeatureState, 'selected' | 'active'>>) => {
@@ -235,55 +240,210 @@ const BusStopPanel = () => {
   </div>
 }
 
-const RouteEditTab = ({ width, height }: BusEditTabProps) => {
-  // State for managing right-click menus
-  // Create the state machine with callbacks to control menus
-  const stateMachineRef = useRef(
-    new RouteAddStopStateMachine(
-      { meta: useOSMMapStore, view: useMapViewStore, settings: useSettingsStore },
-    )
+const RoutePathupdateActive = () => {
+  const { path } = useOSMMapStore(state => state.routeEdit);
+  const modifyFeatureStateBatchNC = useOSMMapStore(state => state.modifyFeatureStateBatchNC);
+
+  useEffect(() => {
+    // Create a batch of modifications to set highlighted to true
+    const meta = useOSMMapStore.getState().meta;
+    const validPath = path.filter(p => meta[p["@_type"]][p["@_ref"]]);
+    const highlightModifications = validPath.map(p => ({
+      type: p["@_type"] as FeatureTypes,
+      id: p["@_ref"],
+      modify: (feature: WritableDraft<Omit<FeatureState, 'selected' | 'active'>>) => {
+        feature.highlighted = true;
+      },
+    }));
+
+    // Apply the batch modifications
+    modifyFeatureStateBatchNC(highlightModifications);
+
+    // Cleanup function to reset the highlighted state
+    return () => {
+      const resetModifications = validPath.map(p => ({
+        type: p["@_type"] as FeatureTypes,
+        id: p["@_ref"],
+        modify: (feature: WritableDraft<Omit<FeatureState, 'selected' | 'active'>>) => {
+          feature.highlighted = false;
+        },
+      }));
+
+      // Apply the batch modifications to reset
+      modifyFeatureStateBatchNC(resetModifications);
+    };
+  }, [modifyFeatureStateBatchNC, path]);
+
+  return null;
+};
+
+
+const RoutePathEditPanel = () => {
+
+  const [showMembers, setShowMembers] = useState(true);  // Toggle state
+
+  const { path } = useOSMMapStore(state => state.routeEdit)
+  const setRoutePath = useOSMMapStore(state => state.setRoutePath)
+  const handelEditMember = useCallback((type: "node" | "way" | "relation", ref: string, text: string) => {
+    console.debug('edit', type, ref, text)
+    setRoutePath(path.map(m => {
+      if (m["@_type"] === type && m["@_ref"] === ref) {
+        const mem = deepCopy(m)
+        mem["@_role"] = text
+        return mem
+      }
+      return m
+    }))
+  }, [setRoutePath, path])
+
+  const memberItemRender = useCallback(({ member, children, index, overlay }: { member: Member; children: React.ReactNode; overlay?: true; index: number; }) => <MemberItem
+    id={member["@_ref"]}
+    type={member["@_type"]}
+  >
+    {() => {
+      return <>
+        <div className="w-3">
+          {!overlay && <DisplayWayConnectivity member={path} index={index} />}
+        </div>
+        <label className="input input-xs input-bordered ml-1 flex items-center gap-1">
+          Role:
+          <RoleInput
+            initialValue={member["@_role"]}
+            onCommit={(value) => handelEditMember(member["@_type"], member["@_ref"], value)}
+          />
+        </label>
+        {children}
+      </>
+    }}
+  </MemberItem>, [handelEditMember, path])
+
+
+  return <div className="absolute top-0 right-0 card min-h-16 max-h-full overflow-auto p-2 bg-base-100 min-w-96">
+    <div className="flex justify-between items-center">
+      <h3>Path members (click to show/hide)</h3>
+      <button
+        onClick={() => setShowMembers(!showMembers)}
+        className="btn btn-sm btn-ghost btn-circle"
+        aria-label={showMembers ? "Collapse" : "Expand"}
+      >
+        <FontAwesomeIcon
+          icon={showMembers ? faChevronUp : faChevronDown}
+          className="w-4 h-4"
+        />
+      </button>
+    </div>
+    {showMembers && (
+      <MemberListSelectDelDown
+        member={path}
+        memberToId={(m) => `${m["@_type"]}-${m["@_ref"]}`}
+        onDelete={(_, after) => setRoutePath(after)}
+        onDragStart={() => { }}
+        onDragEnd={(m) => setRoutePath(m)}
+      >
+        {memberItemRender}
+      </MemberListSelectDelDown>
+    )}
+    <RoutePathupdateActive />
+  </div>
+}
+
+const AddBusStopsStage = ({ width, height }: BusEditTabProps) => {
+  const stateMachineRef = useRef<BaseStateMachine>(
+    new RouteAddStopStateMachine({
+      meta: useOSMMapStore,
+      view: useMapViewStore,
+      settings: useSettingsStore,
+    })
   );
 
   useEffect(() => {
     const keydownListener = (event: KeyboardEvent) => stateMachineRef.current.transform(event);
     document.addEventListener("keydown", keydownListener);
     return () => document.removeEventListener("keydown", keydownListener);
-  }, [stateMachineRef]);
+  }, []);
 
-  const { step, editing } = useOSMMapStore(state => state.routeEdit)
-  const setCurrentStep = useOSMMapStore(state => state.setEditStepNC)
+  return (
+    <>
+      <PIXIStage
+        width={width}
+        height={height}
+        options={{ background: "#1099bb" }}
+        onMouseDown={(event) => stateMachineRef.current.transform(event)}
+        onPointerMove={(event) => stateMachineRef.current.transform(event)}
+        onMouseUp={(event) => stateMachineRef.current.transform(event)}
+        onWheel={(event) => stateMachineRef.current.transform(event)}
+      >
+        <BackgroundLayer width={width} height={height} />
+        <EditableLayer width={width} height={height} stateMachine={stateMachineRef.current} />
+      </PIXIStage>
+      <InfoLayer width={width} />
+      <BusStopPanel />
+    </>
+  );
+};
 
-  const stepTabs = useMemo(() => [{
-    label: "Create or select route",
-    stage: <CreateOrSelectRoute />
-  }, {
-    label: "Add bus stops"
-  }, {
-    label: "Edit route path"
-  }, {
-    label: "Save changes",
-    stage: <div>save</div>
-  }], [])
+const EditRoutePathStage = ({ width, height }: BusEditTabProps) => {
+  const stateMachineRef = useRef<BaseStateMachine>(
+    new RouteAddPathStateMachine({
+      meta: useOSMMapStore,
+      view: useMapViewStore,
+      settings: useSettingsStore,
+    })
+  );
+
+  useEffect(() => {
+    const keydownListener = (event: KeyboardEvent) => stateMachineRef.current.transform(event);
+    document.addEventListener("keydown", keydownListener);
+    return () => document.removeEventListener("keydown", keydownListener);
+  }, []);
+
+  return (
+    <>
+      <PIXIStage
+        width={width}
+        height={height}
+        options={{ background: "#1099bb" }}
+        onMouseDown={(event) => stateMachineRef.current.transform(event)}
+        onPointerMove={(event) => stateMachineRef.current.transform(event)}
+        onMouseUp={(event) => stateMachineRef.current.transform(event)}
+        onWheel={(event) => stateMachineRef.current.transform(event)}
+      >
+        <BackgroundLayer width={width} height={height} />
+        <EditableLayer width={width} height={height} stateMachine={stateMachineRef.current} />
+      </PIXIStage>
+      <InfoLayer width={width} />
+      <RoutePathEditPanel />
+    </>
+  );
+};
+
+const RouteEditTab = ({ width, height }: BusEditTabProps) => {
+  const { step, editing } = useOSMMapStore(state => state.routeEdit);
+  const setCurrentStep = useOSMMapStore(state => state.setEditStepNC);
+
+  const stepTabs = useMemo(() => [
+    {
+      label: "Create or select route",
+      component: <CreateOrSelectRoute />
+    },
+    {
+      label: "Add bus stops",
+      component: <AddBusStopsStage width={width} height={height - STEPS_HEIGHT} />
+    },
+    {
+      label: "Edit route path",
+      component: <EditRoutePathStage width={width} height={height - STEPS_HEIGHT} />
+    },
+    {
+      label: "Save changes",
+      component: <div>save</div>
+    }
+  ], [width, height]);
 
   return (
     <div style={{ width, height }}>
       <div className="relative" style={{ width, height: height - STEPS_HEIGHT }}>
-        {stepTabs[step].stage
-          ? stepTabs[step].stage
-          : <><PIXIStage
-            width={width}
-            height={height}
-            options={{ background: "#1099bb" }}
-            onMouseDown={(event) => stateMachineRef.current.transform(event)}
-            onPointerMove={(event) => stateMachineRef.current.transform(event)}
-            onMouseUp={(event) => stateMachineRef.current.transform(event)}
-            onWheel={(event) => stateMachineRef.current.transform(event)}
-          >
-            <BackgroundLayer width={width} height={height} />
-            <EditableLayer width={width} height={height} stateMachine={stateMachineRef.current as BaseStateMachine} />
-          </PIXIStage>
-            <InfoLayer width={width} /></>}
-        {step === 1 && <BusStopPanel />}
+        {stepTabs[step].component}
       </div>
       <div style={{ width, height: STEPS_HEIGHT }}>
         <div className="absolute bottom-0 left-0 right-0 flex flex-row pt-[8px] bg-base-200">
@@ -302,6 +462,6 @@ const RouteEditTab = ({ width, height }: BusEditTabProps) => {
       </div>
     </div>
   );
-}
+};
 
 export default RouteEditTab;
