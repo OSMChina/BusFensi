@@ -7,6 +7,7 @@ import { Member, Nd } from "../../../../type/osm/meta";
 import { commitHelper } from "../commit/helper";
 import { ComputedFeatures } from "../../middleware/computed";
 import { FeatureTypes, NumericString } from "../../../../type/osm/refobj";
+import { selectFeatureHelper } from "../featureState/helper";
 
 export interface MetaAction {
     addFeatureMetaBatch: AddFeatureMetaBatchFunction,
@@ -63,6 +64,7 @@ export const createMetaActionSlice: StateCreator<
     }),
     splitWay: (nodeId) => set(state => {
         commitHelper(state);
-        splitWayHelper(state, get().tree, nodeId);
+        const splited = splitWayHelper(state, get().tree, nodeId);
+        if (splited) selectFeatureHelper(state, "way", splited);
     })
 })

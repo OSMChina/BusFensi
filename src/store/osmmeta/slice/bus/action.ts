@@ -7,6 +7,7 @@ import { NumericString } from "../../../../type/osm/refobj"
 export interface BusEditAction {
     createBusStopSel: (location: PointWGS84, tags: Tag[]) => void;
     createStopPositionSel: (location: PointWGS84, tags: Tag[], targetway: NumericString) => void,
+    createNodeOnWay: (location: PointWGS84, tags: Tag[], targetway: NumericString) => void,
     createStopAreaSel: (tag: Tag[], member?: Member[]) => void,
     createEditRoute: (tag: Tag[], member?: Member[]) => void
     setEditRoute: (id: NumericString) => void,
@@ -39,6 +40,10 @@ export const createBusEditActionSlice: StateCreator<
         commitHelper(state)
         const id = createLocalNodeOnWayWithModifierHelper(state, location, f => { f.tag = tags }, target)
         selectFeatureHelper(state, "node", id)
+    }),
+    createNodeOnWay: (location, tags, target) => set(state => {
+        commitHelper(state)
+        createLocalNodeOnWayWithModifierHelper(state, location, f => { f.tag = tags }, target)
     }),
     createStopAreaSel: (tag, member) => set(state => {
         commitHelper(state)

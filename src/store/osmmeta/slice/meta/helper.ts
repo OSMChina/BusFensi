@@ -50,14 +50,14 @@ export function addFeatureMetaHelper<T extends FeatureTypes>(
     }
     if (type === "node") { // fix: Node lon/lat is string in osm meta, dont known where the problem is from
         // TODO: fix this problem, try find who cause this
-        const node= feature as Node;
+        const node = feature as Node;
         node["@_lon"] = Number(node["@_lon"]);
         node["@_lat"] = Number(node["@_lat"]);
         state.meta[type][key] = node;
     } else {
         state.meta[type][key] = feature;
     }
-    
+
     createFeatureStateHelper(state, type, key)
 }
 
@@ -113,8 +113,9 @@ export function splitWayHelper(
     state: WritableDraft<OSMMapStore>,
     tree: FeatureTree,
     id: NumericString
-) {
+): NumericString | null {
     const faWays = tree.elems.node[id].fathers.way.map(faWayId => state.meta.way[faWayId])
+    let created: NumericString | null = null;
     faWays?.forEach(way => { // split way
         const nds = way.nd
         const idx = nds.findIndex(nd => nd["@_ref"] === id)
@@ -125,6 +126,7 @@ export function splitWayHelper(
             way["@_action"] = 'modify'
 
             const newWay = _createLocalWayMeta(state, newNds) // create new
+            created = newWay["@_id"]
             newWay.tag = way.tag && [...way.tag]
             state.meta.way[newWay["@_id"]] = newWay
             createFeatureStateHelper(state, "way", newWay["@_id"]);
@@ -143,6 +145,7 @@ export function splitWayHelper(
             })
         }
     })
+    return created;
 }
 
 export function deleteFeatureSelfHelper(
@@ -155,7 +158,7 @@ export function deleteFeatureSelfHelper(
     }
     state.deletedMeta[type][id] = state.meta[type][id];
     state.deletedMeta[type][id]["@_action"] = "delete";
-    deleteFeatureStateHelper(state, type,id)
+    deleteFeatureStateHelper(state, type, id)
     delete state.meta[type][id];
 }
 

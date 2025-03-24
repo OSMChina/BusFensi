@@ -1,4 +1,3 @@
-import { useOSMMapStore } from "../../../../store/osmmeta";
 import { Member } from "../../../../type/osm/meta";
 import { AllStateMachineEvents } from "../../../../type/stateMachine/allEvents";
 import { BaseContext, StoreType } from "../../../../type/stateMachine/baseEvent";
@@ -38,7 +37,7 @@ export class RouteAddStopStateMachine extends BaseStateMachine<AllStateMachineEv
         this.mapViewSubMachine = new MapViewStateMachine(store)
         this.busStopEditSubMachine = new BusTabComponentStateMachine(store, {
             onRightClick: (target) => {
-                const { routeEdit, setRouteStop } = useOSMMapStore.getState()
+                const { routeEdit, setRouteStop } = this.context.store.meta.getState()
                 const match = (member: Member) => member["@_ref"] === target.id && member["@_type"] === target.type
                 if (routeEdit.stops.some(match)) {
                     setRouteStop(routeEdit.stops.filter(m => !match(m)))
@@ -46,9 +45,9 @@ export class RouteAddStopStateMachine extends BaseStateMachine<AllStateMachineEv
                     setRouteStop([...routeEdit.stops, { '@_ref': target.id, "@_type": target.type }])
                 }
             },
-            onLeftClick: (target) => {
-                const { toggleFeature } = useOSMMapStore.getState()
-                toggleFeature(target.type, target.id, true);
+            onLeftClick: (target, event) => {
+                const { toggleFeature } = this.context.store.meta.getState()
+                toggleFeature(target.type, target.id, !event.shiftKey);
             },
             hoverable,
             clickable,

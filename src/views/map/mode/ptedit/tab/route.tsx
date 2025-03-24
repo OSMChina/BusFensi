@@ -1,5 +1,5 @@
-import { useRef, useEffect, useMemo, useCallback, useState } from "react";
-import { useMapViewStore } from "../../../../../store/mapview";
+import { useRef, useEffect, useMemo, useCallback, useState, memo } from "react";
+import { getLocationByPixel, useMapViewStore } from "../../../../../store/mapview";
 import { useOSMMapStore } from "../../../../../store/osmmeta";
 import { useSettingsStore } from "../../../../../store/settings";
 import PIXIStage from "../../../layer/Stage";
@@ -28,6 +28,10 @@ import { WritableDraft } from "immer";
 import DisplayWayConnectivity from "../../../../property/components/DisplayWayConnectivity";
 import { RouteAddPathStateMachine } from "../../../stateMachine/ptEdit/routeAddPath";
 import Tags from "../../../../property/components/Tags";
+import { RightClickMenuProps } from "../../../../../type/view/map";
+import { RightClickMenu } from "../../../components/RightCLickMenu";
+import { useShallow } from "zustand/shallow";
+import { RouteEditWayStateMachine } from "../../../stateMachine/ptEdit/routeEditWay";
 
 const STEPS_HEIGHT = 72
 
@@ -383,7 +387,39 @@ const AddBusStopsStage = ({ width, height }: BusEditTabProps) => {
   );
 };
 
-const EditRoutePathStage = ({ width, height }: BusEditTabProps) => {
+const MemoRightClickOnFeature = memo(function (props: RightClickMenuProps & { onClose: () => void }) {
+  const location = useMapViewStore(useShallow(getLocationByPixel(props)));
+
+  const splitWay = useOSMMapStore(state => state.splitWay);
+  const createNodeOnWay = useOSMMapStore(state => state.createNodeOnWay)
+
+  const splitWayHandler = () => {
+    if (props.feature?.id) {
+      splitWay(props.feature.id)
+    }
+    props.onClose()
+  }
+
+  const createPoint = () => {
+    if (props.feature?.id && location) {
+      createNodeOnWay(location, [], props.feature.id)
+    }
+    props.onClose()
+  }
+
+  return <RightClickMenu {...props}>
+    {props.feature?.type === "way" ? (
+      <a onClick={createPoint}>New point on way</a>
+    ) : props.feature?.type === "node" ? (
+      <a onClick={splitWayHandler}>Split way by point</a>
+    ) : (
+      <a>relation is not allowed here</a>
+    )}
+  </RightClickMenu>
+})
+
+// Add Path Tab Component
+const AddPathTab = ({ width, height }: BusEditTabProps) => {
   const stateMachineRef = useRef<BaseStateMachine>(
     new RouteAddPathStateMachine({
       meta: useOSMMapStore,
@@ -399,22 +435,93 @@ const EditRoutePathStage = ({ width, height }: BusEditTabProps) => {
   }, []);
 
   return (
-    <>
+    <div className="relative" style={{ width, height }}>
       <PIXIStage
         width={width}
         height={height}
         options={{ background: "#1099bb" }}
-        onMouseDown={(event) => stateMachineRef.current.transform(event)}
-        onPointerMove={(event) => stateMachineRef.current.transform(event)}
-        onMouseUp={(event) => stateMachineRef.current.transform(event)}
-        onWheel={(event) => stateMachineRef.current.transform(event)}
+        onMouseDown={(e) => stateMachineRef.current.transform(e)}
+        onPointerMove={(e) => stateMachineRef.current.transform(e)}
+        onMouseUp={(e) => stateMachineRef.current.transform(e)}
+        onWheel={(e) => stateMachineRef.current.transform(e)}
       >
         <BackgroundLayer width={width} height={height} />
         <EditableLayer width={width} height={height} stateMachine={stateMachineRef.current} />
       </PIXIStage>
       <InfoLayer width={width} />
       <RoutePathEditPanel />
-    </>
+    </div>
+  );
+};
+
+// Edit Way Tab Component
+const EditWayTab = ({ width, height }: BusEditTabProps) => {
+  const [rightClickMenu, setRightClickMenu] = useState<RightClickMenuProps>({ x: 0, y: 0, open: false });
+  
+  const stateMachine = useRef(
+    new RouteEditWayStateMachine(
+      { meta: useOSMMapStore, view: useMapViewStore, settings: useSettingsStore },
+      { wayEditMenu: setRightClickMenu }
+    )
+  ).current;
+
+  useEffect(() => {
+    const keydownListener = (event: KeyboardEvent) => stateMachine.transform(event);
+    document.addEventListener("keydown", keydownListener);
+    return () => document.removeEventListener("keydown", keydownListener);
+  }, [stateMachine]);
+
+  return (
+    <div className="relative" style={{ width, height }}>
+      <PIXIStage
+        width={width}
+        height={height}
+        options={{ background: "#1099bb" }}
+        onMouseDown={(e) => stateMachine.transform(e)}
+        onPointerMove={(e) => stateMachine.transform(e)}
+        onMouseUp={(e) => stateMachine.transform(e)}
+        onWheel={(e) => stateMachine.transform(e)}
+      >
+        <BackgroundLayer width={width} height={height} />
+        <EditableLayer width={width} height={height} stateMachine={stateMachine} />
+      </PIXIStage>
+      <InfoLayer width={width} />
+      <MemoRightClickOnFeature {...rightClickMenu} onClose={() => setRightClickMenu({ x: 0, y: 0, open: false })} />
+    </div>
+  );
+};
+
+// Main Route Edit Component with Tabs
+const EditRoutePathStage = ({ width, height }: BusEditTabProps) => {
+  const tabs = [
+    { label: "Add Path" },
+    { label: "Edit Way" }
+  ];
+  const [activeTab, setActiveTab] = useState<number>(0);
+
+  return (
+    <div className="relative" style={{ width, height }}>
+      {/* DaisyUI Tabs positioned absolutely in top-left corner */}
+      <div className="absolute top-1 left-1 z-10">
+        <div className="tabs tabs-boxed gap-1 shadow-md">
+          {tabs.map((tab, index) => (
+            <button
+              key={index}
+              className={`tab tab-sm ${activeTab === index ? "tab-active" : ""}`}
+              onClick={() => setActiveTab(index)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {activeTab === 0 ? (
+        <AddPathTab width={width} height={height} />
+      ) : (
+        <EditWayTab width={width} height={height} />
+      )}
+    </div>
   );
 };
 
@@ -502,8 +609,6 @@ const SaveRouteStage = () => {
     </div>
   );
 };
-
-
 
 const RouteEditTab = ({ width, height }: BusEditTabProps) => {
   const { step, editing } = useOSMMapStore(state => state.routeEdit);
