@@ -12,6 +12,7 @@ import SelectedOutlineTab from "../../components/collection/selected";
 import BusEditTab from "./tab/bus"
 import RouteEditTab from "./tab/route";
 import { RouteEditOutlineTab } from "../../components/collection/route";
+import { ChangesOutlineTab } from "../../components/collection/changes";
 
 function PtEditTabs({ width, height, children }: { width: number, height: number, children: ReactNode }) {
     return <div className="bg-base-100 border-r-2 border-r-base-300 flex flex-col"
@@ -64,7 +65,10 @@ function OutlineView({ width, height }: ViewFCProps) {
     }, {
         title: "Route",
         tab: () => <RouteEditOutlineTab />
-    },{
+    }, {
+        title: "Changes",
+        tab: () => <ChangesOutlineTab />
+    }, {
         title: "Selected",
         tab: () => <SelectedOutlineTab />
     },]

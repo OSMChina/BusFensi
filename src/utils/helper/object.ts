@@ -13,6 +13,9 @@ export function deepCopy<T>(obj: T): T {
 export const typedKeys = <T extends object>(obj: T): (keyof T)[] =>
     Object.keys(obj) as (keyof T)[];
 
+export const typedEntries = <T extends object>(obj: T): [keyof T, T[keyof T]][] =>
+    Object.entries(obj) as [keyof T, T[keyof T]][];
+
 /**
  * 深度合并 source 对象到 target 对象中，返回合并后的结果。
  * 仅支持合并属性值为 string、number、boolean、对象等，不支持函数、数组特殊处理（可根据需求扩展）。

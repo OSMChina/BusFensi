@@ -194,3 +194,16 @@ export function filterCreated(
     };
 
 }
+
+export function filterFeatures<T>(
+    features: Record<string, T>,
+    predicate: (feature: T) => boolean
+): Record<string, T> {
+    const result: Record<string, T> = {};
+    for (const [id, feature] of Object.entries(features)) {
+        if (predicate(feature)) {
+            result[id] = feature;
+        }
+    }
+    return result;
+}

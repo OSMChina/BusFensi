@@ -45,9 +45,13 @@ const getSelectedMeta = <T extends FeatureTypes>(type: T) => (store: OSMMapStore
     return refs.filter(ref => ref.type === type).map(ref => store.meta[type][ref.id] as FeatureTypeMap[T])
 }
 
+const getDeletedFeatures = (store: OSMMapStore): FeatureMetaGroup => {
+    return store.deletedMeta
+}
 
 export {
     getFeatureInBound,
     getActiveMeta,
     getSelectedMeta,
+    getDeletedFeatures
 }
