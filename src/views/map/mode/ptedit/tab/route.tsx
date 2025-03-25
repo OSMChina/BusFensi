@@ -32,6 +32,7 @@ import { RightClickMenuProps } from "../../../../../type/view/map";
 import { RightClickMenu } from "../../../components/RightCLickMenu";
 import { useShallow } from "zustand/shallow";
 import { RouteEditWayStateMachine } from "../../../stateMachine/ptEdit/routeEditWay";
+import { UndoRedoStateMachine } from "../../../stateMachine/slice/util/UndoRedoStateMachine";
 
 const STEPS_HEIGHT = 72
 
@@ -60,6 +61,12 @@ const CreateOrSelectRoute = () => {
     setEditRoute(id);
   };
 
+  useEffect(() => {
+    const stateMachine = new UndoRedoStateMachine({ meta: useOSMMapStore, view: useMapViewStore, settings: useSettingsStore })
+    const keydownListener = (event: KeyboardEvent) => stateMachine.transform(event);
+    document.addEventListener("keydown", keydownListener);
+    return () => document.removeEventListener("keydown", keydownListener);
+  }, []);
 
   if (route) {
     const relation = relations[route];
@@ -457,7 +464,7 @@ const AddPathTab = ({ width, height }: BusEditTabProps) => {
 // Edit Way Tab Component
 const EditWayTab = ({ width, height }: BusEditTabProps) => {
   const [rightClickMenu, setRightClickMenu] = useState<RightClickMenuProps>({ x: 0, y: 0, open: false });
-  
+
   const stateMachine = useRef(
     new RouteEditWayStateMachine(
       { meta: useOSMMapStore, view: useMapViewStore, settings: useSettingsStore },
@@ -538,6 +545,13 @@ const SaveRouteStage = () => {
   const handleSave = () => {
     saveEditRoute();
   };
+
+  useEffect(() => {
+    const stateMachine = new UndoRedoStateMachine({ meta: useOSMMapStore, view: useMapViewStore, settings: useSettingsStore })
+    const keydownListener = (event: KeyboardEvent) => stateMachine.transform(event);
+    document.addEventListener("keydown", keydownListener);
+    return () => document.removeEventListener("keydown", keydownListener);
+  }, []);
 
   if (!routeId) return <div className="p-4 bg-base-100 max-w-xl mx-auto max-h-full overflow-scroll w-full">
     <div className="alert alert-success mb-4 mx-auto">
