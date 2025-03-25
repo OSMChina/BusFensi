@@ -8,7 +8,7 @@ import { faChevronRight } from "@fortawesome/free-solid-svg-icons/faChevronRight
 import { Node, Relation, Way } from "../../../type/osm/meta"
 import { FilterFunc } from "../../../type/view/outline/type"
 import { faX } from "@fortawesome/free-solid-svg-icons/faX"
-import { faCircle } from "@fortawesome/free-solid-svg-icons/faCircle"
+import { faMinus } from "@fortawesome/free-solid-svg-icons/faMinus"
 
 export function FeatureList({ node, way, relation, filter, ...props }: {
     node?: Node[]
@@ -40,7 +40,7 @@ export function FeatureCollection({ name, defaultOpen, forceOpen, forceClose, ch
     return (
         <li className="outline-list-item">
             <span className={`flex flex-row`} onClick={toggleCollapse} >
-                <FontAwesomeIcon icon={(forceOpen ? faCircle : (forceClose ? faX : (!show ? faChevronRight : faChevronDown)))} />
+                <FontAwesomeIcon icon={(forceOpen ? faMinus : (forceClose ? faX : (!show ? faChevronRight : faChevronDown)))} />
                 <FontAwesomeIcon icon={faBars} className="ml-1" />
                 <span className="ml-0 mr-auto">{name}</span>
             </span>
