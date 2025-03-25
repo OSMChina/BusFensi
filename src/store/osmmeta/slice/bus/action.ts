@@ -16,6 +16,8 @@ export interface BusEditAction {
     cancelEditRoute: () => void,
     setEditStepNC: (step: number) => void,
     saveEditRoute: () => void,
+    setSelectedMaster: (ref: NumericString) => void,
+    clearSelectedMaster: () => void
 }
 
 const inBusStop = (m: Member) => m["@_type"] === "node" || m["@_role"]?.startsWith("stop") || m["@_role"]?.startsWith("platform");
@@ -64,33 +66,29 @@ export const createBusEditActionSlice: StateCreator<
         const indexes = members.map((item, index) => (inBusStop(item) ? index : -1));
         const lastIndex = indexes.lastIndexOf(Math.max(...indexes));
 
-        state.routeEdit = {
-            editing: id,
-            step: 0,
-            stops: members.slice(0, lastIndex + 1),
-            path: members.slice(lastIndex + 1, members.length),
-        }
+        state.routeEdit.editing = id
+        state.routeEdit.step = 0
+        state.routeEdit.stops = members.slice(0, lastIndex + 1)
+        state.routeEdit.path = members.slice(lastIndex + 1, members.length)
     }),
     setEditRoute: (id) => set(state => {
         commitHelper(state)
         const members = state.meta.relation?.[id].member || [];
         const indexes = members.map((item, index) => (inBusStop(item) ? index : -1));
         const lastIndex = indexes.lastIndexOf(Math.max(...indexes));
-        state.routeEdit = {
-            editing: id,
-            step: 0,
-            stops: members.slice(0, lastIndex + 1),
-            path: members.slice(lastIndex + 1, members.length),
-        }
+
+        state.routeEdit.editing = id
+        state.routeEdit.step = 0
+        state.routeEdit.stops = members.slice(0, lastIndex + 1)
+        state.routeEdit.path = members.slice(lastIndex + 1, members.length)
     }),
     cancelEditRoute: () => set(state => {
         commitHelper(state)
-        state.routeEdit = {
-            editing: undefined,
-            step: 0,
-            stops: [],
-            path: []
-        }
+
+        state.routeEdit.editing = undefined
+        state.routeEdit.step = 0
+        state.routeEdit.stops = []
+        state.routeEdit.path = []
     }),
     setRouteStop: (stops) => set(state => {
         commitHelper(state)
@@ -117,5 +115,12 @@ export const createBusEditActionSlice: StateCreator<
         state.routeEdit.editing = undefined;
         state.routeEdit.stops = [];
         state.routeEdit.path = [];
+        state.routeEdit.selectedMaster = undefined;
+    }),
+    setSelectedMaster: (ref) => set(state => {
+        state.routeEdit.selectedMaster = ref
+    }),
+    clearSelectedMaster: () => set(state => {
+        state.routeEdit.selectedMaster = undefined
     }),
 })

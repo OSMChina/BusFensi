@@ -15,3 +15,5 @@ export const getRouteWay = (store: OSMMapState): Member[] => {
     }
     return store.meta.relation[id].member.filter(m => m["@_type"] === "way")
 }
+
+export const getSelectedMaster = (store: OSMMapState) => store.routeEdit.selectedMaster

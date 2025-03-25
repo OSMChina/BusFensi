@@ -6,7 +6,8 @@ export type BusEditSlice = {
         editing?: NumericString,
         step: number,
         stops: Member[],
-        path: Member[]
+        path: Member[],
+        selectedMaster?: NumericString
     }
 }
 
@@ -14,6 +15,6 @@ export const busEditInitialState: BusEditSlice = {
     routeEdit: {
         step: 0,
         stops: [],
-        path: []
+        path: [],
     }
 }
