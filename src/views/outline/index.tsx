@@ -1,40 +1,34 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
-import CollectionItem from "./components/CollectionItem";
-import GlobalCollection from "./components/GlobalCollection";
 import { useState } from "react";
-import { FilterFunc } from "../../type/view/outline/type";
-import { useOSMMapStore } from "../../store/osmmeta";
+import { ViewFCProps } from "../../type/view/props";
+import { BusStopEditOutlineTab } from "./busStop";
+import { ChangesOutlineTab } from "./changes";
+import { RouteEditOutlineTab } from "./route";
+import SelectedOutlineTab from "./selected";
+import { cn } from "../../utils/helper/object";
 
-function OutlineView({ width, height }: { width: number, height: number }) {
-    const { ptv2, highway, created } = useOSMMapStore((state) => state.collections)
-    const [searchTerm, setSearchTerm] = useState("");
-    const searchFilter: FilterFunc = (meta, type) =>
-        searchTerm === "" || `${type}-${JSON.stringify(meta)}`.includes(searchTerm)
+export default function OutlineView({ width, height }: ViewFCProps) {
+    const tabs = [{
+        title: "Bus stop",
+        tab: () => <BusStopEditOutlineTab />
+    }, {
+        title: "Route",
+        tab: () => <RouteEditOutlineTab />
+    }, {
+        title: "Changes",
+        tab: () => <ChangesOutlineTab />
+    }, {
+        title: "Selected",
+        tab: () => <SelectedOutlineTab />
+    },]
 
+    const [active, setActive] = useState(0);
 
-    return (
-        <div style={{ width, height, maxWidth: width, maxHeight: height }} className="outline-view flex flex-col p-1 rounded bg-base-100 overflow-x-scroll">
-            <label className="input input-xs input-bordered flex items-center gap-2">
-                <FontAwesomeIcon icon={faSearch} />
-                <input
-                    type="text"
-                    className="grow"
-                    placeholder="Search"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </label>
-            <div className="outline-list flex-1 overflow-scroll mt-1 rounded">
-                <ul className="menu menu-xs bg-base-200">
-                    <CollectionItem name="Public Transport" collecion={ptv2} filterFun={searchFilter} />
-                    <CollectionItem name="Highway" collecion={highway} filterFun={searchFilter} />
-                    <CollectionItem name="Created" collecion={created} filterFun={searchFilter} />
-                    <GlobalCollection name="Global" filterFun={searchFilter} />
-                </ul>
-            </div>
+    return <div style={{ width, height }} className="flex flex-col">
+        <div role="tablist" className="tabs tabs-lifted tabs-xs">
+            {tabs.map((tab, index) => (<a key={index} onClick={() => setActive(index)} role="tab" className={cn("tab", index === active && "tab-active")}>{tab.title}</a>))}
         </div>
-    );
+        <div className="outline-view flex flex-col bg-base-100 w-full px-1 flex-1 overflow-auto">
+            {tabs[active].tab()}
+        </div>
+    </div>
 }
-
-export default OutlineView;

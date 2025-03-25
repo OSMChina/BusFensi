@@ -5,9 +5,9 @@ import { addFeatureMetaHelper, commitHelper } from "../../helper";
 import { MapViewStatus } from "../../../../utils/geo/types";
 import { loadBBox } from "../../helper";
 import { deepCopy } from "../../../../utils/helper/object";
-import { genCollection } from "../../middleware/computed";
 import { Node, Relation, Way } from "../../../../type/osm/meta";
 import { fetchNode, fetchNodes, fetchRelation, fetchRelations, fetchWay, fetchWays } from "../../../../api/osm/apiv0.6";
+import { genCollection } from "../../../../utils/osm/filterV2";
 
 export interface RemoteApiAction {
     loadbbox: (mapview: MapViewStatus, baseurl: string) => Promise<void>

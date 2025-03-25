@@ -1,7 +1,7 @@
-import { useOSMMapStore } from "../../../../../store/osmmeta";
-import { isBusStop } from "../../../../../utils/osm/nodeType";
+import { useOSMMapStore } from "../../../store/osmmeta";
+import { isBusStop } from "../../../utils/osm/nodeType";
 import { FeatureCollection, FeatureList } from "../base/list";
-import { OutlineCollectionProps } from "../../../../../type/view/outline/type";
+import { OutlineCollectionProps } from "../../../type/view/outline/type";
 
 export function BusStopCollection(props: OutlineCollectionProps) {
     const node = useOSMMapStore(state => state.meta.node)

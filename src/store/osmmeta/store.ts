@@ -40,7 +40,7 @@ export const useOSMMapStore = create<OSMMapStore>()(
                     partialize: (state) => {
                         // may ignore some value in future
                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        const { tree, collections, ...tracked } = state as OSMMapStoreWithComputed;
+                        const { tree, ...tracked } = state as OSMMapStoreWithComputed;
                         return tracked;
                     },
                     equality: (pastState, currentState) => {
@@ -54,7 +54,7 @@ export const useOSMMapStore = create<OSMMapStore>()(
                 partialize: (state) => {
                     // may ignore some value in future
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    const { tree, collections, ...tracked } = state as OSMMapStoreWithComputed;
+                    const { tree, ...tracked } = state as OSMMapStoreWithComputed;
                     return tracked;
                 },
             }

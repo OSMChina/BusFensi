@@ -1,7 +1,7 @@
-import { useOSMMapStore } from "../../../../../store/osmmeta";
+import { useOSMMapStore } from "../../../store/osmmeta";
 import { FeatureCollection, FeatureList } from "../base/list";
-import { OutlineCollectionProps } from "../../../../../type/view/outline/type";
-import { isRoute } from "../../../../../utils/osm/relationType";
+import { OutlineCollectionProps } from "../../../type/view/outline/type";
+import { isRoute } from "../../../utils/osm/relationType";
 
 export function RouteCollection(props: OutlineCollectionProps) {
     const relation = useOSMMapStore(state => state.meta.relation)

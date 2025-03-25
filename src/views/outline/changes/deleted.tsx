@@ -1,7 +1,7 @@
 import { useShallow } from "zustand/shallow";
-import { useOSMMapStore } from "../../../../../store/osmmeta";
-import { getDeletedFeatures } from "../../../../../store/osmmeta/selector";
-import { OutlineCollectionProps } from "../../../../../type/view/outline/type";
+import { useOSMMapStore } from "../../../store/osmmeta";
+import { getDeletedFeatures } from "../../../store/osmmeta/selector";
+import { OutlineCollectionProps } from "../../../type/view/outline/type";
 import { FeatureCollection, FeatureList } from "../base/list";
 import { useMemo } from "react";
 

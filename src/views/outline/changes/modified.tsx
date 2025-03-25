@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import { useOSMMapStore } from "../../../../../store/osmmeta";
-import { OutlineCollectionProps } from "../../../../../type/view/outline/type";
+import { useOSMMapStore } from "../../../store/osmmeta";
+import { OutlineCollectionProps } from "../../../type/view/outline/type";
 import { FeatureCollection, FeatureList } from "../base/list";
-import { Node, Way, Relation } from "../../../../../type/osm/meta";
-import { filterFeatures } from "../../../../../utils/osm/filterV2";
+import { Node, Way, Relation } from "../../../type/osm/meta";
+import { filterFeatures } from "../../../utils/osm/filterV2";
 
 function isModified<T extends Node | Way | Relation>(feature: T) {
     return feature["@_action"] === "modify";

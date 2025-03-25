@@ -1,7 +1,6 @@
 import { createComputed } from "zustand-computed"
 import { FeatureMetaGroup, FeatureTypes, NumericString } from "../../../../type/osm/refobj"
 import { OSMMapStore } from "../../store"
-import { filterBusPTv2, filterCreated, filterHighway } from "../../../../utils/osm/filterV2"
 
 export type CollectionItem = Record<FeatureTypes, Record<NumericString, boolean>>
 
@@ -17,16 +16,7 @@ export type FeatureTree = {
     elems: Record<FeatureTypes, Record<NumericString, FeatureTreeNode>>,
     roots: Record<FeatureTypes, Record<NumericString, boolean>>
 }
-
-export type Collection = {
-    ptv2: CollectionItem,
-    highway: CollectionItem,
-    created: CollectionItem,
-    global: CollectionItem
-}
-
 export interface ComputedFeatures {
-    collections: Collection,
     tree: FeatureTree,
 }
 
@@ -96,34 +86,8 @@ export const genTree = (
     return featureTree
 };
 
-export const genCollection = (osmFeatureMeta: FeatureMetaGroup): Collection => {
-    const unionCollection = (...iterable: CollectionItem[]): CollectionItem => {
-        return iterable.reduce(
-          (acc, col) => {
-            Object.assign(acc.node, col.node);
-            Object.assign(acc.way, col.way);
-            Object.assign(acc.relation, col.relation);
-            return acc;
-          },
-          { node: {}, way: {}, relation: {} } as CollectionItem
-        );
-    };
-
-    const { node, way, relation } = osmFeatureMeta
-    const ptv2 = filterBusPTv2(node, way, relation)
-    const highway = filterHighway(node, way, relation)
-    const created = filterCreated(node, way, relation);
-    return {
-        ptv2: ptv2,
-        highway: highway,
-        created: created,
-        global: unionCollection(ptv2, highway)
-    }
-}
-
 export const computed = createComputed((state: OSMMapStore): ComputedFeatures => {
     return {
-        collections: genCollection(state.meta),
         tree: genTree(state.meta)
     }
 })

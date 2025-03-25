@@ -1,6 +1,6 @@
 // see https://wiki.openstreetmap.org/wiki/Public_transport for detail
 
-import { CollectionItem, NodesObj, NumericString, RelationsObj, WaysObj } from "../../type/osm/refobj";
+import { CollectionItem, FeatureMetaGroup, NodesObj, NumericString, RelationsObj, WaysObj } from "../../type/osm/refobj";
 import { T2Arr } from "../helper/object";
 import { getPropFromTags } from "./getTag";
 
@@ -194,6 +194,41 @@ export function filterCreated(
     };
 
 }
+
+export type Collection = {
+    ptv2: CollectionItem,
+    highway: CollectionItem,
+    created: CollectionItem,
+    global: CollectionItem
+}
+
+
+export const genCollection = (osmFeatureMeta: FeatureMetaGroup): Collection => {
+    const unionCollection = (...iterable: CollectionItem[]): CollectionItem => {
+        return iterable.reduce(
+          (acc, col) => {
+            Object.assign(acc.node, col.node);
+            Object.assign(acc.way, col.way);
+            Object.assign(acc.relation, col.relation);
+            return acc;
+          },
+          { node: {}, way: {}, relation: {} } as CollectionItem
+        );
+    };
+
+    const { node, way, relation } = osmFeatureMeta
+    const ptv2 = filterBusPTv2(node, way, relation)
+    const highway = filterHighway(node, way, relation)
+    const created = filterCreated(node, way, relation);
+    return {
+        ptv2: ptv2,
+        highway: highway,
+        created: created,
+        global: unionCollection(ptv2, highway)
+    }
+}
+
+
 
 export function filterFeatures<T>(
     features: Record<string, T>,

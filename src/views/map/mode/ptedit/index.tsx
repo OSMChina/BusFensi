@@ -7,12 +7,9 @@ import { faCodeCommit } from "@fortawesome/free-solid-svg-icons/faCodeCommit";
 import { cn } from "../../../../utils/helper/object";
 import SplitterView from "../../../../components/layout/SplitView";
 import PropertyView from "../../../property";
-import { BusStopEditOutlineTab } from "../../components/collection/busStop";
-import SelectedOutlineTab from "../../components/collection/selected";
 import BusEditTab from "./tab/bus"
 import RouteEditTab from "./tab/route";
-import { RouteEditOutlineTab } from "../../components/collection/route";
-import { ChangesOutlineTab } from "../../components/collection/changes";
+import OutlineView from "../../../outline";
 
 function PtEditTabs({ width, height, children }: { width: number, height: number, children: ReactNode }) {
     return <div className="bg-base-100 border-r-2 border-r-base-300 flex flex-col"
@@ -54,33 +51,6 @@ function PtEditView({ width, height }: ViewFCProps) {
         </PtEditTabs>
         <div className="relative" style={{ height, width: width - TABS_WIDTH }}>
             {tabs[active].stage()}
-        </div>
-    </div>
-}
-
-function OutlineView({ width, height }: ViewFCProps) {
-    const tabs = [{
-        title: "Bus stop",
-        tab: () => <BusStopEditOutlineTab />
-    }, {
-        title: "Route",
-        tab: () => <RouteEditOutlineTab />
-    }, {
-        title: "Changes",
-        tab: () => <ChangesOutlineTab />
-    }, {
-        title: "Selected",
-        tab: () => <SelectedOutlineTab />
-    },]
-
-    const [active, setActive] = useState(0);
-
-    return <div style={{ width, height }} className="flex flex-col">
-        <div role="tablist" className="tabs tabs-lifted tabs-xs">
-            {tabs.map((tab, index) => (<a key={index} onClick={() => setActive(index)} role="tab" className={cn("tab", index === active && "tab-active")}>{tab.title}</a>))}
-        </div>
-        <div className="outline-view flex flex-col bg-base-100 w-full px-1 flex-1 overflow-auto">
-            {tabs[active].tab()}
         </div>
     </div>
 }

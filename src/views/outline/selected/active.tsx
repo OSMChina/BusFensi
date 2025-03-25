@@ -1,9 +1,9 @@
 import { useShallow } from "zustand/shallow";
-import { useOSMMapStore } from "../../../../../store/osmmeta";
-import { OutlineCollectionProps } from "../../../../../type/view/outline/type";
+import { useOSMMapStore } from "../../../store/osmmeta";
+import { OutlineCollectionProps } from "../../../type/view/outline/type";
 import { FeatureCollection, FeatureList } from "../base/list";
-import { getActiveMeta } from "../../../../../store/osmmeta/selector";
-import { Node, Relation, Way } from "../../../../../type/osm/meta";
+import { getActiveMeta } from "../../../store/osmmeta/selector";
+import { Node, Relation, Way } from "../../../type/osm/meta";
 
 export function ActiveCollection(props: OutlineCollectionProps) {
     const active = useOSMMapStore(useShallow(getActiveMeta))

@@ -1,21 +1,21 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import ItemBase from "../../../../../components/osm/outline/itemBase";
-import { useOSMMapStore } from "../../../../../store/osmmeta";
-import { FeatureTypes } from "../../../../../type/osm/refobj";
-import { getName, getNodeType } from "../../../../../utils/osm/nodeType";
+import ItemBase from "../../../components/osm/outline/itemBase";
+import { useOSMMapStore } from "../../../store/osmmeta";
+import { FeatureTypes } from "../../../type/osm/refobj";
+import { getName, getNodeType } from "../../../utils/osm/nodeType";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons/faLocationDot";
-import { useMapViewStore } from "../../../../../store/mapview";
+import { useMapViewStore } from "../../../store/mapview";
 import { faCheckCircle } from "@fortawesome/free-regular-svg-icons/faCheckCircle";
 import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash";
-import { cn } from "../../../../../utils/helper/object";
+import { cn } from "../../../utils/helper/object";
 import { useShallow } from "zustand/shallow";
-import SimpleConfirm from "../../../../../components/modal/SimpleConfirmHook";
-import { Node } from "../../../../../type/osm/meta";
-import { FeatureTypeMap } from "../../../../../store/osmmeta/slice/meta/type";
+import SimpleConfirm from "../../../components/modal/SimpleConfirmHook";
+import { Node } from "../../../type/osm/meta";
+import { FeatureTypeMap } from "../../../store/osmmeta/slice/meta/type";
 import { faXmarkCircle } from "@fortawesome/free-regular-svg-icons/faXmarkCircle";
 import { createConfirmation } from "react-confirm";
 import { ReactNode, useCallback, useMemo } from "react";
-import { getRelationType } from "../../../../../utils/osm/relationType";
+import { getRelationType } from "../../../utils/osm/relationType";
 import { faClockRotateLeft } from "@fortawesome/free-solid-svg-icons/faClockRotateLeft";
 
 export function FeatureItem<T extends FeatureTypes>({ type, meta, showMetaType, children }: {

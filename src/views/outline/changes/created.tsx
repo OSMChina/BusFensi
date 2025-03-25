@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import { useOSMMapStore } from "../../../../../store/osmmeta";
-import { OutlineCollectionProps } from "../../../../../type/view/outline/type";
+import { useOSMMapStore } from "../../../store/osmmeta";
+import { OutlineCollectionProps } from "../../../type/view/outline/type";
 import { FeatureCollection, FeatureList } from "../base/list";
-import { Node, Relation, Way } from "../../../../../type/osm/meta";
-import { filterFeatures } from "../../../../../utils/osm/filterV2";
+import { Node, Relation, Way } from "../../../type/osm/meta";
+import { filterFeatures } from "../../../utils/osm/filterV2";
 
 function isCreated<T extends Node | Way | Relation>(feature: T) {
     return Number(feature["@_id"]) < 0;

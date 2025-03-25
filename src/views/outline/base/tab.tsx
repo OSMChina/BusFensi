@@ -1,8 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FilterFunc, OutlineCollectionProps } from "../../../../../type/view/outline/type";
+import { FilterFunc, OutlineCollectionProps } from "../../../type/view/outline/type";
 import { faSearch } from "@fortawesome/free-solid-svg-icons/faSearch";
 import { ReactElement, useState } from "react";
-import { T2Arr } from "../../../../../utils/helper/object";
+import { T2Arr } from "../../../utils/helper/object";
 
 type renderProps = (props: OutlineCollectionProps) => ReactElement
 

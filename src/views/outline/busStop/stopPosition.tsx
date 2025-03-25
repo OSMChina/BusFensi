@@ -1,6 +1,6 @@
-import { useOSMMapStore } from "../../../../../store/osmmeta";
-import { OutlineCollectionProps } from "../../../../../type/view/outline/type";
-import { isStopPosition } from "../../../../../utils/osm/nodeType";
+import { useOSMMapStore } from "../../../store/osmmeta";
+import { OutlineCollectionProps } from "../../../type/view/outline/type";
+import { isStopPosition } from "../../../utils/osm/nodeType";
 import { FeatureCollection, FeatureList } from "../base/list";
 
 export function StopPositionCollection(props: OutlineCollectionProps) {

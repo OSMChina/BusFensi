@@ -1,13 +1,13 @@
 import { useShallow } from "zustand/shallow";
-import { useOSMMapStore } from "../../../../../store/osmmeta";
-import { OutlineCollectionProps } from "../../../../../type/view/outline/type";
+import { useOSMMapStore } from "../../../store/osmmeta";
+import { OutlineCollectionProps } from "../../../type/view/outline/type";
 import { FeatureCollection, FeatureList } from "../base/list";
-import { getSelectedMeta } from "../../../../../store/osmmeta/selector";
+import { getSelectedMeta } from "../../../store/osmmeta/selector";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStarOfLife } from "@fortawesome/free-solid-svg-icons/faStarOfLife";
 import { useCallback } from "react";
-import { FeatureTypes } from "../../../../../type/osm/refobj";
-import { Node, Way, Relation } from "../../../../../type/osm/meta";
+import { FeatureTypes } from "../../../type/osm/refobj";
+import { Node, Way, Relation } from "../../../type/osm/meta";
 
 export function SelectedCollection(props: OutlineCollectionProps) {
     const selectedNode = useOSMMapStore(useShallow(getSelectedMeta("node")))
