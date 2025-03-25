@@ -12,7 +12,7 @@ export function FeatureBaseOutlineTab({ children }: {
     const [searchTerm, setSearchTerm] = useState("");
 
     const searchFilter: FilterFunc = (meta, type) =>
-        searchTerm === "" || `${type}-${JSON.stringify(meta)}`.includes(searchTerm)
+        searchTerm === "" || `${type}-${JSON.stringify(meta)}`.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
 
     return <>
         <label className="input input-xs input-bordered flex items-center gap-2 w-full mt-1 mx-auto">
