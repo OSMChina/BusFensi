@@ -8,6 +8,7 @@ import { commitHelper } from "../commit/helper";
 import { ComputedFeatures } from "../../middleware/computed";
 import { FeatureTypes, NumericString } from "../../../../type/osm/refobj";
 import { selectFeatureHelper } from "../featureState/helper";
+import { createFeatureStateHelper } from "../featureState/helper";
 
 export interface MetaAction {
     addFeatureMetaBatch: AddFeatureMetaBatchFunction,
@@ -16,7 +17,8 @@ export interface MetaAction {
     createLocalRelation: (members: Member[]) => NumericString,
     modifyFeatureMetaNC: ModifyFeatureMetaFunction,
     deleteFeature: (type: FeatureTypes, id: NumericString) => void,
-    splitWay: (nodeId: NumericString) => void
+    splitWay: (nodeId: NumericString) => void,
+    restoreDeletedFeature: (type: FeatureTypes, id: NumericString) => void
 }
 
 export const createMetaActionSlice: StateCreator<
@@ -66,5 +68,14 @@ export const createMetaActionSlice: StateCreator<
         commitHelper(state);
         const splited = splitWayHelper(state, get().tree, nodeId);
         if (splited) selectFeatureHelper(state, "way", splited);
+    }),
+    restoreDeletedFeature: (type, id) => set(state => {
+        const deleted = state.deletedMeta[type][id];
+        if (!deleted) return;
+
+        state.meta[type][id] = {...deleted};
+        delete state.deletedMeta[type][id];
+
+        createFeatureStateHelper(state, type, id);
     })
 })
