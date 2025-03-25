@@ -10,6 +10,7 @@ import PropertyView from "../../../property";
 import BusEditTab from "./tab/bus"
 import RouteEditTab from "./tab/route";
 import OutlineView from "../../../outline";
+import { RouteMasterTab } from "./tab/routeMaster";
 
 function PtEditTabs({ width, height, children }: { width: number, height: number, children: ReactNode }) {
     return <div className="bg-base-100 border-r-2 border-r-base-300 flex flex-col"
@@ -35,7 +36,7 @@ function PtEditView({ width, height }: ViewFCProps) {
     }, {
         tooltip: "Edit bus relation",
         icon: <FontAwesomeIcon icon={faCodeCommit} />,
-        stage: () => <div className="p-2">Bus Relation Edit Placeholder</div>
+        stage: () => <RouteMasterTab width={width - TABS_WIDTH} height={height} />
     }], [width, height])
 
     const [active, setActive] = useState(0);
