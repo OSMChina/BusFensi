@@ -349,3 +349,70 @@ export const routePresetCN: FeaturePreset = {
         }
     ]
 };
+
+export const routeMasterPresetCN: FeaturePreset = {
+    tag: [
+        {
+            '@_k': 'type',
+            '@_v': 'route_master',
+            importance: "required",
+            description: "将该关系定义为路线主关系",
+            example: "route_master"
+        },
+        {
+            '@_k': 'route_master',
+            '@_v': 'bus',
+            importance: "required",
+            description: "将该线路主关系为一条公交线路主关系",
+            example: "bus"
+        },
+        {
+            '@_k': 'ref',
+            importance: "required",
+            description: "线路代码（若无官方代码请使用official_name标签）",
+            example: "金青线"
+        },
+        {
+            '@_k': 'name',
+            importance: "required",
+            description: "路线名称，格式：<所在路网><编号>路（例：济南公交K10路支线）",
+            example: "大足公交204路"
+        },
+        {
+            '@_k': 'network',
+            importance: "required",
+            description: "所属运输网络名称（需与网络关系一致）",
+            example: "北京公交"
+        },
+        {
+            '@_k': 'operator',
+            importance: "recommended",
+            description: "运营公司名称（多家公司用分号分隔）",
+            example: "上海众兴汽车旅游客运有限公司"
+        },
+        {
+            '@_k': 'wheelchair',
+            importance: "optional",
+            description: "是否允许轮椅上车（yes/no）",
+            example: "yes"
+        },
+        {
+            '@_k': 'bicycle',
+            importance: "optional",
+            description: "是否允许携带自行车（yes/no）",
+            example: "yes"
+        },
+        {
+            '@_k': 'official_name',
+            importance: "optional",
+            description: "官方地图显示名称（无正式名称时勿用）",
+            example: "Bull City Connector"
+        },
+        {
+            '@_k': 'ref:OPT',
+            importance: "conditional",
+            description: "运营商特定参考号（根据实际情况添加）",
+            example: "OCH"
+        }
+    ]
+};
