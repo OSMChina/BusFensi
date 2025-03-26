@@ -27,7 +27,7 @@ export function FeatureBaseOutlineTab({ children }: {
         </label>
         <div className="outline-list flex-1 rounded overflow-scroll">
             <ul className="menu menu-xs">
-                {T2Arr(children).map(child => child({ filter: searchFilter }))}
+                {T2Arr(children).map((child,index) =><div key={index}> {child({ filter: searchFilter })}</div>)}
             </ul>
         </div>
     </>
