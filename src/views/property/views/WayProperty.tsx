@@ -5,7 +5,7 @@ import Attributes from "../components/Attributes";
 import FeatureRelation from "../components/FeatureRelaion";
 import { cn, T2Arr } from "../../../utils/helper/object";
 import FeatureState from "../components/FeatureStates";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { FeatureRefObj as ItemRefObj } from "../../../type/osm/refobj"
 import InsertMember from "./InsertMember";
 import { useOSMMapStore } from "../../../store/osmmeta";
@@ -21,6 +21,7 @@ import { getName } from "../../../utils/osm/nodeType";
 
 
 function WayProperty({ id }: { id: NumericString }) {
+    const [activeTab, setActiveTab] = useState(0);
     const meta = useOSMMapStore(useShallow((state) => state.meta.way[id]));
     const modifyFeatureMetaNC = useOSMMapStore((state) => state.modifyFeatureMetaNC);
     const commitAction = useOSMMapStore(state => state.commit);
@@ -109,34 +110,89 @@ function WayProperty({ id }: { id: NumericString }) {
         }
     };
 
+    const wayTab = useMemo(
+        () => [
+          {
+            title: "Info",
+            tab: () => <Attributes meta={meta} />,
+          },
+          {
+            title: "Tags",
+            tab: () => (
+              <Tags
+                tags={T2Arr(meta.tag)}
+                setTags={(tags) => {
+                  modifyFeatureMetaNC("way", id, (w) => (w.tag = tags));
+                }}
+                commitChange={commitAction}
+              />
+            ),
+          },
+          {
+            title: "Members",
+            tab: () => (
+              <>
+                <div className="flex flex-row">
+                  <div className="bg-base-200">
+                    <MemberListSelectDelDown
+                      member={meta.nd}
+                      memberToId={memberToId}
+                      onDragStart={handleDragStart}
+                      onDragEnd={handleDragEnd}
+                      onDelete={(_, after) => handleDelete(after)}
+                    >
+                      {memberItemRender}
+                    </MemberListSelectDelDown>
+                  </div>
+                  <div className="">
+                    <InsertMember
+                      handelInsertTop={handleInsertTop}
+                      handelIntertBottom={handleInsertBottom}
+                      handelInsertAtActive={handleInsertAtActive}
+                    />
+                  </div>
+                </div>
+                <FeatureRelation id={id} type="way" />
+              </>
+            ),
+          },
+        ],
+        [
+          meta,
+          id,
+          commitAction,
+          modifyFeatureMetaNC,
+          T2Arr,
+          memberToId,
+          handleDragStart,
+          handleDragEnd,
+          handleDelete,
+          memberItemRender,
+          handleInsertTop,
+          handleInsertBottom,
+          handleInsertAtActive,
+        ]
+    );
+
     return (
         <div className="p-2 overflow-scroll">
             <h3 className="text-base font-semibold mb-2">[Way] {getName(meta.tag) ||  meta["@_id"]}</h3>
             <FeatureState id={id} type="way" />
-            <Attributes meta={meta} />
-            <Tags tags={T2Arr(meta.tag)} setTags={(tags) => { modifyFeatureMetaNC("way", id, w => w.tag = tags) }} commitChange={commitAction} />
-            <div className="flex flex-row">
-                <div className="bg-base-200">
-                    <MemberListSelectDelDown
-                        member={meta.nd}
-                        memberToId={memberToId}
-                        onDragStart={handleDragStart}
-                        onDragEnd={handleDragEnd}
-                        onDelete={(_, after) => handleDelete(after)}
+            <div role="tablist" className="tabs tabs-lifted tabs-xs py-4">
+                {wayTab.map((tab, index) => (
+                    <a
+                        key={index}
+                        onClick={() => setActiveTab(index)}
+                        role="tab"
+                        className={cn("tab", index === activeTab && "tab-active")}
                     >
-                        {memberItemRender}
-                    </MemberListSelectDelDown>
-
-                </div>
-                <div className="">
-                    <InsertMember
-                        handelInsertTop={handleInsertTop}
-                        handelIntertBottom={handleInsertBottom}
-                        handelInsertAtActive={handleInsertAtActive}
-                    />
-                </div>
+                        {tab.title}
+                    </a>
+                ))}
             </div>
-            <FeatureRelation id={id} type="way" />
+            <div className="outline-view flex flex-col bg-base-100 w-full px-1 flex-1 overflow-auto">
+                {wayTab[activeTab].tab()}
+            </div>
         </div>
     );
 }

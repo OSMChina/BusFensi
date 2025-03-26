@@ -194,7 +194,7 @@ function Line({
     }, [highlighted, hovered, selected, visible, createHitArea, bufdata, layerRef]);
     
     useEffect(() => () => {
-        if (haloRef.current) {
+        if (haloRef.current && !haloRef.current.destroy) {
             haloRef.current.destroy({ children: true });
             haloRef.current = null;
         }
