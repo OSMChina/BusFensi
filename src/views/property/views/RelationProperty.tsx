@@ -4,7 +4,7 @@ import Attributes from "../components/Attributes";
 import { T2Arr, cn, deepCopy } from "../../../utils/helper/object";
 import FeatureState from "../components/FeatureStates";
 import MemberItem from "../../../components/osm/memberDrag/MemberItem";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import InsertMember from "./InsertMember";
 import { FeatureRefObj as ItemRefObj } from "../../../type/osm/refobj"
 import { InsertHandeler } from "../../../type/view/property/type";
@@ -21,6 +21,7 @@ import DisplayWayConnectivity from "../components/DisplayWayConnectivity";
 
 
 function RelationProperty({ id }: { id: NumericString }) {
+    const [activeTab, setActiveTab] = useState(0);
     const meta = useOSMMapStore(useShallow((state) => state.meta.relation[id]));
     const modifyFeatureMetaNC = useOSMMapStore((state) => state.modifyFeatureMetaNC)
     const commitAction = useOSMMapStore(state => state.commit)
@@ -135,35 +136,86 @@ function RelationProperty({ id }: { id: NumericString }) {
         }
     };
 
+    const relationTab = useMemo(
+        () => [
+            { 
+                title: "Info", 
+                tab: () => <Attributes meta={meta} /> 
+            },
+            {
+                title: "Tags",
+                tab: () => (
+                    <Tags
+                        tags={T2Arr(meta.tag)}
+                        setTags={(tags) => {
+                            modifyFeatureMetaNC("relation", id, (r) => (r.tag = tags));
+                        }}
+                        commitChange={commitAction}
+                    />
+                ),
+            },
+            {
+                title: "Members",
+                tab: () => (
+                    <div className="flex flex-row relative">
+                        <div className="bg-base-200">
+                            <MemberListSelectDel
+                                member={meta.member}
+                                memberToId={memberToId}
+                                onDragStart={handleDragStart}
+                                onDragEnd={handleDragEnd}
+                                onDelete={(_, after) => handleDelete(after)}
+                            >
+                                {memberItemRender}
+                            </MemberListSelectDel>
+                        </div>
+                        <div className="">
+                            <InsertMember
+                                handelInsertTop={handleInsertTop}
+                                handelIntertBottom={handleInsertBottom}
+                                handelInsertAtActive={handleInsertAtActive}
+                            />
+                        </div>
+                    </div>
+                ),
+            },
+        ],
+        [
+            meta, 
+            id, 
+            commitAction, 
+            modifyFeatureMetaNC, 
+            T2Arr, 
+            memberToId, 
+            handleDragStart, 
+            handleDragEnd, 
+            handleDelete, 
+            memberItemRender, 
+            handleInsertTop, 
+            handleInsertBottom, 
+            handleInsertAtActive
+        ]
+    );
+
     return (
         <div className="p-2 overflow-scroll">
             <h3 className="text-base font-semibold mb-2">[Relation] {getName(meta.tag) || meta["@_id"]}</h3>
             <FeatureState id={id} type="relation" />
-            <Attributes meta={meta} />
-            <Tags tags={T2Arr(meta.tag)}
-                setTags={(tags) => { modifyFeatureMetaNC("relation", id, r => r.tag = tags) }}
-                commitChange={commitAction}
-            />
-            <div className="flex flex-row relative">
-                <div className="bg-base-200">
-                    <MemberListSelectDel
-                        member={meta.member}
-                        memberToId={memberToId}
-                        onDragStart={handleDragStart}
-                        onDragEnd={handleDragEnd}
-                        onDelete={(_, after) => handleDelete(after)}
+            <div role="tablist" className="tabs tabs-lifted tabs-xs py-4">
+                {relationTab.map((tab, index) => (
+                    <a
+                        key={index}
+                        onClick={() => setActiveTab(index)}
+                        role="tab"
+                        className={cn("tab", index === activeTab && "tab-active")}
                     >
-                        {memberItemRender}
-                    </MemberListSelectDel>
-                </div>
-                <div className="">
-                    <InsertMember
-                        handelInsertTop={handleInsertTop}
-                        handelIntertBottom={handleInsertBottom}
-                        handelInsertAtActive={handleInsertAtActive}
-                    />
-                </div>
-            </div>
+                        {tab.title}
+                    </a>
+                ))}
+           </div>
+           <div className="outline-view flex flex-col bg-base-100 w-full px-1 flex-1 overflow-auto">
+               {relationTab[activeTab].tab()}
+           </div>
         </div>
     );
 }

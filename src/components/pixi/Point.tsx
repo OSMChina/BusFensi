@@ -141,7 +141,7 @@ function Point({
     }, [zoom, highlighted, hovered, visible, display, selected, layerRef, position]);
 
     useEffect(() => () => {
-        if (haloRef.current) {
+        if (haloRef.current && !haloRef.current.destroy) {
             haloRef.current.destroy({ children: true });
             haloRef.current = null;
         }

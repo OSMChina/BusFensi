@@ -85,20 +85,16 @@ export function filterBusPTv2(
 
     // Process route master and route relations
     Object.values(relations).forEach((relation) => {
-        if (getPropFromTags("type", relation.tag) === 'route_master' && getPropFromTags('route_master', relation.tag) === 'bus') {
-            // Collect members of the route master relation
-            collectMembers(relation["@_id"], "relation");
-        } else if (getPropFromTags("type", relation.tag) === 'route' && getPropFromTags('public_transport:version', relation.tag) === '2') {
-            // Collect members of the route relation
-            collectMembers(relation["@_id"], "relation");
-        }
-    });
-
-    // Optionally handle roundtrip routes
-    Object.values(relations).forEach((relation) => {
-        if (getPropFromTags("type", relation.tag) === 'route' && getPropFromTags('public_transport:version', relation.tag) === '2' && getPropFromTags('roundtrip', relation.tag) === 'yes') {
-            // Collect members of roundtrip relations
-            collectMembers(relation["@_id"], "relation");
+        const typeValue = getPropFromTags("type", relation.tag),
+          routeMasterValue = getPropFromTags("route_master", relation.tag),
+          ptvValue = getPropFromTags("public_transport:version", relation.tag);
+    
+        if (typeValue === "route_master" && routeMasterValue === "bus") {
+          // Collect members of the route master relation
+          collectMembers(relation["@_id"], "relation");
+        } else if (typeValue === "route" && ptvValue === "2") {
+          // Collect members of the route relation including the roundtrip
+          collectMembers(relation["@_id"], "relation");
         }
     });
 
