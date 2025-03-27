@@ -4,10 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "dev": "rsbuild dev",
+    "build": "rsbuild build",
+    "preview": "rsbuild preview",
+    "dev:rsdoctor": "RSDOCTOR=true rsbuild dev",
+    "build:rsdoctor": "RSDOCTOR=true rsbuild build"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
@@ -35,10 +37,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
+    "@rsbuild/core": "^1.2.19",
+    "@rsbuild/plugin-react": "^1.1.1",
+    "@rsdoctor/rspack-plugin": "^1.0.1",
     "@types/proj4": "^2.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
     "daisyui": "^4.12.10",
     "eslint": "^9.8.0",
@@ -48,7 +52,6 @@
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.9",
     "typescript": "^5.5.3",
-    "typescript-eslint": "^8.0.0",
-    "vite": "^6.2.0"
+    "typescript-eslint": "^8.0.0"
   }
 }
