@@ -40,11 +40,11 @@ export class RouteAddPathStateMachine extends BaseStateMachine<AllStateMachineEv
 
         this.mpView = new MapViewStateMachine(store)
         this.mpComponent = new BusTabComponentStateMachine(store, {
-            onRightClick: (target) => {
+            onRightClick: (target, event) => {
                 console.debug(`Add path: right click at ${target}`);
                 const { routeEdit, setRoutePath } = useOSMMapStore.getState()
                 const match = (member: Member) => member["@_ref"] === target.id && member["@_type"] === target.type
-                if (routeEdit.path.some(match)) {
+                if (routeEdit.path.some(match) && !event.ctrlKey) { // purge
                     setRoutePath(routeEdit.path.filter(m => !match(m)))
                 } else {
                     setRoutePath([...routeEdit.path, { '@_ref': target.id, "@_type": target.type }])

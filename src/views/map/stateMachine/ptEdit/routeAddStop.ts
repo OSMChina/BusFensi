@@ -36,10 +36,10 @@ export class RouteAddStopStateMachine extends BaseStateMachine<AllStateMachineEv
         this.idle = new StateItem('pt-edit-idle')
         this.mapViewSubMachine = new MapViewStateMachine(store)
         this.busStopEditSubMachine = new BusTabComponentStateMachine(store, {
-            onRightClick: (target) => {
+            onRightClick: (target, event) => {
                 const { routeEdit, setRouteStop } = this.context.store.meta.getState()
                 const match = (member: Member) => member["@_ref"] === target.id && member["@_type"] === target.type
-                if (routeEdit.stops.some(match)) {
+                if (routeEdit.stops.some(match) && !event.ctrlKey) { // purge
                     setRouteStop(routeEdit.stops.filter(m => !match(m)))
                 } else {
                     setRouteStop([...routeEdit.stops, { '@_ref': target.id, "@_type": target.type }])
