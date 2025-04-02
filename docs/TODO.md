@@ -416,4 +416,6 @@ These features are planned to be introduced, but the design for their integratio
 
 - [ ] **(MEDIUM)** There is no logic defined for repeatedly adding multiple bus stops. Consider using shift + right click.  
       **(MEDIUM)** 没有定义多个公交站反复加入的逻辑。可以使用 shift + right click
+- [ ] **(HIGH)** Create Stop Area and create route won't init tags
+- [ ] **(HIGH)** Export JOSM format incorrect
 
