@@ -53,7 +53,7 @@ const CreateOrSelectRoute = () => {
     const ret = await confirmModal({ title: "Create Bus stop (Preset CN)", preset: routePresetCN });
     if (ret?.tag) {
       console.debug("created route", ret);
-      createEditRoute([{ "@_k": "type", "@_v": "bus_route" }], []);
+      createEditRoute(ret.tag, ret.member);
     }
   };
 
@@ -68,7 +68,7 @@ const CreateOrSelectRoute = () => {
     return () => document.removeEventListener("keydown", keydownListener);
   }, []);
 
-  if (route) {
+  if (route && relations[route]) {
     const relation = relations[route];
     const routeName = getName(relation.tag) || "[no name]";
 
@@ -553,7 +553,7 @@ const SaveRouteStage = () => {
     return () => document.removeEventListener("keydown", keydownListener);
   }, []);
 
-  if (!routeId) return <div className="p-4 bg-base-100 max-w-xl mx-auto max-h-full overflow-scroll w-full">
+  if (!meta) return <div className="p-4 bg-base-100 max-w-xl mx-auto max-h-full overflow-scroll w-full">
     <div className="alert alert-success mb-4 mx-auto">
       <span>✓ Changes have been saved</span>
     </div>
@@ -567,7 +567,6 @@ const SaveRouteStage = () => {
       </button>
     </div>
   </div>
-    ;
 
   return (
     <div className="p-4 bg-base-100 max-w-xl mx-auto max-h-full overflow-scroll w-full">
@@ -578,7 +577,7 @@ const SaveRouteStage = () => {
         <Tags
           tags={editedTags}
           setTags={setEditedTags}
-          commitChange={() => modifyFeatureMetaNC("relation", routeId!, r => r.tag = editedTags)}
+          commitChange={() => modifyFeatureMetaNC("relation", meta["@_id"]!, r => r.tag = editedTags)}
         />
       </div>
 
@@ -624,6 +623,21 @@ const SaveRouteStage = () => {
   );
 };
 
+function ForceJump() {
+  const { step } = useOSMMapStore(state => state.routeEdit);
+  const setCurrentStep = useOSMMapStore(state => state.setEditStepNC);
+  const meta = useOSMMapStore(state => state.routeEdit.editing && state.meta.relation[state.routeEdit.editing]);
+
+  useEffect(() => {
+    console.debug("change meta step", meta, step)
+    if (!meta && step != 0) {
+      setCurrentStep(0);
+    }
+  }, [meta, setCurrentStep, step]);
+
+  return null;
+}
+
 const RouteEditTab = ({ width, height }: BusEditTabProps) => {
   const { step, editing } = useOSMMapStore(state => state.routeEdit);
   const setCurrentStep = useOSMMapStore(state => state.setEditStepNC);
@@ -655,7 +669,8 @@ const RouteEditTab = ({ width, height }: BusEditTabProps) => {
     }
   ], [width, height]);
 
-  return (
+  return (<>
+    <ForceJump />
     <div style={{ width, height }}>
       <div className="relative" style={{ width, height: height - STEPS_HEIGHT }}>
         {stepTabs[step].component}
@@ -676,6 +691,7 @@ const RouteEditTab = ({ width, height }: BusEditTabProps) => {
         </div>
       </div>
     </div>
+  </>
   );
 };
 
