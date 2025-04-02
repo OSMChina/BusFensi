@@ -17,25 +17,37 @@ export function exportJOSMXML(meta: FeatureMetaGroup, deletedMeta: FeatureMetaGr
                 '@_origin': `v0.0.2-BusFensi`
             },
             node: [
-                ...Object.values(meta.node),
+                ...Object.values(meta.node).map(n => {
+                    delete n["@_localStates"]
+                    return n;
+                }),
                 ...Object.values(deletedMeta.node).map(n => {
                     n["@_action"] = "delete"
+                    delete n["@_localStates"]
                     return n;
                 })
             ],
             way: [
-                ...Object.values(meta.way),
+                ...Object.values(meta.way).map(n => {
+                    delete n["@_localStates"]
+                    return n;
+                }),
                 ...Object.values(deletedMeta.way).map(n => {
                     n["@_action"] = "delete"
+                    delete n["@_localStates"]
                     return n;
                 })
             ],
             relation: [
-                ...Object.values(meta.relation),
+                ...Object.values(meta.relation).map(n => {
+                    delete n["@_localStates"]
+                    return n;
+                }),
                 ...Object.values(deletedMeta.relation).map(n => {
                     n["@_action"] = "delete"
+                    delete n["@_localStates"]
                     return n;
-                })
+                })  
             ],
             "@_version": 0.6,
             "@_generator": "BusFensi",
