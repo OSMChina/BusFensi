@@ -345,12 +345,26 @@ PIXI 的 Point 将会显示 Name
     插入公交站点，允许右键添加到当前线路中
     - [X] Delete bus stops, either via <s>right-click (option removed)</s> or manually.  
     删除公交站点，<s>允许右键，</s>也可以手动
-  - [ ] Step 2: Route  
+  - [X] Step 2: Route  
     第二步：线路
     - [ ] Click on a point on the path and highlight it. Store the sequence of this point along with the way order in the bus slice.  
     点击路径上的点，用 highlight 属性标出。将这个点的顺序和 way 顺序存入 bus slice 中。
     - [X] The above requirement is temporarily on hold; the current implementation refers to the bus stops.  
     上述需求暂时冻结，目前实现参考公交站点
+
+## Before April 20, 2025
+
+- [ ] Fractional zoom scaling.  
+      分数 zoom 缩放
+- [ ] **(Important)** Implement zoom scaling beyond 19, referring to the fractional zoom implementation.  
+      **（重要）** 超出 19 的 zoom 缩放，参考分数缩放实现
+- [ ] Adjust the numeric values for zoom and longitude/latitude.  
+- [ ] **(Important)** Implement Draw Way feature, referencing [JOSM's implementation](https://josm.openstreetmap.de/wiki/Help/Action/Draw). Only segment drawing needs to be implemented.
+      **(重要)** 实现 Draw way 功能，参考 [JOSM 中的实现](https://josm.openstreetmap.de/wiki/Help/Action/Draw), 实现线段的绘制即可
+- [ ] Configure the console log level.  
+      console log level
+- [ ] Solve all Known issue
+- [ ] Dark/Light theme manual switch
 
 # Other Improvements / 其他优化
 
@@ -361,14 +375,7 @@ These features are planned to be introduced, but the design for their integratio
       加入 JOSM 导入数据功能
 - [X] Add a button to toggle slide-loading on/off.  
       添加一个开启/关闭滑动加载的按钮
-- [ ] Fractional zoom scaling.  
-      分数 zoom 缩放
-- [ ] **(Important)** Implement zoom scaling beyond 19, referring to the fractional zoom implementation.  
-      **（重要）** 超出 19 的 zoom 缩放，参考分数缩放实现
-- [ ] Adjust the numeric values for zoom and longitude/latitude.  
       zoom 和 lon/lat 的数值修改
-- [ ] Configure the console log level.  
-      console log level
 - [X] Add a button to clear all local data.  
       清除本地所有数据的按钮
 - [ ] **Batch operations** on `outline` elements, such as selecting and deleting.  
@@ -383,6 +390,8 @@ These features are planned to be introduced, but the design for their integratio
         fast XML
   - [ ] Import the preset.  
         导入
+- [ ] Auto completion: Automatically suggest possible values for keys in Input.  
+      在 Input 中自动补全可能的 key 的 value 的值。
 
 ---
 
@@ -414,8 +423,13 @@ These features are planned to be introduced, but the design for their integratio
 - [ ] **(HIGH)** There was one instance where hover was entered but not exited, resulting in the entire screen being in hover state. (Update) It’s known to be due to localStorage issues; the logic needs to be refactored, separating @_localState.  
       **(HIGH)** 出现过一次只进 hover 不退出 hover，导致全屏都是 hover，但没有复现。（更新）已知是 localStorage 爆了的原因，需要将逻辑重新拆分，把 @_localState 拆出来。
 
-- [X] **(MEDIUM)** There is no logic defined for repeatedly adding multiple bus stops. Consider using shift + right click.  
-      **(MEDIUM)** 没有定义多个公交站反复加入的逻辑。可以使用 shift + right click
-- [X] **(HIGH)** Create Stop Area and create route won't init tags
-- [X] **(HIGH)** Export JOSM format incorrect
+- [X] <s>**(MEDIUM)** There is no logic defined for repeatedly adding multiple bus stops. Consider using shift + right click.</s>  
+      <s>**(MEDIUM)** 没有定义多个公交站反复加入的逻辑。可以使用 shift + right click</s>  
+  **Current status:** Fixed  
+  **当前状态：** Fixed
+- [X] <s>**(HIGH)** Create Stop Area and create route won't init tags</s>
+- [X] <s>**(HIGH)** Export JOSM format incorrect</s>  
+  **Current status:** Fixed  
+  **当前状态：** Fixed
+
 
