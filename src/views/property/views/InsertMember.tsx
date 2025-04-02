@@ -45,25 +45,28 @@ function InsertMember({ handelInsertTop, handelIntertBottom, handelInsertAtActiv
 
     const renderChild = useCallback(({ member, memberToId, slot }: { member: FeatureRefObj[]; memberToId: (member: FeatureRefObj) => UniqueIdentifier; slot: (props: { m: FeatureRefObj; }) => React.ReactNode; }) => (
         member.map(item => <div key={memberToId(item)} className="flex flex-row gap-1 px-2 mt-1">
-                <InsertMemberItem {...item} />
-                {slot({ m: item })}
+            <InsertMemberItem {...item} />
+            {slot({ m: item })}
         </div>)
     ), [])
     return <div className="flex flex-row justify-center p-2 rounded-md">
         <div className="join join-vertical mr-2">
             <button
+                type="button"
                 className="btn btn-xs join-item"
                 onClick={() => { handelInsertTop(getSelected()); }}
             >
                 InsTop
             </button>
             <button
+                type="button"
                 className="btn btn-xs join-item"
                 onClick={() => { handelInsertAtActive(getSelected()); }}
             >
                 InsAct
             </button>
             <button
+                type="button"
                 className="btn btn-xs join-item"
                 onClick={() => { handelIntertBottom(getSelected()); }}
             >
@@ -78,9 +81,9 @@ function InsertMember({ handelInsertTop, handelIntertBottom, handelInsertAtActiv
                 slotSelection={({ selected, children }) => {
                     localSelectionRef.current = selected
                     return <div className="flex flex-row px-2 py-1">
-                    <h3 className="text text-sm font-semibold">selected Items to insert</h3>
-                    <div className="ml-auto" />
-                    {children}
+                        <h3 className="text text-sm font-semibold">selected Items to insert</h3>
+                        <div className="ml-auto" />
+                        {children}
                     </div>;
                 }}
             >

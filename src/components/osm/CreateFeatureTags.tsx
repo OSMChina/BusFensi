@@ -202,7 +202,7 @@ export default function CreateFeatureTags({ preset, existing, title, onSubmit, o
         {() => {
             const localA = localActiveMember?.id === member["@_ref"] && localActiveMember.type === member["@_type"]
             return <>
-                <button className={cn("btn btn-square btn-xs tooltip tooltip-bottom", localA && "btn-accent")}
+                <button type="button" className={cn("btn btn-square btn-xs tooltip tooltip-bottom", localA && "btn-accent")}
                     data-tip="Mark as local active place to insert"
                     onMouseDown={(event) => {
                         event.stopPropagation();
