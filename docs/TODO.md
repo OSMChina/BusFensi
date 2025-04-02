@@ -414,7 +414,7 @@ These features are planned to be introduced, but the design for their integratio
 - [ ] **(HIGH)** There was one instance where hover was entered but not exited, resulting in the entire screen being in hover state. (Update) It’s known to be due to localStorage issues; the logic needs to be refactored, separating @_localState.  
       **(HIGH)** 出现过一次只进 hover 不退出 hover，导致全屏都是 hover，但没有复现。（更新）已知是 localStorage 爆了的原因，需要将逻辑重新拆分，把 @_localState 拆出来。
 
-- [ ] **(MEDIUM)** There is no logic defined for repeatedly adding multiple bus stops. Consider using shift + right click.  
+- [X] **(MEDIUM)** There is no logic defined for repeatedly adding multiple bus stops. Consider using shift + right click.  
       **(MEDIUM)** 没有定义多个公交站反复加入的逻辑。可以使用 shift + right click
 - [X] **(HIGH)** Create Stop Area and create route won't init tags
 - [X] **(HIGH)** Export JOSM format incorrect
