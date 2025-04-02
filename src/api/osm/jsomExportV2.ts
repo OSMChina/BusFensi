@@ -1,8 +1,11 @@
 import { JSOMExportObj, OSMV06BBoxObj } from "../../type/osm/meta";
 import { XMLBuilder } from 'fast-xml-parser';
 import { FeatureMetaGroup } from "../../type/osm/refobj";
+import { deepCopy } from "../../utils/helper/object";
 
 export function exportJOSMXML(meta: FeatureMetaGroup, deletedMeta: FeatureMetaGroup, bboxs: OSMV06BBoxObj[]): string {
+    meta = deepCopy(meta)
+    deletedMeta = deepCopy(deletedMeta)
     const exObj: JSOMExportObj = {
         "?xml": {
             "@_version": "1.0",
