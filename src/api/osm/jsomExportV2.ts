@@ -16,18 +16,27 @@ export function exportJOSMXML(meta: FeatureMetaGroup, deletedMeta: FeatureMetaGr
                 "@_maxlon": bboxs.reduce((pre, bbox) => Math.max(pre, bbox.osm.bounds["@_maxlon"]), -Infinity),
                 '@_origin': `v0.0.2-BusFensi`
             },
-            node: Object.values({
-                ...meta.node,
-                ...deletedMeta.node
-            }),
-            way: Object.values({
-                ...meta.way,
-                ...deletedMeta.way
-            }),
-            relation: Object.values({
-                ...meta.relation,
-                ...deletedMeta.relation
-            }),
+            node: [
+                ...Object.values(meta.node),
+                ...Object.values(deletedMeta.node).map(n => {
+                    n["@_action"] = "delete"
+                    return n;
+                })
+            ],
+            way: [
+                ...Object.values(meta.way),
+                ...Object.values(deletedMeta.way).map(n => {
+                    n["@_action"] = "delete"
+                    return n;
+                })
+            ],
+            relation: [
+                ...Object.values(meta.relation),
+                ...Object.values(deletedMeta.relation).map(n => {
+                    n["@_action"] = "delete"
+                    return n;
+                })
+            ],
             "@_version": 0.6,
             "@_generator": "BusFensi",
         }

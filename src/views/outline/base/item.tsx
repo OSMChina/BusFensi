@@ -18,8 +18,8 @@ import { ReactNode, useCallback, useMemo } from "react";
 import { getRelationType } from "../../../utils/osm/relationType";
 import { faClockRotateLeft } from "@fortawesome/free-solid-svg-icons/faClockRotateLeft";
 
-export function FeatureItem<T extends FeatureTypes>({ type, meta, showMetaType, children }: {
-    type: T, meta: FeatureTypeMap[T], showMetaType?: true,
+export function FeatureItem<T extends FeatureTypes>({ type, meta, showMetaType, isDeleted, children }: {
+    type: T, meta: FeatureTypeMap[T], showMetaType?: true, isDeleted?: boolean
     children?: (props: { type: T, meta: FeatureTypeMap[T] }) => ReactNode
 }) {
     const id = meta["@_id"];
@@ -72,8 +72,6 @@ export function FeatureItem<T extends FeatureTypes>({ type, meta, showMetaType, 
             deleteFeature(type, id);
         }
     }, [confirmModal, deleteFeature, id, meta.tag, type]);
-
-    const isDeleted = meta["@_action"] === "delete";
 
     return (
         <ItemBase

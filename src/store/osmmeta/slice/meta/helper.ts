@@ -157,7 +157,8 @@ export function deleteFeatureSelfHelper(
         throw new Error(`Can't delete feature ${type} ${id}: not exsit!`);
     }
     state.deletedMeta[type][id] = state.meta[type][id];
-    state.deletedMeta[type][id]["@_action"] = "delete";
+    // delete will be set at export
+    // state.deletedMeta[type][id]["@_action"] = "delete";
     deleteFeatureStateHelper(state, type, id)
     delete state.meta[type][id];
 }

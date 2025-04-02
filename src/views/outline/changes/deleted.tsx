@@ -7,16 +7,17 @@ import { useMemo } from "react";
 
 export function DeletedCollection(props: OutlineCollectionProps) {
     const { relation, way, node } = useOSMMapStore(useShallow(getDeletedFeatures))
-        const relationList = useMemo(() => Object.values(relation), [relation])
-        const wayList = useMemo(() => Object.values(way), [way])
-        const nodeList = useMemo(() => Object.values(node), [node])
-        return <FeatureCollection name="deleted">
-            <FeatureList
-                {...props}
-                relation={relationList}
-                way={wayList}
-                node={nodeList}
-            />
-        </FeatureCollection>
-    
+    const relationList = useMemo(() => Object.values(relation), [relation])
+    const wayList = useMemo(() => Object.values(way), [way])
+    const nodeList = useMemo(() => Object.values(node), [node])
+    return <FeatureCollection name="deleted">
+        <FeatureList
+            {...props}
+            relation={relationList}
+            way={wayList}
+            node={nodeList}
+            isDeleted={true}
+        />
+    </FeatureCollection>
+
 }
