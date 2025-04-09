@@ -364,7 +364,7 @@ PIXI 的 Point 将会显示 Name
 - [ ] Configure the console log level.  
       console log level
 - [ ] Solve all Known issue
-- [ ] Dark/Light theme manual switch
+- [X] Dark/Light theme manual switch
 
 # Other Improvements / 其他优化
 
