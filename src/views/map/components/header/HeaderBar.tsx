@@ -1,5 +1,15 @@
 import { ReactElement } from "react";
 import { HeaderToolbar } from "./HeaderToolBar";
+import { ThemeToggleButton } from "../../../../components/layout/ThemeToggleBtn";
+
+function ThemeToggle() {
+    return (
+      <div className="tooltip tooltip-left mx-2" data-tip="Toggle theme">
+        <ThemeToggleButton className="btn-sm" />
+      </div>
+    );
+  }
+  
 
 export function HeaderBar({ height, leftSlot }: { height: number, leftSlot: ReactElement }) {
 
@@ -9,6 +19,7 @@ export function HeaderBar({ height, leftSlot }: { height: number, leftSlot: Reac
         </div>
         <div className="flex-none">
             <HeaderToolbar/>
+            <ThemeToggle />
         </div>
     </nav>
 }

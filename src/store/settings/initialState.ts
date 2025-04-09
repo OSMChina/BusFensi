@@ -12,6 +12,9 @@ export interface SettingsState {
             POINT: number,
             MASK: number
         }
+    },
+    appearance: {
+        theme: 'light' | 'dark' | 'system'
     }
 };
 
@@ -29,5 +32,8 @@ export const initialState: SettingsState = {
             POINT: 20,
             MASK: 30
         }
+    },
+    appearance: {
+        theme: 'system' // Default to system preference
     }
 };
