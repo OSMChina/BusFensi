@@ -354,9 +354,9 @@ PIXI 的 Point 将会显示 Name
 
 ## Before April 20, 2025
 
-- [ ] Fractional zoom scaling.  
+- [X] Fractional zoom scaling.  
       分数 zoom 缩放
-- [ ] **(Important)** Implement zoom scaling beyond 19, referring to the fractional zoom implementation.  
+- [X] **(Important)** Implement zoom scaling beyond 19, referring to the fractional zoom implementation.  
       **（重要）** 超出 19 的 zoom 缩放，参考分数缩放实现
 - [ ] Adjust the numeric values for zoom and longitude/latitude.  
 - [ ] **(Important)** Implement Draw Way feature, referencing [JOSM's implementation](https://josm.openstreetmap.de/wiki/Help/Action/Draw). Only segment drawing needs to be implemented.
@@ -392,6 +392,8 @@ These features are planned to be introduced, but the design for their integratio
         导入
 - [ ] Auto completion: Automatically suggest possible values for keys in Input.  
       在 Input 中自动补全可能的 key 的 value 的值。
+- [ ] URL settings: allow override default settings by URL params, same like iD editor.
+- [ ] Zoom to pointer position: zoom behavier like iD editor instead of zoom to middle of map.
 
 ---
 
