@@ -11,16 +11,21 @@ function getTileLink(source: string, x: number, y: number, zoom: number) {
         .replace('{y}', String(y));
 }
 
-function BackgourndTile({ source, x, y, mapViewStatus: {zoom, width, height, viewpoint} }: {
+function BackgourndTile({ source, x, y, scale = 1, mapViewStatus: { zoom, width, height, viewpoint } }: {
     source: string,
     x: number,
     y: number,
+    scale?: number,
     mapViewStatus: MapViewStatus
 }) {
-    const link = getTileLink(source, x, y, zoom);
-    const absPix: PointPixel = { x: x * DEFAULT_TILE_SIZE, y: y * DEFAULT_TILE_SIZE };
+    const zoomIntegerPart = Math.trunc(zoom)
+    const link = getTileLink(source, x, y, zoomIntegerPart);
+    const absPix: PointPixel = { x: x * DEFAULT_TILE_SIZE * scale, y: y * DEFAULT_TILE_SIZE * scale };
     const position = adjustAbsolutePixelToLocal(absPix, viewpoint, zoom, width, height);
+
+    // + 0.004 to avoid gaps between tiles
     return (<Sprite
+        scale={scale + 0.004} 
         image={link}
         position={position}
     />)

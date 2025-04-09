@@ -38,13 +38,18 @@ export class MapViewStateMachine extends BaseStateMachine<AllStateMachineEvents,
         const context = this.context;
         if (event.type === 'wheel') {
           // wheel roll, zoom in or out
-          const axis = (event as React.WheelEvent<HTMLCanvasElement>).deltaY < 0;
+          const wheelEvent = event as React.WheelEvent<HTMLCanvasElement>;
           const { zoom, setZoom } = context.store.view.getState()
-          const newZoom = zoom + (axis ? 1 : -1);
           const settings = context.store.settings.getState()
-          if (newZoom >= 0 && newZoom <= settings.view.MAX_ZOOM) {
-            setZoom(newZoom)
+          const scrollDelta = wheelEvent.deltaY;
+          const zoomFactor = Math.pow(2, -scrollDelta * 0.0002); // Smaller factor for smoother zoom
+          const newZoom = zoom * zoomFactor;
+  
+          // Clamp zoom within bounds
+          if (newZoom >= 0 && newZoom < settings.view.MAX_ZOOM + 0.99) {
+            setZoom(newZoom);
           }
+  
           return true
         }
         return false;

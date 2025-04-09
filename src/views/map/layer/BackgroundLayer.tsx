@@ -12,9 +12,12 @@ export function BackgroundLayer(props: { width: number; height: number }) {
     const tileSource = useSettingsStore((state) => state.osmAPI.TILE_SOURCE);
     const mapView = useMapViewStore();
     const { viewpoint, zoom } = mapView; // Ensure these values exist
+    const zoomIntegerPart = Math.trunc(zoom); 
+    const zoomDecimalPart = zoom - zoomIntegerPart; // 0.14159
+    const scale = Math.pow(2, zoomDecimalPart);
 
     const generateBackgroundTiles = () => {
-        const { x: xabs, y: yabs } = convertWGS84ToAbsolutePixel(viewpoint, zoom);
+        const { x: xabs, y: yabs } = convertWGS84ToAbsolutePixel(viewpoint, zoomIntegerPart);
 
         const [xTileMin, yTileMin, xTileMax, yTileMax] = [
             xabs - (width >> 1),
@@ -32,6 +35,7 @@ export function BackgroundLayer(props: { width: number; height: number }) {
                         source={tileSource}
                         x={x}
                         y={y}
+                        scale={scale}
                         mapViewStatus={{ ...props, ...mapView }}
                     />
                 );
