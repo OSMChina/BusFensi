@@ -422,8 +422,10 @@ These features are planned to be introduced, but the design for their integratio
 - [ ] **(MEDIUM)** The full state history in zundo consumes a lot of memory, and the provided diff interface assumes a delta state—only handling a flat state and not supporting incremental changes for nested states. Also, there is no merge interface provided, so you either have to manually fork and extend zundo or use a separate middleware to inject a set function for deepMerge.  
       **(MEDIUM)** zundo 的全量状态历史记录非常耗内存，而且提供的 diff 接口假设 delta state，只能处理单层 state，对 nested state 不支持增量。并且没有提供 merge 接口，所以需要手动 fork 并扩展 zundo，或者使用独立的中间件注入 set 函数来实现 deepMerge。在使用 indexedDB 重构持久化之后进行修复。
 
-- [ ] **(HIGH)** There was one instance where hover was entered but not exited, resulting in the entire screen being in hover state. (Update) It’s known to be due to localStorage issues; the logic needs to be refactored, separating @_localState.(Update Again) plan to use IndexedDB to refactor.   
+- [X] **(HIGH)** There was one instance where hover was entered but not exited, resulting in the entire screen being in hover state. (Update) It’s known to be due to localStorage issues; the logic needs to be refactored, separating @_localState.(Update Again) plan to use IndexedDB to refactor.   
       **(HIGH)** 出现过一次只进 hover 不退出 hover，导致全屏都是 hover，但没有复现。（更新）已知是 localStorage 爆了的原因，需要将逻辑重新拆分，把 @_localState 拆出来。(再次更新)：使用 indexedDB 进行持久化存储。
+      **Current status:** Use IndexedDB for persistent storage to avoid limitation of localStorage.      
+      **当前状态：** 使用 IndexedDB 进行持久化存储以避免 localStorage 的限制。
 
 - [X] <s>**(MEDIUM)** There is no logic defined for repeatedly adding multiple bus stops. Consider using shift + right click.</s>  
       <s>**(MEDIUM)** 没有定义多个公交站反复加入的逻辑。可以使用 shift + right click</s>  
