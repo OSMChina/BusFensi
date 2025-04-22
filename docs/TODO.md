@@ -359,13 +359,13 @@ PIXI 的 Point 将会显示 Name
 - [X] **(Important)** Implement zoom scaling beyond 19, referring to the fractional zoom implementation.  
       **（重要）** 超出 19 的 zoom 缩放，参考分数缩放实现
 - [ ] Adjust the numeric values for zoom and longitude/latitude.  
-- [ ] **(Important)** Implement Draw Way feature, referencing [JOSM's implementation](https://josm.openstreetmap.de/wiki/Help/Action/Draw). Only segment drawing needs to be implemented.
+- [X] **(Important)** Implement Draw Way feature, referencing [JOSM's implementation](https://josm.openstreetmap.de/wiki/Help/Action/Draw). Only segment drawing needs to be implemented.
       **(重要)** 实现 Draw way 功能，参考 [JOSM 中的实现](https://josm.openstreetmap.de/wiki/Help/Action/Draw), 实现线段的绘制即可
 - [ ] Configure the console log level.  
       console log level
 - [ ] Solve all Known issue
 - [X] Dark/Light theme manual switch
-
+  
 # Other Improvements / 其他优化
 
 These features are planned to be introduced, but the design for their integration is not finalized yet.  
@@ -394,6 +394,8 @@ These features are planned to be introduced, but the design for their integratio
       在 Input 中自动补全可能的 key 的 value 的值。
 - [ ] URL settings: allow override default settings by URL params, same like iD editor.
 - [ ] Zoom to pointer position: zoom behavier like iD editor instead of zoom to middle of map.
+- [ ] (massive work)Refactor the implementation of the StateMachine to store the current state in Zustand as well. Perform state transitions based on the state stored in Zustand, making it easier to restore the state. This may require modifying the implementation of related components.  
+      (大量工作)重构 StateMachine 的实现，将当前的 state 也存进 zustand, 根据 zustand 中存储的状态进行状态的运算，方便恢复状态。可能需要修改相关组件的实现。
 
 ---
 
