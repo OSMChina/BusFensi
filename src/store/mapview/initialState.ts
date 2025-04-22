@@ -20,9 +20,16 @@ export interface MapState {
         from: PointPixel,
         to: PointPixel
     }
+    
+    // Added draw mode state
+    drawMode: {
+        fromPos?: PointWGS84;
+        curPos?: PointWGS84;
+    };
 }
 
 export const initialMapState: MapState = {
     viewpoint: DEFAULT_VIEWPOINT_WGS84,
     zoom: DEFAULT_ZOOM,
+    drawMode: {},
 };

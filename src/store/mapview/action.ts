@@ -9,6 +9,10 @@ export interface MapViewAction {
     setStage: (width: number, height: number) => void
     setStageApp: (app: Application | undefined) => void,
     setSelectionRect: (selectionRect?: { from: PointPixel, to: PointPixel }) => void,
+
+    clearDrawModeNC: () => void;
+    setFromPosNC: (pos: PointWGS84) => void;
+    setCurPosNC: (pos: PointWGS84) => void;
 }
 
 export const createMapStatusActionSlice: StateCreator<
@@ -21,5 +25,12 @@ export const createMapStatusActionSlice: StateCreator<
     setZoom: (zoom: number) => set(() => ({ zoom: zoom })),
     setStage: (width: number, height: number) => set({ width, height }),
     setStageApp: (app) => set({ stage: app }),
-    setSelectionRect: (selectionRect) => set({ selectionRect })
+    setSelectionRect: (selectionRect) => set({ selectionRect }),
+    clearDrawModeNC: () => set({ drawMode: {} }),
+    setFromPosNC: (pos) => set(state => ({ 
+        drawMode: { ...state.drawMode, fromPos: pos } 
+    })),
+    setCurPosNC: (pos) => set(state => ({ 
+        drawMode: { ...state.drawMode, curPos: pos } 
+    })),
 })
