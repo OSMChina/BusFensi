@@ -1,4 +1,3 @@
-import { useOSMMapStore } from "../../../../store/osmmeta";
 import { Member } from "../../../../type/osm/meta";
 import { AllStateMachineEvents } from "../../../../type/stateMachine/allEvents";
 import { BaseContext, StoreType } from "../../../../type/stateMachine/baseEvent";
@@ -14,6 +13,7 @@ export class RouteAddPathStateMachine extends BaseStateMachine<AllStateMachineEv
     mpView: BaseMachine
     mpComponent: BaseMachine
     mpUndoRedo: BaseMachine
+    
     constructor(store: StoreType) {
         super(store)
         this.manualAddPathMode = new StateItem('path-add-manual-mode')
@@ -21,13 +21,12 @@ export class RouteAddPathStateMachine extends BaseStateMachine<AllStateMachineEv
         this.current = this.manualAddPathMode
         this.accept = [this.manualAddPathMode]
 
-
         const hoverable: FeatureClassifyFun = (target) => {
-            return target.type === "way"
+            return target.type === "way" || target.type === "node"
         }
 
         const clickable: FeatureClassifyFun = (target) => {
-            return target.type === "way"
+            return target.type === "way" || target.type === "node"
         }
 
         const dragable: FeatureClassifyFun = () => {
@@ -42,7 +41,7 @@ export class RouteAddPathStateMachine extends BaseStateMachine<AllStateMachineEv
         this.mpComponent = new BusTabComponentStateMachine(store, {
             onRightClick: (target, event) => {
                 console.debug(`Add path: right click at ${target}`);
-                const { routeEdit, setRoutePath } = useOSMMapStore.getState()
+                const { routeEdit, setRoutePath } = this.context.store.meta.getState()
                 const match = (member: Member) => member["@_ref"] === target.id && member["@_type"] === target.type
                 if (routeEdit.path.some(match) && !event.ctrlKey) { // purge
                     setRoutePath(routeEdit.path.filter(m => !match(m)))
@@ -51,12 +50,11 @@ export class RouteAddPathStateMachine extends BaseStateMachine<AllStateMachineEv
                 }
             },
             onLeftClick: (target) => {
-                const { toggleFeature } = useOSMMapStore.getState()
+                const { toggleFeature } = this.context.store.meta.getState()
                 toggleFeature(target.type, target.id, true);
             },
             hoverable,
             clickable,
-            
             dragable,
             selectable
         })
