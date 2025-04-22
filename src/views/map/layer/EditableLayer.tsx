@@ -5,12 +5,12 @@ import Point from "../../../components/pixi/Point"
 import { useMapViewStore } from "../../../store/mapview"
 import { useOSMMapStore } from "../../../store/osmmeta"
 import { NodesObj } from "../../../type/osm/refobj"
-import { useShallow } from "zustand/shallow"
 import { PointerWithOSMEvent } from "../../../type/stateMachine/commonEdit/componentEvent"
 import HeadlessMetaRender from "../components/HeadlessOSMMetaRender"
 import { Node, Way } from "../../../type/osm/meta"
 import { BaseStateMachine } from "../stateMachine/state"
 import SelectionRect from "../../../components/pixi/SelectRect"
+import DisplayDrawingLine from "../../../components/pixi/DrawingLine"
 
 type PointWarpProps = Pick<React.ComponentProps<typeof Point>, "mapViewStatus" | "layerRef"> & {
     node: Node,
@@ -58,7 +58,8 @@ function EditableLayer({ width, height, stateMachine }: {
     height: number,
     stateMachine: BaseStateMachine
 }) {
-    const [viewpoint, zoom, selectionRect] = useMapViewStore(useShallow(state => ([state.viewpoint, state.zoom, state.selectionRect])))
+    const mapview = useMapViewStore()
+    const {viewpoint, zoom, selectionRect} = mapview;
     const { node, way } = useOSMMapStore(state => state.meta)
     const containerRef = useRef<PIXIContainer>(null)
 
@@ -84,6 +85,7 @@ function EditableLayer({ width, height, stateMachine }: {
             />}
         />
         <SelectionRect selectionRect={selectionRect} />
+        <DisplayDrawingLine {...mapview} />
     </>
 }
 

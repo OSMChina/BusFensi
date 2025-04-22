@@ -33,6 +33,7 @@ import { RightClickMenu } from "../../../components/RightCLickMenu";
 import { useShallow } from "zustand/shallow";
 import { RouteEditWayStateMachine } from "../../../stateMachine/ptEdit/routeEditWay";
 import { UndoRedoStateMachine } from "../../../stateMachine/slice/util/UndoRedoStateMachine";
+import { DrawModeStateMacine } from "../../../stateMachine/ptEdit/drawMode";
 
 const STEPS_HEIGHT = 72
 
@@ -498,11 +499,49 @@ const EditWayTab = ({ width, height }: BusEditTabProps) => {
   );
 };
 
+const DrawWayTab = ({ width, height }: BusEditTabProps) => {
+  const [rightClickMenu, setRightClickMenu] = useState<RightClickMenuProps>({ x: 0, y: 0, open: false });
+
+  const stateMachine = useRef(
+    new DrawModeStateMacine({
+      meta: useOSMMapStore, view: useMapViewStore, settings: useSettingsStore
+    })).current;
+
+  useEffect(() => {
+    const keydownListener = (event: KeyboardEvent) => stateMachine.transform(event);
+    document.addEventListener("keydown", keydownListener);
+    return () => {
+      document.removeEventListener("keydown", keydownListener);
+      stateMachine.clearDrawMode();
+    };
+  }, [stateMachine]);
+
+  return (
+    <div className="relative" style={{ width, height }}>
+      <PIXIStage
+        width={width}
+        height={height}
+        options={{ background: "#1099bb" }}
+        onMouseDown={(e) => stateMachine.transform(e)}
+        onPointerMove={(e) => stateMachine.transform(e)}
+        onMouseUp={(e) => stateMachine.transform(e)}
+        onWheel={(e) => stateMachine.transform(e)}
+      >
+        <BackgroundLayer width={width} height={height} />
+        <EditableLayer width={width} height={height} stateMachine={stateMachine} />
+      </PIXIStage>
+      <InfoLayer width={width} />
+      <MemoRightClickOnFeature {...rightClickMenu} onClose={() => setRightClickMenu({ x: 0, y: 0, open: false })} />
+    </div>
+  );
+};
+
 // Main Route Edit Component with Tabs
 const EditRoutePathStage = ({ width, height }: BusEditTabProps) => {
   const tabs = [
     { label: "Add Path" },
-    { label: "Edit Way" }
+    { label: "Edit Way" },
+    { label: "Draw Way" },
   ];
   const [activeTab, setActiveTab] = useState<number>(0);
 
@@ -525,9 +564,11 @@ const EditRoutePathStage = ({ width, height }: BusEditTabProps) => {
 
       {activeTab === 0 ? (
         <AddPathTab width={width} height={height} />
-      ) : (
+      ) : (activeTab === 1 ? (
         <EditWayTab width={width} height={height} />
-      )}
+      ): (
+        <DrawWayTab width={width} height={height} />
+      ))}
     </div>
   );
 };
