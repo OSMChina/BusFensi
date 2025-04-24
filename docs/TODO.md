@@ -438,4 +438,6 @@ These features are planned to be introduced, but the design for their integratio
   **Current status:** Fixed  
   **当前状态：** Fixed
 - [ ] **(LOW)** Member list connectivity works incorrectly with way order. The current logic is not strict enough when nodes in a way are reversed. Two ways should be considered connected if they share endpoints.  
-      **(LOW)** 成员列表的连接性判断有误，有时候 way 里面的 node 会反过来，然后当前的判断逻辑就不够严谨了。应该认为两个 way 连在一起就算连同
+      **(LOW)** 成员列表的连接性判断有误，有时候 way 里面的 node 会反过来，然后当前的判断逻辑就不够严谨了。应该认为两个 way 连在一起就算联通
+- [ ] **(MEDIUM)** Cannot click the same element consecutively - must hover out and then hover in again. Need to allow transition from idle state to component mouse down state directly.  
+      **(MEDIUM)** 无法连续点击同一元素，只能先 hover out 再 hover in。需要允许 idle 状态切到 component mouse down 状态
