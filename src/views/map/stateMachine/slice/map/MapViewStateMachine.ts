@@ -42,20 +42,46 @@ export class MapViewStateMachine extends BaseStateMachine<AllStateMachineEvents,
           const TOLERANCE = 0.09;
 
           const wheelEvent = event as React.WheelEvent<HTMLCanvasElement>;
-          const { zoom, setZoom } = context.store.view.getState()
           const settings = context.store.settings.getState()
+          const { zoom, setZoom, width, height, setViewpoint } = context.store.view.getState();
           const scrollDelta = wheelEvent.deltaY;
           const zoomFactor = Math.pow(2, -scrollDelta * ZOOM_SCROLL_FACTOR); // Smaller factor for smoother zoom
+          const mouseX = wheelEvent.clientX;
+          const mouseY = wheelEvent.clientY;
+          const viewpointBefore = context.store.view.getState().viewpoint!;
           const z = zoom * zoomFactor;
           const finalZoom =
             Math.ceil(z) - z < TOLERANCE ? Math.ceil(z) : z;
 
-          // Clamp zoom within bounds
-          if (finalZoom >= 0 && finalZoom < settings.view.MAX_ZOOM + 0.99) {
+            if(!(finalZoom >= 0 && finalZoom < settings.view.MAX_ZOOM + 0.99)) return false;
+    
+            // Calculate lat/lon under the mouse before zoom
+            const latLonBefore = getWGS84LocateByPixel({ x: mouseX, y: mouseY }, viewpointBefore, zoom, width!, height!);
+      
+            // Simulate new viewpoint with updated zoom but same center
+            const simulatedViewpoint = {
+              ...viewpointBefore,
+              zoom: finalZoom,
+            };
+      
+            // Calculate lat/lon under the mouse after zooming
+            const latLonAfter = getWGS84LocateByPixel({ x: mouseX, y: mouseY }, simulatedViewpoint, finalZoom, width!, height!);
+      
+            // Calculate delta in lat/lon between before and after
+            const deltaLat = latLonBefore.lat - latLonAfter.lat;
+            const deltaLon = latLonBefore.lon - latLonAfter.lon;
+      
+            // New viewpoint that shifts center to keep the mouse target stable
+            const newViewpoint = {
+              lat: viewpointBefore.lat + deltaLat,
+              lon: viewpointBefore.lon + deltaLon,
+              zoom: finalZoom,
+            };
+      
+            // Apply
             setZoom(finalZoom);
-          }
-
-          return true
+            setViewpoint(newViewpoint);
+            return true;
         }
         return false;
       }

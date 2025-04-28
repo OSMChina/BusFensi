@@ -14,30 +14,32 @@ import DisplayDrawingLine from "../../../components/pixi/DrawingLine"
 
 type PointWarpProps = Pick<React.ComponentProps<typeof Point>, "mapViewStatus" | "layerRef"> & {
     node: Node,
-    stateMachine: BaseStateMachine
+    stateMachine: BaseStateMachine,
+    modalOpen?: boolean
 }
 
-function PointWrap({ node, stateMachine, ...props }: PointWarpProps) {
+function PointWrap({ node, stateMachine, modalOpen, ...props }: PointWarpProps) {
     const status = node["@_localStates"], id = node["@_id"]
     return <Point
         {...props}
         node={node}
         status={status!}
         eventMode="static"
-        mousedown={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
-        mouseup={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
-        pointerover={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
-        pointerout={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
+        mousedown={(event) =>!modalOpen&& stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
+        mouseup={(event) => !modalOpen&& stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
+        pointerover={(event) =>!modalOpen&&  stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
+        pointerout={(event) => !modalOpen&& stateMachine.transform({ ...event, componentTarget: { id, type: "node" } } as PointerWithOSMEvent)}
     />
 }
 
 type LineWarpProps = Pick<React.ComponentProps<typeof Line>, "mapViewStatus" | "layerRef"> & {
     way: Way,
     node: NodesObj,
-    stateMachine: BaseStateMachine
+    stateMachine: BaseStateMachine,
+    modalOpen?: boolean
 }
 
-function LineWarp({ way, node, stateMachine, ...props }: LineWarpProps) {
+function LineWarp({ way, node, stateMachine, modalOpen, ...props }: LineWarpProps) {
     const status = way["@_localStates"], id = way["@_id"];
     const nodePath = useMemo(() => way.nd.map(nd => node[nd["@_ref"]]), [node, way.nd])
     return <Line
@@ -46,17 +48,18 @@ function LineWarp({ way, node, stateMachine, ...props }: LineWarpProps) {
         nodePath={nodePath}
         status={status!}
         eventMode="static"
-        pointerover={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
-        pointerout={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
-        mousedown={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
-        mouseup={(event) => stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
+        pointerover={(event) => !modalOpen && stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
+        pointerout={(event) =>!modalOpen && stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
+        mousedown={(event) => !modalOpen && stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
+        mouseup={(event) =>!modalOpen && stateMachine.transform({ ...event, componentTarget: { id, type: "way" } } as PointerWithOSMEvent)}
     />
 }
 
-function EditableLayer({ width, height, stateMachine }: {
+function EditableLayer({ width, height, stateMachine, modalOpen }: {
     width: number,
     height: number,
-    stateMachine: BaseStateMachine
+    stateMachine: BaseStateMachine,
+    modalOpen?: boolean
 }) {
     const mapview = useMapViewStore()
     const {viewpoint, zoom, selectionRect} = mapview;
@@ -75,6 +78,7 @@ function EditableLayer({ width, height, stateMachine }: {
                 stateMachine={stateMachine}
                 mapViewStatus={{ width, height, viewpoint, zoom }}
                 layerRef={containerRef}
+                modalOpen={modalOpen}
             />}
             pointRenderer={n => <PointWrap
                 node={n}
@@ -82,6 +86,7 @@ function EditableLayer({ width, height, stateMachine }: {
                 stateMachine={stateMachine}
                 mapViewStatus={{ width, height, viewpoint, zoom }}
                 layerRef={containerRef}
+                modalOpen={modalOpen}
             />}
         />
         <SelectionRect selectionRect={selectionRect} />

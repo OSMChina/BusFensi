@@ -98,7 +98,7 @@ const CreateOrSelectRoute = () => {
   }
 
   return <div className="bg-base-100 max-w-xl h-full mx-auto">
-    <div className="card-body">
+    <div className="card-body h-full overflow-y-auto">
       <h2 className="card-title text-lg mb-4">Create or Select Route</h2>
       <button
         className="btn btn-primary w-full mb-6"
@@ -121,7 +121,7 @@ const CreateOrSelectRoute = () => {
             <span>No routes available</span>
           </div>
         ) : (
-          <div className="h-full overflow-y-auto">
+          <div className="space-y-4">
             {Object.values(relations).filter(r => isRoute(r.tag)).map(relation => {
               const routeName = getName(relation.tag) || "[no name]";
               return (<div key={relation["@_id"]} className="flex items-center px-4 py-2 gap-2 text-sm bg-white rounded hover:bg-base-300">
