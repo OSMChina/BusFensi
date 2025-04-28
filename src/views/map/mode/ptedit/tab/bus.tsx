@@ -11,17 +11,21 @@ import { BaseStateMachine } from "../../../stateMachine/state";
 import { RightClickMenuProps } from "../../../../../type/view/map";
 import { getLocationByPixel } from "../../../../../store/mapview/seletor";
 import { useShallow } from "zustand/shallow";
-import { createConfirmation } from "react-confirm";
-import CreateFeatureTagConfirm from "../../../../../components/modal/CreateFeatureTagConfirmHook";
+import { useConfirmWithOverlay } from "../../../../../components/modal/CreateFeatureTagConfirmHook";
 import { busStopPresetCN, stopAreaPresetCN, stopPositionPresetCN } from "../../../../../utils/osm/presets/bus";
 import { RightClickMenu } from "../../../components/RightCLickMenu";
 
 // Right-click menu for the map (bus stop)
-const MemoRightClickOnMap = memo(function (props: RightClickMenuProps & { onClose: () => void }) {
+const MemoRightClickOnMap = memo(function (props: RightClickMenuProps & { onClose: () => void; setModalOpen: (val: boolean) => void }) {
     const newBusLocation = useMapViewStore(useShallow(getLocationByPixel(props)));
     const createBusStop = useOSMMapStore(state => state.createBusStopSel);
     const createStopArea = useOSMMapStore(state => state.createStopAreaSel);
-    const confirmModal = createConfirmation(CreateFeatureTagConfirm);
+    const [confirmModal, isModalOpen] = useConfirmWithOverlay();
+
+    useEffect(() => {
+        props.setModalOpen(isModalOpen);
+    }, [isModalOpen]);
+
 
     const onClick = async () => {
         props.onClose();
@@ -53,11 +57,15 @@ const MemoRightClickOnMap = memo(function (props: RightClickMenuProps & { onClos
 });
 
 // Right-click menu for features (stop positions)
-const MemoRightClickOnFeature = memo(function (props: RightClickMenuProps & { onClose: () => void }) {
+const MemoRightClickOnFeature = memo(function (props: RightClickMenuProps & { onClose: () => void;setModalOpen: (val: boolean) => void }) {
     const location = useMapViewStore(useShallow(getLocationByPixel(props)));
     const createStopPosition = useOSMMapStore(state => state.createStopPositionSel);
     const modifyFeature = useOSMMapStore(state => state.modifyFeatureMetaNC);
-    const confirmModal = createConfirmation(CreateFeatureTagConfirm);
+    const [confirmModal, isModalOpen] = useConfirmWithOverlay();
+
+    useEffect(() => {
+        props.setModalOpen(isModalOpen);
+    }, [isModalOpen]);
 
     const createPoint = async () => {
         props.onClose();
@@ -107,6 +115,8 @@ const BusEditTab = ({ width, height }: BusEditTabProps) => {
     // State for managing right-click menus
     const [newBusMenu, setNewBusMenu] = useState<RightClickMenuProps>({ x: 0, y: 0, open: false });
     const [newStopPositionMenu, setStopPositionMenu] = useState<RightClickMenuProps>({ x: 0, y: 0, open: false });
+    const [modalOpen, setModalOpen] = useState(false);
+
 
     // Create the state machine with callbacks to control menus
     const stateMachine = useRef(
@@ -134,11 +144,11 @@ const BusEditTab = ({ width, height }: BusEditTabProps) => {
                 onWheel={(event) => stateMachine.transform(event)}
             >
                 <BackgroundLayer width={width} height={height} />
-                <EditableLayer width={width} height={height} stateMachine={stateMachine as BaseStateMachine} />
+                <EditableLayer width={width} height={height} stateMachine={stateMachine as BaseStateMachine} modalOpen={modalOpen} />
             </PIXIStage>
             <InfoLayer width={width} />
-            <MemoRightClickOnMap {...newBusMenu} onClose={() => setNewBusMenu({ x: 0, y: 0, open: false })} />
-            <MemoRightClickOnFeature {...newStopPositionMenu} onClose={() => setStopPositionMenu({ x: 0, y: 0, open: false })} />
+            <MemoRightClickOnMap {...newBusMenu} onClose={() => setNewBusMenu({ x: 0, y: 0, open: false })} setModalOpen={setModalOpen} />
+            <MemoRightClickOnFeature {...newStopPositionMenu} onClose={() => setStopPositionMenu({ x: 0, y: 0, open: false })} setModalOpen={setModalOpen} />
         </div>
     );
 }

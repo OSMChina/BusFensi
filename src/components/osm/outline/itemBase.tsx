@@ -20,6 +20,8 @@ interface ItemBaseProps {
     deleted?: boolean;
     modified?: boolean;
     children?: ReactNode;
+    handleSelection?: (meta: { type: FeatureTypes, id: number }) => void
+    isSelected?: boolean
 }
 
 export function ItemBaseDisplay({
@@ -87,7 +89,9 @@ export function ItemBaseDisplay({
 }
 
 export default function ItemBase(props: ItemBaseProps) {
-    return <li> <span className="flex select-text justify-between items-center rounded">
+    return <li> <span className={`flex select-text justify-between items-center rounded ${props.isSelected ? "bg-gray-800 text-white hover:bg-gray-600" : ""}`} onClick={() => {
+        props.handleSelection && props?.handleSelection({ type: props.featuretype, id: Number(props.id) })
+    }}>
         <ItemBaseDisplay {...props} />
     </span></li>
 }
