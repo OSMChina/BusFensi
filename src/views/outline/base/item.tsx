@@ -18,9 +18,9 @@ import { ReactNode, useCallback, useMemo } from "react";
 import { getRelationType } from "../../../utils/osm/relationType";
 import { faClockRotateLeft } from "@fortawesome/free-solid-svg-icons/faClockRotateLeft";
 
-export function FeatureItem<T extends FeatureTypes>({ type, meta, showMetaType, isDeleted, children }: {
+export function FeatureItem<T extends FeatureTypes>({ type, meta, showMetaType, isDeleted, children, handleSelection, isSelected }: {
     type: T, meta: FeatureTypeMap[T], showMetaType?: true, isDeleted?: boolean
-    children?: (props: { type: T, meta: FeatureTypeMap[T] }) => ReactNode
+    children?: (props: { type: T, meta: FeatureTypeMap[T] }) => ReactNode, handleSelection ?:(meta:{type:FeatureTypes,id:number})=>void, isSelected?:boolean
 }) {
     const id = meta["@_id"];
     const [selectFeature, unselectFeature, deleteFeature, restoreDeletedFeature] = useOSMMapStore(useShallow(state => [
@@ -82,6 +82,8 @@ export function FeatureItem<T extends FeatureTypes>({ type, meta, showMetaType, 
             created={Number(meta["@_id"]) < 0}
             deleted={isDeleted}
             modified={meta["@_action"] === "modify"}
+            handleSelection={handleSelection}
+            isSelected={isSelected}
         >
             {!isDeleted && (
                 <>
