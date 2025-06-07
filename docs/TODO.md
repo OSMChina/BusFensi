@@ -393,7 +393,7 @@ These features are planned to be introduced, but the design for their integratio
 - [ ] Auto completion: Automatically suggest possible values for keys in Input.  
       在 Input 中自动补全可能的 key 的 value 的值。
 - [ ] URL settings: allow override default settings by URL params, same like iD editor.
-- [ ] Zoom to pointer position: zoom behavier like iD editor instead of zoom to middle of map.
+- [X] Zoom to pointer position: zoom behavier like iD editor instead of zoom to middle of map.
 - [ ] (massive work)Refactor the implementation of the StateMachine to store the current state in Zustand as well. Perform state transitions based on the state stored in Zustand, making it easier to restore the state. This may require modifying the implementation of related components.  
       (大量工作)重构 StateMachine 的实现，将当前的 state 也存进 zustand, 根据 zustand 中存储的状态进行状态的运算，方便恢复状态。可能需要修改相关组件的实现。
 
