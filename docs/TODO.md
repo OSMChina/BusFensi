@@ -58,6 +58,10 @@ For authentication, abstract a new API. Then implememt upload logic.
 
 The implememtion details are being designed.
 
+目前的开发计划：将从 6 月 25 号之后开始设计实现细节并开发。
+
+Current development plan: Design and development of implementation details will begin after June 25th.
+
 ## Other Improvements / 其他优化
 
 These features are planned to be introduced, but the design for their integration is not finalized yet.  
