@@ -58,9 +58,21 @@ For authentication, abstract a new API. Then implememt upload logic.
 
 The implememtion details are being designed.
 
-目前的开发计划：将从 6 月 25 号之后开始设计实现细节并开发。
+<s>目前的开发计划：将从 6 月 25 号之后开始设计实现细节并开发。</s>
 
-Current development plan: Design and development of implementation details will begin after June 25th.
+<s>Current development plan: Design and development of implementation details will begin after June 25th.</s>
+
+### 接入 OSRM
+
+- [ ] 使用 OSRM 的导航将公交站点关系变成路径
+- [ ] 在 route 编辑的工作流中加入自动站点生成
+- [ ] 重新设计工作流，隐藏可能会影响地图路径的功能。并在修改路径后禁用 OSRM 自动生成
+
+### 接入 OAuth
+
+- [ ] 通过登陆和鉴权
+- [ ] 校验上传数据和 change set 的逻辑
+- [ ] 完成一次上传
 
 ## Other Improvements / 其他优化
 
